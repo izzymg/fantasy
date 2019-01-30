@@ -8,6 +8,8 @@ const path = require("path");
 const http = require("http");
 const https = require("https");
 
+const logger = require("./libs/logger");
+
 const server = new Koa();
 
 // Serve templates to view engine
@@ -24,8 +26,21 @@ koaEjs(server, {
 // Server static files (JS/CSS/Media)
 server.use(koaStatic(path.join(__dirname, "static/dist")));
 
-server.use(async ctx => {
-    await ctx.render("home", {text: "h"});
+server.use(async (ctx, next) => {
+    try {
+        await next();
+    } catch(error) {
+        ctx.status = error.status || 500;
+        ctx.body = error.message || "Internal server error";
+        if(ctx.status == 500) {
+            ctx.app.emit("error", error, ctx);
+        }
+    }
+});
+
+server.on("error", error => {
+    if(serverConfig.consoleErrors) { console.error(`ZThree: ${error}`); }
+    logger.logOut(error, serverConfig.log);
 });
 
 http.createServer(server.callback()).listen(serverConfig.port, serverConfig.host, () => {
