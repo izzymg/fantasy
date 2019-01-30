@@ -9,13 +9,15 @@ Node v8+ is required due to usage of ES6
 
 Run `npm install` once you've installed NodeJS and npm to automatically pull in these deps
 
-* Koa
+* koa
+* koa-ejs
+* koa-router
 
 #### Development
 
 Developed in VS Code and tested with MariaDB, Firefox & Chrome
 
-ESLint included - Semicolons, unix style/LF line endings, spaces.
+ESLint included - Semicolons, unix style/LF line endings, double quotes, spaces.
 
 `npm run lint` 
 
