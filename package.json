@@ -4,12 +4,15 @@
   "description": "Imageboard/BBS software",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint **/*.js",
     "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "koa": "^2.7.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.1"
   }
 }
