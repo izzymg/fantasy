@@ -10,13 +10,15 @@ const https = require("https");
 
 const logger = require("./libs/logger");
 
+const mainRouter = require("./routes/main.router");
+
 const server = new Koa();
 
 // Serve templates to view engine
 koaEjs(server, {
     root: path.join(__dirname, "templates"),
     viewExt: "html",
-    layout: false,
+    layout: "layout",
     // Cache if production, debug if development
     cache: (process.env.NODE_ENV === "production"),
     debug: (process.env.NODE_ENV === "development"),
@@ -29,24 +31,28 @@ server.use(koaStatic(path.join(__dirname, "static/dist")));
 server.use(async (ctx, next) => {
     try {
         await next();
-    } catch(error) {
+    } catch (error) {
         ctx.status = error.status || 500;
-        ctx.body = error.message || "Internal server error";
-        if(ctx.status == 500) {
+        if (ctx.status == 500) {
+            ctx.body = "Internal server error";
             ctx.app.emit("error", error, ctx);
+        } else {
+            ctx.body = error.message;
         }
     }
 });
 
+server.use(mainRouter.routes());
+
 server.on("error", error => {
-    if(serverConfig.consoleErrors) { console.error(`ZThree: ${error}`); }
+    if (serverConfig.consoleErrors) { console.error(`ZThree: ${error}`); }
     logger.logOut(error, serverConfig.log);
 });
 
 http.createServer(server.callback()).listen(serverConfig.port, serverConfig.host, () => {
     console.log(`HTTP Listening ${serverConfig.host}:${serverConfig.port}`);
 });
-if(serverConfig.https) {
+if (serverConfig.https) {
     https.createServer(server.callback()).listen(serverConfig.httpsPort, serverConfig.host, () => {
         console.log(`HTTPS Listening ${serverConfig.host}:${serverConfig.httpsPort}`);
     });

@@ -12,6 +12,7 @@ Run `npm install` once you've installed NodeJS and npm to automatically pull in 
 * koa
 * koa-ejs
 * koa-router
+* koa-static
 
 #### Development
 
