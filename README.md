@@ -1,7 +1,9 @@
 # ZThree
 ##### In need of rename
 
-Imageboard/BBS written in NodeJS
+Imageboard/BBS written in NodeJS with Koa and Sequelize
+
+Not currently safe for production
 
 #### Dependencies:
 
@@ -24,8 +26,18 @@ ESLint included - Semicolons, unix style/LF line endings, double quotes, spaces.
 
 #### Getting started
 
-You must go to the ./config directory and change remove the .default from all filenames, or the server will crash on startup.
+You must go to the ./config directory and change remove the .default from all filenames.
 
-Read through the configurations, many options may be unsafe for production. They are written in JS so comments and explanations are there.
+All configuration files are simple Javascript files that set module.exports to an object containing config options.
+
+All configuration files are commented with explanations on each value.
+
+Read through the configurations, many options may be unsafe for production.
+
+In your MySQL/Postgres instance, run `create database zthree`
+
+Then in your terminal run `mysql -u [username] -p zthree < ./database/setup.sql`
+
+This will create the tables needed. It does not override existing tables.
 
 `npm start` or node ./server.js

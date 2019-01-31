@@ -1,4 +1,7 @@
 node_modules/
-config/*[!default].js
+config/database.js
+config/secrets.js
+config/server.js
+config/templates.js
 .vscode/
 static/dist

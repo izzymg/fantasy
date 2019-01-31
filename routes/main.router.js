@@ -2,6 +2,8 @@ const Router = require("koa-router");
 const router = new Router();
 const templatesConfig = require("../config/templates");
 
+const Boards = require("../models/boards.model");
+
 // Render home
 router.get("/", async (ctx) => {
     try {
