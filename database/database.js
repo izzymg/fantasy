@@ -20,10 +20,12 @@ var settings = {
 console.log(`Starting SQL connection on ${settings.host}:${settings.port}`);
 
 if(databaseConfig.debugMetrics) {
-    console.log("Enabling db debugging/metrics.");
-    settings.logging = function(log, ...rest) {
-        console.log(log, {...rest}, "\ntodo");
+    console.warn("Enabling db debugging/metrics.");
+    settings.logging = function(log) {
+        console.log(`ZThree debugging: ${log}`);
     };
+} else {
+    settings.logging = false;
 }
 
 const db = new Sequelize(settings);

@@ -36,8 +36,4 @@ Read through the configurations, many options may be unsafe for production.
 
 In your MySQL/Postgres instance, run `create database zthree`
 
-Then in your terminal run `mysql -u [username] -p zthree < ./database/setup.sql`
-
-This will create the tables needed. It does not override existing tables.
-
 `npm start` or node ./server.js
