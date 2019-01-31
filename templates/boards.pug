@@ -1,0 +1,13 @@
+extends layout.pug
+block content
+    h1 Boards
+    if boards
+        ul.boards
+        for board in boards
+            li.board
+                a(href="/boards/" + board.url) /#{board.url}/ - #{board.title}
+                h4 #{board.desc}
+                if board.sfw
+                    span This is a safe-for-work board
+                else
+                    span 18+ This is a not safe for work board

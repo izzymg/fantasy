@@ -1,6 +1,5 @@
 const Koa = require("koa");
 const koaStatic = require("koa-static");
-const koaEjs = require("koa-ejs");
 const serverConfig = require("./config/server");
 
 const path = require("path");
@@ -9,21 +8,14 @@ const http = require("http");
 const https = require("https");
 
 const logger = require("./libs/logger");
-
 const mainRouter = require("./routes/main.router");
 
 const server = new Koa();
 
-// Serve templates to view engine
-koaEjs(server, {
-    root: path.join(__dirname, "templates"),
-    viewExt: "html",
-    layout: "layout",
-    // Cache if production, debug if development
-    cache: (process.env.NODE_ENV === "production"),
-    debug: (process.env.NODE_ENV === "development"),
-    async: true
-});
+const views = require("koa-views");
+
+// Views
+server.use(views(path.join(__dirname, "templates"), { extension: "pug" }));
 
 // Server static files (JS/CSS/Media)
 server.use(koaStatic(path.join(__dirname, "static/dist")));

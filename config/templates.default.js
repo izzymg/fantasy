@@ -7,6 +7,7 @@ module.exports = {
         boards: `${prefix}Boards`,
         rules: `${prefix}Rules`,
         thread: `${prefix}`,
-        catalog: `${prefix}Catalog`
+        catalog: `${prefix}Catalog`,
+        notfound: `${prefix}404`
     }
 };

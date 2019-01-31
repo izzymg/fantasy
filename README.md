@@ -12,7 +12,11 @@ Node v8+ is required due to usage of ES6
 Run `npm install` once you've installed NodeJS and npm to automatically pull in these deps
 
 * koa
-* koa-ejs
+* koa-views
+* pug
+* sequelize
+* mysql2
+* pg
 * koa-router
 * koa-static
 
