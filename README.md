@@ -1,7 +1,7 @@
 # ZThree
 ##### In need of rename
 
-Imageboard/BBS written in NodeJS with Koa and Sequelize
+Imageboard/BBS written in NodeJS with Koa and MySQLJS/MySQL
 
 Not currently safe for production
 
@@ -13,12 +13,10 @@ Run `npm install` once you've installed NodeJS and npm to automatically pull in 
 
 * koa
 * koa-views
-* pug
-* sequelize
-* mysql2
-* pg
 * koa-router
 * koa-static
+* pug
+* mysql
 
 #### Development
 
@@ -39,5 +37,7 @@ All configuration files are commented with explanations on each value.
 Read through the configurations, many options may be unsafe for production.
 
 In your MySQL/Postgres instance, run `create database zthree`
+
+Then in your terminal `mysql -u [username] -p zthree < setup.sql` to create the tables (non-destructive)
 
 `npm start` or node ./server.js
