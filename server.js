@@ -14,6 +14,9 @@ const server = new Koa();
 
 const views = require("koa-views");
 
+const db = require("./database/database");
+db.open();
+
 // Views
 server.use(views(path.join(__dirname, "templates"), { extension: "pug" }));
 
@@ -52,6 +55,7 @@ if (serverConfig.https) {
 
 function exit(sig) {
     console.log(`Received ${sig}, exiting`);
+    db.close();
 }
 
 process.on("SIGINT", exit);
