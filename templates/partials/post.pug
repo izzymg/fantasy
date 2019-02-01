@@ -1,0 +1,11 @@
+mixin post(post)
+    .post
+        .postInfo
+            a(name=post.id href="#" + post.id)
+                span.id #{post.id}
+            span.name #{post.name}
+            if post.subject
+                span.subject #{post.subject}
+            span.date #{new Date(post.date).toLocaleString()}
+        .content
+            p #{post.content}

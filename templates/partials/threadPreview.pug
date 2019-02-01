@@ -3,5 +3,5 @@ mixin threadPreview(post)
         a(href="threads/" + post.id)
             img(src="/images/" + post.img || "0").thumbnail
             if post.subject
-                .subject #{post.subject}
-        .content #{post.content}
+                .subject !{post.subject}
+        .content !{post.content}

@@ -1,0 +1,14 @@
+extends layout.pug
+include partials/boardInfo.pug
+include partials/post.pug
+block content
+    h1 /#{board.url}/ - #{board.title}
+    h3 !{thread.op.subject}
+    +boardInfo
+    .thread
+        #op
+            +post(thread.op)
+        .replies        
+            for reply in thread.replies
+                +post(reply)
+                    p #{reply.id}

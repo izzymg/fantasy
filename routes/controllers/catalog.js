@@ -7,9 +7,14 @@ exports.render = async (ctx, next) => {
         if (!board) {
             return await next();
         }
-        const threads = await db.fetchAll(`SELECT id, name, subject, content, date, lastBump FROM posts_${board.url} ORDER BY lastBump ASC`);
-        await ctx.render("catalog", { title: `${templatesConfig.titles.catalog} /${board.url}/ - ${board.title}`, board, threads });
+        const threads = await db.fetchAll(
+            `SELECT id, name, subject, content, date, lastBump
+            FROM posts_${board.url}
+            WHERE parent = 0
+            ORDER BY lastBump ASC`
+        );
+        return await ctx.render("catalog", { title: `${templatesConfig.titles.catalog} /${board.url}/ - ${board.title}`, board, threads });
     } catch (error) {
-        ctx.throw(500, error);
+        return ctx.throw(500, error);
     }
 };
