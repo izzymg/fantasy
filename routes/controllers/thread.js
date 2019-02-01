@@ -10,7 +10,7 @@ exports.render = async (ctx, next) => {
             db.fetch(
                 `SELECT id, name, subject, content, date, parent, lastBump
                 FROM posts_${board.url}
-                WHERE id = ?`, ctx.params.thread
+                WHERE id = ? AND parent = 0`, ctx.params.thread
             ),
             db.fetchAll(
                 `SELECT id, name, subject, content, date, parent, lastBump
