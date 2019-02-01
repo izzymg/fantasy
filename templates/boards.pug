@@ -5,7 +5,7 @@ block content
         ul.boards
         for board in boards
             li.board
-                a(href="/boards/" + board.url) /#{board.url}/ - #{board.title}
+                a(href="/boards/" + board.url + "/") /#{board.url}/ - #{board.title}
                 h4 #{board.desc}
                 if board.sfw
                     span This is a safe-for-work board

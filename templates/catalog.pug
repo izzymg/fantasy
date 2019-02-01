@@ -1,4 +1,18 @@
 extends layout.pug
+include partials/threadPreview.pug
 block content
+    h1 /#{board.url}/ - #{board.title}
+    h3 #{board.about}
+    hr
     .board-info
+        if board.sfw
+            span SFW Board
+        else
+            span 18+ NSFW Board
+    hr
     .threads
+        if threads
+            for thread in threads
+                +threadPreview(thread)
+        else
+            h3 No threads yet
