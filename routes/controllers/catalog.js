@@ -1,4 +1,3 @@
-const templatesConfig = require("../../config/templates");
 const db = require("../../database/database");
 
 exports.render = async (ctx, next) => {
@@ -13,7 +12,7 @@ exports.render = async (ctx, next) => {
             WHERE parent = 0
             ORDER BY lastBump ASC`
         );
-        return await ctx.render("catalog", { title: `${templatesConfig.titles.catalog} /${board.url}/ - ${board.title}`, board, threads });
+        return await ctx.render("catalog", { board, threads });
     } catch (error) {
         return ctx.throw(500, error);
     }

@@ -1,30 +1,28 @@
 const Koa = require("koa");
 const koaStatic = require("koa-static");
+const koaViews = require("koa-views");
+const mainRouter = require("./routes/main.router");
 const serverConfig = require("./config/server");
 
 const path = require("path");
-
 const http = require("http");
 const https = require("https");
-
 const logger = require("./libs/logger");
-const mainRouter = require("./routes/main.router");
-
-const server = new Koa();
-
-const views = require("koa-views");
 
 const db = require("./database/database");
+const server = new Koa();
 
 db.open();
 
 // Views
-server.use(views(path.join(__dirname, "templates"), { extension: "pug" }));
+server.use(koaViews(path.join(__dirname, "templates"), { extension: "pug" }));
 
 // Server static files (JS/CSS/Media)
 server.use(koaStatic(path.join(__dirname, "static/dist")));
 
+// Securely handle and log 500 errors
 server.use(async (ctx, next) => {
+    ctx.state.webname = serverConfig.webname;
     try {
         await next();
     } catch (error) {
@@ -38,14 +36,15 @@ server.use(async (ctx, next) => {
     }
 });
 
-server.use(mainRouter.routes());
-
 server.on("error", error => {
     if (serverConfig.consoleErrors) { console.error(`ZThree: ${error}`); }
     logger.logOut(error, serverConfig.log);
 });
 
+// Routes setup
+server.use(mainRouter.routes());
 
+// Create server
 http.createServer(server.callback()).listen(serverConfig.port, serverConfig.host, () => {
     console.log(`HTTP Listening ${serverConfig.host}:${serverConfig.port}`);
 });

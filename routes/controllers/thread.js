@@ -1,4 +1,3 @@
-const templatesConfig = require("../../config/templates");
 const db = require("../../database/database");
 
 exports.render = async (ctx, next) => {
@@ -22,7 +21,7 @@ exports.render = async (ctx, next) => {
         if (!op) {
             return await next();
         }
-        return await ctx.render("thread", { title: `${templatesConfig.titles.thread} ${op.subject} /${board.url}/ - ${board.title}`, board, thread: { op, replies } });
+        return await ctx.render("thread", { board, thread: { op, replies } });
     } catch (error) {
         return ctx.throw(500, error);
     }

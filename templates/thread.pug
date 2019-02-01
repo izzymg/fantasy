@@ -1,6 +1,8 @@
 extends layout.pug
 include partials/boardInfo.pug
 include partials/post.pug
+block head
+    title /#{board.url}/ - #{thread.op.subject || ""} - #{webname}
 block content
     h1 /#{board.url}/ - #{board.title}
     h3 !{thread.op.subject}
