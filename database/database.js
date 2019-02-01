@@ -1,7 +1,6 @@
 const mysql = require("mysql");
 const secretsConfig = require("../config/secrets");
 const databaseConfig = require("../config/database");
-const setup = require("./setup");
 var db;
 
 var settings = {
@@ -14,16 +13,16 @@ var settings = {
     connectionLimit: databaseConfig.maxConnections
 };
 
-if(databaseConfig.debugMetrics) {
+if (databaseConfig.debugMetrics) {
     console.warn("Enabling db debugging/metrics.");
     settings.debug = ["ComQueryPacket"];
 }
 
-const query = function(sql, values = []) {
-    if(!db) throw "No database connection, did you call open()?";
+const query = function (sql, values = []) {
+    if (!db) throw "No database connection, did you call open()?";
     return new Promise((resolve, reject) => {
         db.query({ sql }, values, (error, results) => {
-            if(error) {
+            if (error) {
                 reject(error);
             }
             resolve(results);
@@ -31,40 +30,37 @@ const query = function(sql, values = []) {
     });
 };
 module.exports = {
-    open: function() {
+    open: function () {
         console.log(`Starting SQL connection on ${settings.host}:${settings.port}`);
         try {
             db = mysql.createPool(settings);
-            setup(db).then(() => {
-                console.log("Tables setup");
-            });
-        } catch(error) {
+        } catch (error) {
             console.error("ZThree ERROR: Error creating connection to database", error);
         }
     },
-    close: function() {
-        if(!db) throw "No db connection but called close()";
+    close: function () {
+        if (!db) throw "No db connection but called close()";
         return new Promise((resolve, reject) => {
             console.log("Closing database connection");
             db.end((error) => {
-                if(error) {
+                if (error) {
                     reject(error);
                 }
                 resolve();
             });
         });
     },
-    fetch: async function(sql, values) {
+    fetch: async function (sql, values) {
         const res = await query(sql, values);
-        if(res.length < 1) { return null; }
-        return {...res[0]};
+        if (res.length < 1) { return null; }
+        return { ...res[0] };
     },
-    fetchAll: async function(sql, values) {
+    fetchAll: async function (sql, values) {
         const res = await query(sql, values);
         return [...res];
     },
-    query: async function(sql, values) {
+    query: async function (sql, values) {
         const res = await query(sql, values);
-        return {affected: res.affectedRows || 0, inserted: res.insertId || null, changed: res.changedRows || 0};
+        return { affected: res.affectedRows || 0, inserted: res.insertId || null, changed: res.changedRows || 0 };
     }
 };

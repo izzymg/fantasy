@@ -3,5 +3,6 @@ config/database.js
 config/secrets.js
 config/server.js
 config/templates.js
+config/posts.js
 .vscode/
 static/dist

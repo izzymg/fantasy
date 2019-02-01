@@ -15,6 +15,7 @@ const server = new Koa();
 const views = require("koa-views");
 
 const db = require("./database/database");
+
 db.open();
 
 // Views
@@ -44,6 +45,7 @@ server.on("error", error => {
     logger.logOut(error, serverConfig.log);
 });
 
+
 http.createServer(server.callback()).listen(serverConfig.port, serverConfig.host, () => {
     console.log(`HTTP Listening ${serverConfig.host}:${serverConfig.port}`);
 });
@@ -53,10 +55,10 @@ if (serverConfig.https) {
     });
 }
 
-function exit(sig) {
+function onExit(sig) {
     console.log(`Received ${sig}, exiting`);
     db.close();
 }
 
-process.on("SIGINT", exit);
-process.on("SIGTERM", exit);
+process.on("SIGINT", onExit);
+process.on("SIGTERM", onExit);

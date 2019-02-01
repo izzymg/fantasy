@@ -38,6 +38,6 @@ Read through the configurations, many options may be unsafe for production.
 
 In your MySQL/Postgres instance, run `create database zthree`
 
-Then in your terminal `mysql -u [username] -p zthree < setup.sql` to create the tables (non-destructive)
+Once you've configured `secrets.js`, run `node ./setup.js` to create the tables required.
 
-`npm start` or node ./server.js
+`npm start` or `node ./server.js`
