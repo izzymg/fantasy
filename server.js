@@ -15,7 +15,7 @@ const server = new Koa();
 db.open();
 
 // Views
-server.use(koaViews(path.join(__dirname, "templates"), { extension: "pug" }));
+server.use(koaViews(path.join(__dirname, "templates"), { extension: "pug", options: { cache: true } }));
 
 // Server static files (JS/CSS/Media)
 server.use(koaStatic(path.join(__dirname, "static/dist")));
