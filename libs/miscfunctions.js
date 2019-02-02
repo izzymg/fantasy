@@ -1,9 +1,21 @@
-// FS Promise wrappers
+const fs = require("fs");
+
 exports.unlink = function (path) {
     return new Promise((resolve, reject) => {
         fs.unlink(path, (error) => {
             if (error) {
                 reject(error)
+            }
+            resolve();
+        });
+    });
+}
+
+exports.rename = function (path, newPath) {
+    return new Promise((resolve, reject) => {
+        fs.rename(path, newPath, (error) => {
+            if (error) {
+                reject(error);
             }
             resolve();
         });

@@ -73,7 +73,7 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir) {
             });
 
             file.on("end", () => {
-                files.push({ tempPath, originalName, mime: mimetype, ext });
+                files.push({ id: fileId, tempPath, originalName, mimetype, extension: ext });
             });
 
             // Pipe file into temp dir stream
