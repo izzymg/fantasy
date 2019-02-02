@@ -27,19 +27,21 @@ exports.parseThread = async (ctx, next) => {
         const data = await multipart(ctx, postsConfig.maxFileSize, postsConfig.maxFiles, postsConfig.tmpDir);
         const post = {
             files: data.files,
-            name: data.fields.name,
-            subject: data.fields.subject,
-            content: data.fields.content,
-            parent: 0
+            post: {
+                name: data.fields.name,
+                subject: data.fields.subject,
+                content: data.fields.content,
+                parent: 0
+            }
         }
         let lengthErr;
-        lengthErr = fieldCheck(post.name, postsConfig.maxNameLength, "Name") || lengthErr;
-        lengthErr = fieldCheck(post.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
-        lengthErr = fieldCheck(post.content, postsConfig.maxContentLength, "Content") || lengthErr;
+        lengthErr = fieldCheck(post.post.name, postsConfig.maxNameLength, "Name") || lengthErr;
+        lengthErr = fieldCheck(post.post.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
+        lengthErr = fieldCheck(post.post.content, postsConfig.maxContentLength, "Content") || lengthErr;
         if (lengthErr) {
             return ctx.throw(400, lengthErr);
         }
-        ctx.state.post = post;
+        ctx.state.postData = post;
         return await next();
     } catch (error) {
         switch (error) {
@@ -58,7 +60,8 @@ exports.parseThread = async (ctx, next) => {
 };
 
 exports.validateThread = async (ctx, next) => {
-    const post = ctx.state.post;
+    const post = ctx.state.postData.post;
+    const files = ctx.state.postData.files;
     if (!post.name) {
         post.name = postsConfig.defaultName;
     }
@@ -74,7 +77,7 @@ exports.validateThread = async (ctx, next) => {
         }
         post.subject = "";
     }
-    if (!post.files || post.files.length < 1) {
+    if (!files || files.length < 1) {
         if (postsConfig.threads.requireFiles) {
             return ctx.throw(400, "File required to post");
         }

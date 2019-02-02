@@ -7,6 +7,10 @@ const catalog = require("./controllers/catalog");
 const thread = require("./controllers/thread");
 const notfound = require("./controllers/notfound");
 
+function setup() {
+    boards.genCache();
+}
+
 router.get("/", home.render);
 
 // Redirect to "folder" directories (trailing slash)
@@ -18,16 +22,11 @@ router.get("/boards/:board", async ctx => {
     await ctx.redirect(`/boards/${ctx.params.board}/`);
 });
 
-router.param(":board", async function (ctx, next) {
-    console.log("Match");
-    await next();
-});
-
 router.get("/boards/", boards.render);
-router.get("/boards/:board/", catalog.render);
+router.get("/boards/:board/", boards.checkBoard, catalog.render);
 
-router.post("/boards/:board", parseRequests.parseThread, parseRequests.validateThread, catalog.createThread);
-router.post("/boards/:board/", parseRequests.parseThread, parseRequests.validateThread, catalog.createThread);
+router.post("/boards/:board", boards.checkBoard, parseRequests.parseThread, parseRequests.validateThread, catalog.createThread);
+router.post("/boards/:board/", boards.checkBoard, parseRequests.parseThread, parseRequests.validateThread, catalog.createThread);
 
 router.get("/boards/:board/threads/:thread", thread.render);
 
@@ -35,4 +34,4 @@ router.get("/boards/:board/threads/:thread", thread.render);
 router.get("*", notfound.render);
 router.get("/404", notfound.render);
 
-module.exports = router;
+module.exports = { setup, routes: router.routes() };

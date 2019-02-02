@@ -19,6 +19,7 @@ if (databaseConfig.debugMetrics) {
 }
 
 const query = function (sql, values = []) {
+    console.log(db);
     if (!db) throw "No database connection, did you call open()?";
     return new Promise((resolve, reject) => {
         db.query({ sql }, values, (error, results) => {
@@ -30,13 +31,10 @@ const query = function (sql, values = []) {
     });
 };
 module.exports = {
-    open: function () {
-        console.log(`Starting SQL connection on ${settings.host}:${settings.port}`);
-        try {
-            db = mysql.createPool(settings);
-        } catch (error) {
-            console.error("ZThree ERROR: Error creating connection to database", error);
-        }
+    open: async function () {
+        db = mysql.createPool(settings);
+        console.log(db);
+        return { host: settings.host, port: settings.port };
     },
     close: function () {
         if (!db) throw "No db connection but called close()";
