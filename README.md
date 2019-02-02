@@ -15,6 +15,7 @@ Run `npm install` once you've installed NodeJS and npm to automatically pull in 
 * koa-views
 * koa-router
 * koa-static
+* busboy
 * pug
 * mysql
 

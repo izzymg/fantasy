@@ -5,7 +5,7 @@ const Busboy = require("busboy");
 const fs = require("fs");
 const uuid = require("uuid/v4");
 const path = require("path");
-const fsfunctions = require("../libs/fsfunctions");
+const miscfunctions = require("./miscfunctions");
 
 module.exports = function (ctx, maxFileSize, maxFiles, tmpDir) {
     return new Promise((resolve, reject) => {
@@ -26,7 +26,7 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir) {
         // Unwrite all written temp files
         async function cleanup() {
             for (const t of temps) {
-                fsfunctions.unlink(t);
+                miscfunctions.unlink(t);
             }
         }
 
@@ -43,7 +43,7 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir) {
                 reject(error);
             });
 
-            let mime;
+            let mimetype;
             let ext;
             let checked = false;
 
@@ -51,15 +51,15 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir) {
                 if (!checked) {
                     // Check mimetype from first 12 bytes
                     const byteRef = data.slice(0, 12);
-                    mime = libMime.getAcceptedMimetype(byteRef);
-                    if (!mime) {
+                    mimetype = libMime.getAcceptedMimetype(byteRef);
+                    if (!mimetype) {
                         cleanup().then(() => {
                             return reject("UNACCEPTED_MIMETYPE");
                         }).catch(error => {
                             return reject(error);
                         });
                     }
-                    ext = libMime.extensions[mime];
+                    ext = libMime.extensions[mimetype];
                     checked = true;
                 }
             });
@@ -73,7 +73,7 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir) {
             });
 
             file.on("end", () => {
-                files.push({ tempPath, originalName, mime, ext });
+                files.push({ tempPath, originalName, mime: mimetype, ext });
             });
 
             // Pipe file into temp dir stream

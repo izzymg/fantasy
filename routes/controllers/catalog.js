@@ -1,5 +1,4 @@
 const db = require("../../database/database");
-const parseJson = require("../parseRequests");
 
 exports.render = async (ctx, next) => {
     try {
@@ -19,5 +18,9 @@ exports.render = async (ctx, next) => {
     }
 };
 exports.createThread = async ctx => {
-    console.log({ threadPostBody: ctx.body });
+    const post = ctx.state.post;
+    if (!post) {
+        return ctx.throw(500, "No post object found on context state");
+    }
+
 };

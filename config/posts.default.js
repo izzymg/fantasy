@@ -12,5 +12,11 @@ module.exports = {
     // Temporary files will be written here
     // Use string path (e.g. "tempDir: /tmp/")
     // Ensure directory exists and has correct permissions before running
-    tmpDir: require("os").tmpdir
+    tmpDir: require("os").tmpdir,
+    defaultName: "Anonymous",
+    threads: {
+        requireSubject: true,
+        requireContent: false,
+        requireFiles: true
+    }
 };

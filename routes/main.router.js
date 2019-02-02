@@ -18,13 +18,19 @@ router.get("/boards/:board", async ctx => {
     await ctx.redirect(`/boards/${ctx.params.board}/`);
 });
 
+router.param(":board", async function (ctx, next) {
+    console.log("Match");
+    await next();
+});
+
 router.get("/boards/", boards.render);
 router.get("/boards/:board/", catalog.render);
 
-router.post("/boards/:board", parseRequests.parseThread, catalog.createThread);
-router.post("/boards/:board/", parseRequests.parseThread, catalog.createThread);
+router.post("/boards/:board", parseRequests.parseThread, parseRequests.validateThread, catalog.createThread);
+router.post("/boards/:board/", parseRequests.parseThread, parseRequests.validateThread, catalog.createThread);
 
 router.get("/boards/:board/threads/:thread", thread.render);
+
 
 router.get("*", notfound.render);
 router.get("/404", notfound.render);

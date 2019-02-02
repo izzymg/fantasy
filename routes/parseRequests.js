@@ -2,9 +2,23 @@
 
 const postsConfig = require("../config/posts");
 const multipart = require("../libs/multipart");
+const { standardText } = require("../libs/miscfunctions");
 
-const parseThread = async (ctx, next) => {
-    // Only accept multipart/form-data
+function fieldCheck(str, max, name) {
+    if (!str) {
+        return null;
+    }
+    if (!typeof str === "string") {
+        return `${name}: expected string.`;
+    }
+    if (str.length > max) {
+        return `${name} must be under ${max} characters.`;
+    }
+    return null;
+}
+
+exports.parseThread = async (ctx, next) => {
+
     if (!ctx.is("multipart/form-data")) {
         return ctx.throw(400, "Expected multipart/form-data");
     }
@@ -13,7 +27,20 @@ const parseThread = async (ctx, next) => {
         const data = await multipart(ctx, postsConfig.maxFileSize, postsConfig.maxFiles, postsConfig.tmpDir);
         const post = {
             files: data.files,
+            name: data.fields.name,
+            subject: data.fields.subject,
+            content: data.fields.content,
+            parent: 0
         }
+        let lengthErr;
+        lengthErr = fieldCheck(post.name, postsConfig.maxNameLength, "Name") || lengthErr;
+        lengthErr = fieldCheck(post.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
+        lengthErr = fieldCheck(post.content, postsConfig.maxContentLength, "Content") || lengthErr;
+        if (lengthErr) {
+            return ctx.throw(400, lengthErr);
+        }
+        ctx.state.post = post;
+        return await next();
     } catch (error) {
         switch (error) {
             case "UNACCEPTED_MIMETYPE":
@@ -30,6 +57,30 @@ const parseThread = async (ctx, next) => {
     }
 };
 
-module.exports = {
-    parseThread
+exports.validateThread = async (ctx, next) => {
+    const post = ctx.state.post;
+    if (!post.name) {
+        post.name = postsConfig.defaultName;
+    }
+    if (!post.content) {
+        if (postsConfig.threads.requireContent) {
+            return ctx.throw(400, "Post content required");
+        }
+        post.content = "";
+    }
+    if (!post.subject) {
+        if (postsConfig.threads.requireSubject) {
+            return ctx.throw(400, "Post subject required");
+        }
+        post.subject = "";
+    }
+    if (!post.files || post.files.length < 1) {
+        if (postsConfig.threads.requireFiles) {
+            return ctx.throw(400, "File required to post");
+        }
+    }
+    post.name = standardText(post.name);
+    post.subject = standardText(post.subject);
+    post.content = standardText(post.content);
+    return await next();
 }
