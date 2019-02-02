@@ -57,6 +57,7 @@ if (serverConfig.https) {
 function onExit(sig) {
     console.log(`Received ${sig}, exiting`);
     db.close();
+    process.exit(0);
 }
 
 process.on("SIGINT", onExit);

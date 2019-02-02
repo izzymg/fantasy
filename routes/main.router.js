@@ -1,6 +1,6 @@
 const Router = require("koa-router");
 const router = new Router({ strict: true });
-
+const parseRequests = require("./parseRequests");
 const home = require("./controllers/home");
 const boards = require("./controllers/boards");
 const catalog = require("./controllers/catalog");
@@ -20,6 +20,9 @@ router.get("/boards/:board", async ctx => {
 
 router.get("/boards/", boards.render);
 router.get("/boards/:board/", catalog.render);
+
+router.post("/boards/:board", parseRequests.parseThread, catalog.createThread);
+router.post("/boards/:board/", parseRequests.parseThread, catalog.createThread);
 
 router.get("/boards/:board/threads/:thread", thread.render);
 

@@ -1,4 +1,5 @@
 const db = require("../../database/database");
+const parseJson = require("../parseRequests");
 
 exports.render = async (ctx, next) => {
     try {
@@ -16,4 +17,7 @@ exports.render = async (ctx, next) => {
     } catch (error) {
         return ctx.throw(500, error);
     }
+};
+exports.createThread = async ctx => {
+    console.log({ threadPostBody: ctx.body });
 };
