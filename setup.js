@@ -22,7 +22,7 @@ const db = require("./database/database");
         await Promise.all(boards.map(async board => {
             console.log(`Db Setup: Found /${board.url}/ - initializing tables`);
             await db.query(`CREATE TABLE IF NOT EXISTS posts_${board.url} (
-                id int PRIMARY KEY AUTO_INCREMENT,
+                fileId int PRIMARY KEY AUTO_INCREMENT,
                 name varchar(${postsConfig.maxNameLength}),
                 subject varchar(${postsConfig.maxSubjectLength}),
                 content varchar(${postsConfig.maxContentLength}),

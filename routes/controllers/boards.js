@@ -38,7 +38,7 @@ exports.processPost = async (ctx, next) => {
     let i = 0;
     if (files) {
         await Promise.all(files.map(async file => {
-            const permaPath = path.join(postsConfig.filesDir, `${file.id}.${file.extension}`);
+            const permaPath = path.join(postsConfig.filesDir, `${file.fileId}.${file.extension}`);
             // Move temp file into permanent store
             try {
                 await miscFunctions.rename(file.tempPath, permaPath);
@@ -47,7 +47,7 @@ exports.processPost = async (ctx, next) => {
             }
             // Create thumbnail if mimetype contains "image"
             if (file.mimetype.indexOf("image") != -1) {
-                await miscFunctions.createThumbnail(permaPath, path.join(postsConfig.filesDir, `${file.id}${postsConfig.thumbSuffix}.jpg`), postsConfig.thumbWidth);
+                await miscFunctions.createThumbnail(permaPath, path.join(postsConfig.filesDir, `${file.fileId}${postsConfig.thumbSuffix}.jpg`), postsConfig.thumbWidth);
                 file.thumbSuffix = postsConfig.thumbSuffix;
             }
             // Object is modified to fit database columns

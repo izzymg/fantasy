@@ -71,7 +71,7 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
 
             file.on("end", () => {
                 const fileObj = {
-                    id: fileId,
+                    fileId,
                     tempPath,
                     originalName,
                     mimetype,
