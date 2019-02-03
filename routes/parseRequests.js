@@ -85,8 +85,12 @@ exports.validateThread = async (ctx, next) => {
     post.name = standardText(post.name);
     post.subject = standardText(post.subject);
     post.content = standardText(post.content);
-    for (const file of files) {
-        file.originalName = standardText(file.originalName);
+    if (files.length < 1) {
+        ctx.state.postData.files = null;
+    } else {
+        for (const file of files) {
+            file.originalName = standardText(file.originalName);
+        }
     }
     return await next();
 }
