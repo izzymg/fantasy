@@ -65,13 +65,9 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
                 }
             });
 
-            ws.on("error", (error) => {
-                return reject(error);
-            });
+            ws.on("error", (error) => reject(error));
 
-            file.on("limit", () => {
-                return cleanup().then(() => reject("FILE_SIZE_LIMIT")).catch(e => reject(e));
-            });
+            file.on("limit", () => cleanup().then(() => reject("FILE_SIZE_LIMIT")).catch(e => reject(e)));
 
             file.on("end", () => {
                 const fileObj = {
@@ -102,18 +98,10 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
             resolve({ files, fields });
         });
 
-        busboy.on("error", error => {
-            return cleanup().then(() => reject(error)).catch(e => reject(e));
-        });
-        busboy.on("filesLimit", () => {
-            return cleanup().then(() => reject("FILES_LIMIT")).catch(e => reject(e));
-        });
-        busboy.on("fieldsLimit", () => {
-            return cleanup().then(() => reject("FIELDS_LIMIT")).catch(e => reject(e));
-        });
-        busboy.on("partsLimit", () => {
-            return cleanup().then(() => reject("PARTS_LIMIT")).catch(e => reject(e));
-        });
+        busboy.on("error", error => cleanup().then(() => reject(error)).catch(e => reject(e)));
+        busboy.on("filesLimit", () => cleanup().then(() => reject("FILES_LIMIT")).catch(e => reject(e)));
+        busboy.on("fieldsLimit", () => cleanup().then(() => reject("FIELDS_LIMIT")).catch(e => reject(e)));
+        busboy.on("partsLimit", () => cleanup().then(() => reject("PARTS_LIMIT")).catch(e => reject(e)));
 
         // Pipe request object
         ctx.req.pipe(busboy);

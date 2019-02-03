@@ -44,7 +44,7 @@ function init() {
     });
 
     server.on("error", error => {
-        if (serverConfig.consoleErrors) { console.error(`ZThree: ${error}`); console.trace(); }
+        if (serverConfig.consoleErrors) { console.error(`ZThree: ${error}`); console.trace(error); }
         logger.logOut(error, serverConfig.log);
     });
 

@@ -10,6 +10,7 @@ module.exports = {
         "sourceType": "module"
     },
     "rules": {
+        "arrow-body-style": ["error", "as-needed"],
         "indent": [
             "error",
             4,
@@ -28,5 +29,5 @@ module.exports = {
             "always"
         ],
         "no-console": "off"
-    }
+    },
 };

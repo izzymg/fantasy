@@ -40,7 +40,11 @@ exports.processPost = async ctx => {
         await Promise.all(files.map(async file => {
             const permaPath = path.join(postsConfig.filesDir, `${file.id}.${file.extension}`);
             // Move temp file into permanent store
-            await miscFunctions.rename(file.tempPath, permaPath);
+            try {
+                await miscFunctions.rename(file.tempPath, permaPath);
+            } catch (error) {
+                await miscFunctions.unlink(file.tempPath);
+            }
             // Create thumbnail if mimetype contains "image"
             if (file.mimetype.indexOf("image") != -1) {
                 await miscFunctions.createThumbnail(permaPath, path.join(postsConfig.filesDir, `${file.id}${postsConfig.thumbSuffix}.jpg`), postsConfig.thumbWidth);
@@ -58,13 +62,9 @@ exports.processPost = async ctx => {
 
 
 exports.render = async ctx => {
-    try {
-        if (boardCache.length > 0) {
-            return await ctx.render("boards", { boards: boardCache });
-        }
-        const boards = await db.fetchAll("SELECT * FROM boards");
-        return await ctx.render("boards", { boards });
-    } catch (error) {
-        return ctx.throw(500, error);
+    if (boardCache.length > 0) {
+        return await ctx.render("boards", { boards: boardCache });
     }
+    const boards = await db.fetchAll("SELECT * FROM boards");
+    return await ctx.render("boards", { boards });
 };

@@ -54,7 +54,7 @@ exports.parseThread = async (ctx, next) => {
             case "FIELDS_LIMIT":
                 return ctx.throw(400, "Too many text fields");
             default:
-                return ctx.throw(500, error);
+                return ctx.throw(500, new Error(error));
         }
     }
 };

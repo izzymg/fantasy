@@ -26,18 +26,14 @@ router.get("/boards/:board", async ctx => {
 router.get("/boards/", boards.render);
 router.get("/boards/:board/", boards.checkBoard, catalog.render);
 
-router.post("/boards/:board/", boards.checkBoard, parseRequests.parseThread, parseRequests.validateThread,
+router.post("/boards/:board/", boards.checkBoard, parseRequests.parseThread, parseRequests.validateThread, boards.processPost,
     async (ctx, next) => {
-        try {
-            await next();
-        } catch (e) {
-            return ctx.throw(500, e);
-        }
+        await next();
         const postId = ctx.state.postId;
         const files = ctx.state.processedFiles;
         ctx.body = `Created post ${postId} ${files ? `and uploaded ${files} ${files > 1 ? "files." : "file."}` : "."}`;
-    },
-    boards.processPost);
+    }
+);
 
 router.get("/boards/:board/threads/:thread", thread.render);
 
