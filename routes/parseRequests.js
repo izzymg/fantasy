@@ -8,7 +8,7 @@ function fieldCheck(str, max, name) {
     if (!str) {
         return null;
     }
-    if (!typeof str === "string") {
+    if (typeof str !== "string") {
         return `${name}: expected string.`;
     }
     if (str.length > max) {
@@ -33,7 +33,7 @@ exports.parseThread = async (ctx, next) => {
                 content: data.fields.content,
                 parent: 0
             }
-        }
+        };
         let lengthErr;
         lengthErr = fieldCheck(post.post.name, postsConfig.maxNameLength, "Name") || lengthErr;
         lengthErr = fieldCheck(post.post.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
@@ -93,4 +93,4 @@ exports.validateThread = async (ctx, next) => {
         }
     }
     return await next();
-}
+};

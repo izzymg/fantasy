@@ -2,7 +2,7 @@ const path = require("path");
 const postsConfig = require("../../config/posts");
 const sendFile = require("koa-sendfile");
 
-exports.render = async (ctx, next) => {
+exports.render = async ctx => {
     const filesDir = path.normalize(postsConfig.filesDir);
     const fp = path.join(filesDir, ctx.params.filename);
     const pathStats = path.parse(fp);
@@ -19,4 +19,4 @@ exports.render = async (ctx, next) => {
     if (!stats) {
         return ctx.throw(404);
     }
-}
+};

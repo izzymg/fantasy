@@ -8,9 +8,9 @@ exports.genCache = () => {
     db.fetchAll("SELECT * FROM boards").then(boards => {
         boardCache = boards;
     }).catch(e => {
-        throw `Error caching boards\n${e}`
+        throw `Error caching boards\n${e}`;
     });
-}
+};
 
 exports.checkBoard = async (ctx, next) => {
     const boardUrl = ctx.params.board;
@@ -26,7 +26,7 @@ exports.checkBoard = async (ctx, next) => {
     }
     ctx.state.board = board;
     return await next();
-}
+};
 
 exports.processPost = async ctx => {
     const post = ctx.state.postData.post;

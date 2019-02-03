@@ -11,14 +11,14 @@ exports.createThumbnail = async function (inFilename, outFilename, width) {
     } else {
         return await image.toFormat("jpeg").toFile(outFilename);
     }
-}
+};
 
 
 exports.unlink = function (path) {
     return new Promise((resolve, reject) => {
         fs.unlink(path, (error) => {
             if (error) {
-                reject(error)
+                reject(error);
             }
             resolve();
         });

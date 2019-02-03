@@ -1,6 +1,6 @@
 const db = require("../../database/database");
 
-exports.render = async (ctx, next) => {
+exports.render = async ctx => {
     try {
         const threads = await db.fetchAll(
             `SELECT id, name, subject, content, date, lastBump

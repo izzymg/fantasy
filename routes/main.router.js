@@ -35,7 +35,7 @@ router.post("/boards/:board/", boards.checkBoard, parseRequests.parseThread, par
         }
         const postId = ctx.state.postId;
         const files = ctx.state.processedFiles;
-        ctx.body = `Created post ${postId} ${files ? `and uploaded ${files} ${files > 1 ? "files." : "file."}` : "."}`
+        ctx.body = `Created post ${postId} ${files ? `and uploaded ${files} ${files > 1 ? "files." : "file."}` : "."}`;
     },
     boards.processPost);
 
