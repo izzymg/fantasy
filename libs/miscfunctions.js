@@ -4,12 +4,12 @@ exports.unlink = function (path) {
     return new Promise((resolve, reject) => {
         fs.unlink(path, (error) => {
             if (error) {
-                return reject(error)
+                reject(error)
             }
-            return resolve();
+            resolve();
         });
     });
-}
+};
 
 exports.rename = function (path, newPath) {
     return new Promise((resolve, reject) => {
@@ -20,7 +20,7 @@ exports.rename = function (path, newPath) {
             resolve();
         });
     });
-}
+};
 
 exports.standardText = function (str) {
     if (!str) { return null; }
@@ -38,4 +38,4 @@ exports.standardText = function (str) {
         .replace(/\n{2,}/g, "\n\n")
         .replace(/\n/g, "<br>")
         .replace(/(<br>){2,}/g, "<br><br>");
-}
+};

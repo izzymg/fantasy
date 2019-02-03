@@ -26,7 +26,7 @@ exports.createThread = async ctx => {
         // Copy all files from temp to permanent store and add record to db
         if (postData.files) {
             await Promise.all(postData.files.map(async file => {
-                await miscFunctions.rename(file.tempPath, path.join(postsConfig.imageDir, `${file.id}.${file.extension}`));
+                await miscFunctions.rename(file.tempPath, path.join(postsConfig.filesDir, `${file.id}.${file.extension}`));
                 delete file.tempPath;
                 file.postId = insertPost.inserted;
                 await db.query(`INSERT INTO files_${ctx.state.board.url} set ?`, file);

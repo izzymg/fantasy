@@ -5,6 +5,7 @@ const home = require("./controllers/home");
 const boards = require("./controllers/boards");
 const catalog = require("./controllers/catalog");
 const thread = require("./controllers/thread");
+const files = require("./controllers/files");
 const notfound = require("./controllers/notfound");
 
 function setup() {
@@ -30,6 +31,7 @@ router.post("/boards/:board/", boards.checkBoard, parseRequests.parseThread, par
 
 router.get("/boards/:board/threads/:thread", thread.render);
 
+router.get("/files/:filename", files.render);
 
 router.get("*", notfound.render);
 router.get("/404", notfound.render);

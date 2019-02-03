@@ -15,7 +15,7 @@ module.exports = {
     // Use string path (e.g. "tempDir: /tmp/")
     // Ensure directory exists and has correct permissions before running
     tmpDir: require("os").tmpdir,
-    imageDir: "/var/www/images",
+    filesDir: "/var/www/images",
     defaultName: "Anonymous",
     threads: {
         requireSubject: true,
