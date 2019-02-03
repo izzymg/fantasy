@@ -29,10 +29,18 @@ const db = require("./database/database");
                 date datetime DEFAULT CURRENT_TIMESTAMP,
                 parent int NOT NULL DEFAULT 0,
                 lastBump datetime DEFAULT CURRENT_TIMESTAMP)`);
+            await db.query(`CREATE TABLE IF NOT EXISTS files_${board.url} (
+                id varchar(36) PRIMARY KEY,
+                extension varchar(12),
+                mimetype tinytext,
+                hash text,
+                postId int
+            )`);
         }));
     } catch (error) {
         return console.error("Db Setup: Error setting up boards", error);
     }
+
     try {
         await db.close();
         return console.log("Done, exiting.");
