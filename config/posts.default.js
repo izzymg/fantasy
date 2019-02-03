@@ -15,7 +15,9 @@ module.exports = {
     // Use string path (e.g. "tempDir: /tmp/")
     // Ensure directory exists and has correct permissions before running
     tmpDir: require("os").tmpdir,
-    filesDir: "/var/www/images",
+    filesDir: "/var/www/files",
+    // Appended onto the filename of created thumbnails
+    thumbSuffix: "_thumb",
     defaultName: "Anonymous",
     threads: {
         requireSubject: true,

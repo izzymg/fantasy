@@ -31,6 +31,7 @@ const db = require("./database/database");
                 lastBump datetime DEFAULT CURRENT_TIMESTAMP)`);
             await db.query(`CREATE TABLE IF NOT EXISTS files_${board.url} (
                 id varchar(36) PRIMARY KEY,
+                thumbSuffix tinytext,
                 originalName text,
                 extension varchar(12),
                 mimetype tinytext,
