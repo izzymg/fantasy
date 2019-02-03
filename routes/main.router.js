@@ -40,7 +40,7 @@ router.post("/boards/:board/", boards.checkBoard, parseRequests.parseThread, par
 );
 
 // Thread
-router.get("/boards/:board/threads/:thread", thread.render);
+router.get("/boards/:board/threads/:thread", boards.checkBoard, thread.render);
 
 // Serve files
 router.get("/files/:filename", files.render);

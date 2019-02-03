@@ -1,5 +1,11 @@
 mixin post(post)
     .post
+        .postFiles
+            for file in post.files
+                if file.thumbSuffix               
+                    img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
+                else
+                    a(href=`/files/${file.fileId}.${file.extension}`).fileLink #{file.originalName}
         .postInfo
             a(name=post.id href="#" + post.id)
                 span.id #{post.id}

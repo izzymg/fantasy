@@ -2,8 +2,8 @@ const db = require("../../database/database");
 
 exports.render = async ctx => {
     try {
-        const res = await db.fetchAll(
-            `SELECT DISTINCT id, name, subject, content, date, lastBump, fileId, thumbSuffix, originalName, extension
+        const threadsData = await db.fetchAll(
+            `SELECT id, name, subject, content, date, lastBump, fileId, thumbSuffix, originalName, extension
             FROM posts_${ctx.state.board.url} posts
             INNER JOIN files_${ctx.state.board.url} files
             ON files.postId = posts.id
@@ -12,8 +12,8 @@ exports.render = async ctx => {
             , null, true);
         const threads = {};
         // Remove duplicate post data and add files to posts
-        if (res) {
-            res.forEach(thread => {
+        if (threadsData) {
+            threadsData.forEach(thread => {
                 if (threads[thread.posts.id]) {
                     threads[thread.posts.id].files.push(thread.files);
                 } else {

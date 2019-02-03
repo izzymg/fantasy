@@ -2,26 +2,43 @@ const db = require("../../database/database");
 
 exports.render = async (ctx, next) => {
     try {
-        const board = await db.fetch("SELECT url, title, about, sfw FROM boards WHERE url = ?", ctx.params.board);
-        if (!board) {
-            return await next();
-        }
-        const [op, replies] = await Promise.all([
-            db.fetch(
-                `SELECT id, name, subject, content, date, parent, lastBump
-                FROM posts_${board.url}
-                WHERE id = ? AND parent = 0`, ctx.params.thread
-            ),
+        const [opData, repliesData] = await Promise.all([
             db.fetchAll(
-                `SELECT id, name, subject, content, date, parent, lastBump
-                FROM posts_${board.url}
-                WHERE parent = ?`, ctx.params.thread
-            )
+                `SELECT id, name, subject, content, date, lastBump, fileId, thumbSuffix, originalName, extension
+                FROM posts_${ctx.state.board.url} posts
+                INNER JOIN files_${ctx.state.board.url} files
+                ON files.postId = posts.id
+                WHERE id = ? AND parent = 0`,
+                ctx.params.thread, true),
+            db.fetchAll(
+                `SELECT id, name, subject, content, date, lastBump, fileId, thumbSuffix, originalName, extension
+                FROM posts_${ctx.state.board.url} posts
+                INNER JOIN files_${ctx.state.board.url} files
+                ON files.postId = posts.id
+                WHERE parent = ?`, ctx.params.thread, true)
         ]);
-        if (!op) {
+        if (!opData) {
             return await next();
         }
-        return await ctx.render("thread", { board, thread: { op, replies } });
+
+        // Remove duplicate post data and add files to posts
+        const op = opData[0].posts;
+        op.files = [];
+        opData.forEach(p => op.files.push(p.files));
+
+        const replies = {};
+        if (repliesData) {
+            repliesData.forEach(reply => {
+                if (replies[reply.posts.id]) {
+                    replies[reply.posts.id].files.push(reply.files);
+                } else {
+                    replies[reply.posts.id] = reply.posts;
+                    replies[reply.posts.id].files = [];
+                    replies[reply.posts.id].files.push(reply.files);
+                }
+            });
+        }
+        return await ctx.render("thread", { thread: { op, replies } });
     } catch (error) {
         return ctx.throw(500, error);
     }
