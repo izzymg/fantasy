@@ -8,7 +8,7 @@ const path = require("path");
 const miscfunctions = require("./miscfunctions");
 const crypto = require("crypto");
 
-module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, hash) {
+module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
     return new Promise((resolve, reject) => {
 
         // New busboy instance with request headers
@@ -24,48 +24,39 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, hash) {
         let fields = {};
         let temps = [];
 
-        // Unwrite all written temp files
+        // Unlink all written temp files
         async function cleanup() {
             for (const t of temps) {
-                try {
-                    await miscfunctions.unlink(t);
-                } catch (e) {
-                    return reject(e);
-                }
+                await miscfunctions.unlink(t);
             }
         }
 
         // Read incoming files
         busboy.on("file", function (fieldname, file, originalName) {
-
-            // Establish ID and write stream to temporary directory
+            // Create unique file ID and write stream to temp path
             const fileId = uuid();
             const tempPath = path.join(tmpDir, fileId);
             temps.push(tempPath);
             const ws = fs.createWriteStream(tempPath);
 
-            ws.on("error", (error) => {
-                return reject(error);
-            });
-
             let mimetype;
-            let ext;
-            let checked = false;
-            let md5 = hash ? crypto.createHash("md5") : null;
+            let extension;
+            let firstBytes;
+            let md5 = createHash ? crypto.createHash("md5") : null;
 
+            // Each incoming data
             file.on("data", data => {
                 // Check mimetype from first 12 bytes
-                if (!checked) {
-                    const byteRef = data.slice(0, 12);
-                    mimetype = libMime.getAcceptedMimetype(byteRef);
+                if (!firstBytes) {
+                    firstBytes = data.slice(0, 12);
+                    mimetype = libMime.getAcceptedMimetype(firstBytes);
                     if (!mimetype) {
                         return cleanup().then(() => reject("UNACCEPTED_MIMETYPE")).catch(e => reject(e));
                     }
-                    ext = libMime.extensions[mimetype];
-                    checked = true;
+                    extension = libMime.extensions[mimetype];
                 }
-                // Update hash with buffer data
-                if (hash) {
+                // Update hash with each data
+                if (createHash) {
                     try {
                         md5.update(data);
                     } catch (error) {
@@ -74,15 +65,29 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, hash) {
                 }
             });
 
+            ws.on("error", (error) => {
+                return reject(error);
+            });
+
             file.on("limit", () => {
-                cleanup().then(() => reject("FILE_SIZE_LIMIT")).catch(e => reject(e));
+                return cleanup().then(() => reject("FILE_SIZE_LIMIT")).catch(e => reject(e));
             });
 
             file.on("end", () => {
-                files.push({ id: fileId, tempPath, originalName, mimetype, extension: ext, hash: md5.digest().toString("hex") });
+                const fileObj = {
+                    id: fileId,
+                    tempPath,
+                    originalName,
+                    mimetype,
+                    extension
+                };
+                if (createHash) {
+                    fileObj.hash = md5.digest().toString("hex");
+                }
+                return files.push(fileObj);
             });
 
-            // Pipe file into temp dir stream
+            // Write to temp
             file.pipe(ws);
         });
 
