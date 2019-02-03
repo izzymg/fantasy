@@ -24,7 +24,7 @@ exports.parseThread = async (ctx, next) => {
     }
 
     try {
-        const data = await multipart(ctx, postsConfig.maxFileSize, postsConfig.maxFiles, postsConfig.tmpDir);
+        const data = await multipart(ctx, postsConfig.maxFileSize, postsConfig.maxFiles, postsConfig.tmpDir, postsConfig.md5);
         const post = {
             files: data.files,
             post: {
