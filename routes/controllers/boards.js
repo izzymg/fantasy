@@ -28,7 +28,7 @@ exports.checkBoard = async (ctx, next) => {
     return await next();
 };
 
-exports.processPost = async ctx => {
+exports.processPost = async (ctx, next) => {
     const post = ctx.state.postData.post;
     const files = ctx.state.postData.files;
     if (!post) {
@@ -48,6 +48,7 @@ exports.processPost = async ctx => {
             // Create thumbnail if mimetype contains "image"
             if (file.mimetype.indexOf("image") != -1) {
                 await miscFunctions.createThumbnail(permaPath, path.join(postsConfig.filesDir, `${file.id}${postsConfig.thumbSuffix}.jpg`), postsConfig.thumbWidth);
+                file.thumbSuffix = postsConfig.thumbSuffix;
             }
             // Object is modified to fit database columns
             delete file.tempPath;
@@ -58,6 +59,7 @@ exports.processPost = async ctx => {
     }
     ctx.state.processedFiles = i;
     ctx.state.postId = insertPost.inserted;
+    await next();
 };
 
 

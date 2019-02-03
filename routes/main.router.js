@@ -32,8 +32,7 @@ router.get("/boards/", boards.render);
 router.get("/boards/:board/", boards.checkBoard, catalog.render);
 
 router.post("/boards/:board/", boards.checkBoard, parseRequests.parseThread, parseRequests.validateThread, boards.processPost,
-    async (ctx, next) => {
-        await next();
+    async ctx => {
         const postId = ctx.state.postId;
         const files = ctx.state.processedFiles;
         ctx.body = `Created post ${postId} ${files ? `and uploaded ${files} ${files > 1 ? "files." : "file."}` : "."}`;
