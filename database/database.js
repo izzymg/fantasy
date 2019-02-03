@@ -18,10 +18,10 @@ if (databaseConfig.debugMetrics) {
     settings.debug = ["ComQueryPacket"];
 }
 
-const query = function (sql, values = []) {
+const query = function (sql, values = [], nestTables = false) {
     if (!db) throw "No database connection, did you call open()?";
     return new Promise((resolve, reject) => {
-        db.query({ sql }, values, (error, results) => {
+        db.query({ sql, nestTables }, values, (error, results) => {
             if (error) {
                 reject(error);
             }
@@ -46,17 +46,17 @@ module.exports = {
             });
         });
     },
-    fetch: async function (sql, values) {
-        const res = await query(sql, values);
+    fetch: async function (sql, values, nestTables) {
+        const res = await query(sql, values, nestTables);
         if (res.length < 1) { return null; }
         return { ...res[0] };
     },
-    fetchAll: async function (sql, values) {
-        const res = await query(sql, values);
+    fetchAll: async function (sql, values, nestTables) {
+        const res = await query(sql, values, nestTables);
         return [...res];
     },
-    query: async function (sql, values) {
-        const res = await query(sql, values);
+    query: async function (sql, values, nestTables) {
+        const res = await query(sql, values, nestTables);
         return { affected: res.affectedRows || 0, inserted: res.insertId || null, changed: res.changedRows || 0 };
     }
 };
