@@ -1,5 +1,19 @@
 const fs = require("fs");
 
+const sharp = require("sharp");
+exports.createThumbnail = async function (inFilename, outFilename, width) {
+    const image = sharp(inFilename);
+    const metadata = await image.metadata();
+    // Don't resize if image is smaller than a thumbnail
+    console.log(`Thumbnail ${inFilename} -> ${outFilename}`);
+    if (metadata.width > width) {
+        return await image.resize(150).toFormat("jpeg").toFile(outFilename);
+    } else {
+        return await image.toFormat("jpeg").toFile(outFilename);
+    }
+}
+
+
 exports.unlink = function (path) {
     return new Promise((resolve, reject) => {
         fs.unlink(path, (error) => {

@@ -18,6 +18,7 @@ module.exports = {
     filesDir: "/var/www/files",
     // Appended onto the filename of created thumbnails
     thumbSuffix: "_thumb",
+    thumbWidth: 150,
     defaultName: "Anonymous",
     threads: {
         requireSubject: true,
