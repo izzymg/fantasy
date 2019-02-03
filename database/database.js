@@ -19,7 +19,6 @@ if (databaseConfig.debugMetrics) {
 }
 
 const query = function (sql, values = []) {
-    console.log(db);
     if (!db) throw "No database connection, did you call open()?";
     return new Promise((resolve, reject) => {
         db.query({ sql }, values, (error, results) => {
@@ -33,7 +32,6 @@ const query = function (sql, values = []) {
 module.exports = {
     open: async function () {
         db = mysql.createPool(settings);
-        console.log(db);
         return { host: settings.host, port: settings.port };
     },
     close: function () {
