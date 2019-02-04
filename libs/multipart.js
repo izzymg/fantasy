@@ -70,6 +70,9 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
             file.on("limit", () => cleanup().then(() => reject("FILE_SIZE_LIMIT")).catch(e => reject(e)));
 
             file.on("end", () => {
+                if(!firstBytes) {
+                    return;
+                }
                 const fileObj = {
                     fileId,
                     tempPath,
