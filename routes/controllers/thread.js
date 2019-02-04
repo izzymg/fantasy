@@ -27,8 +27,10 @@ exports.render = async (ctx, next) => {
         opData.forEach(p => op.files.push(p.files));
 
         const replies = {};
+        let replyCount = 0;
         if (repliesData) {
             repliesData.forEach(reply => {
+                replyCount++;
                 if (replies[reply.posts.id] && reply.files.fileId) {
                     replies[reply.posts.id].files.push(reply.files);
                 } else {
@@ -40,7 +42,7 @@ exports.render = async (ctx, next) => {
                 }
             });
         }
-        return await ctx.render("thread", { thread: { op, replies } });
+        return await ctx.render("thread", { thread: { op, replies }, replyCount });
     } catch (error) {
         return ctx.throw(500, error);
     }

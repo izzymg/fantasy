@@ -8,6 +8,8 @@ const db = require("./database/database");
             title tinytext NOT NULL,
             about text,
             sfw boolean DEFAULT true,
+            bumpLimit int,
+            maxThreads int,
             createdAt datetime DEFAULT CURRENT_TIMESTAMP)`);
     } catch (error) {
         return console.error("Db Setup: Error setting up boards", error);

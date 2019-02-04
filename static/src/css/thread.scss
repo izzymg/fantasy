@@ -16,7 +16,6 @@
 
     .fileInfo {
         padding: 1px 5px;
-        text-decoration: underline;
         display: inline;
     }
 
@@ -52,5 +51,5 @@
     background: #fff;
     border: 1px solid lightgrey;
     box-shadow: rgb(29, 29, 29) 1px 1px 5px solid;
-    color: #2e2e2e;
+    color: $off-black;
 }

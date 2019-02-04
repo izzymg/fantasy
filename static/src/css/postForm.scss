@@ -5,13 +5,13 @@
     margin: 20px auto;
         input, textarea {
         display: block;
-        font-family: $normal-fonts;
         box-sizing: border-box;
     }
     .formName, .formSubject, .formContent {
         width: 100%;
         margin: 5px 0;
         padding: 5px;
+        font-family: $fancy-fonts;
     }
     .formSubmit {
         margin: 5px 0;

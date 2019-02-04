@@ -10,7 +10,7 @@ block content
     .title
         a(href=`/boards/${board.url}`)
             h1 /#{board.url}/ - #{board.title}
-        h3 #{board.about}
+        h3.fancy #{board.about}
         +postForm
     +boardInfo
     .threads

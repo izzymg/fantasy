@@ -13,8 +13,28 @@ a {
     text-decoration: none;
 }
 
-.thumbnails {
-    width: 150px;
+.thumbnail {
+    max-height: 200px;
+    overflow: auto;
+}
+
+hr {
+    color: #858585;
+}
+
+.boardInfo, hr {
+    span::after {
+        content: " /";
+    }
+    span {
+        font-weight: normal;
+        font-size: 0.9em;
+        color: #474747;
+        margin: 0 2px;
+    }
+    .errored {
+        color: lightcoral;
+    }
 }
 
 .navbar {
@@ -24,6 +44,10 @@ a {
 
 .navbar a {
     margin: 0 10px;
+}
+
+.fancy {
+    font-family: $fancy-fonts;
 }
 
 .content {
