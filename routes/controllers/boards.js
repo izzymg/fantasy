@@ -22,7 +22,15 @@ exports.checkBoard = async (ctx, next) => {
         return ctx.throw(404);
     }
     ctx.state.board = board;
-    return await next();
+    await next();
+};
+
+exports.checkThread = async (ctx, next) => {
+    const thread = await db.fetch(`SELECT id FROM posts_${ctx.state.board.url} WHERE id = ? AND parent = 0`, ctx.params.thread);
+    if(!thread) {
+        return ctx.throw(404);
+    }
+    await next();
 };
 
 exports.validateThread = async (ctx, next) => {
@@ -54,7 +62,7 @@ exports.validateThread = async (ctx, next) => {
             return ctx.throw(400, "File required to post");
         }
     }
-    return await next();
+    await next();
 };
 
 
@@ -74,7 +82,7 @@ exports.validateReply = async (ctx, next) => {
             return ctx.throw(400, "Post content or files required");
         }
     }
-    return await next();
+    await next();
 };
 
 exports.submitPost = async ctx => {
@@ -111,5 +119,5 @@ exports.render = async ctx => {
         return await ctx.render("boards", { boards: boardCache });
     }
     const boards = await db.fetchAll("SELECT * FROM boards");
-    return await ctx.render("boards", { boards });
+    await ctx.render("boards", { boards });
 };

@@ -24,7 +24,7 @@ db.open().then(settings => {
 function init() {
 
     // Views
-    server.use(koaViews(path.join(__dirname, "templates"), { extension: "pug", options: { cache: true } }));
+    server.use(koaViews(path.join(__dirname, "templates"), { extension: "pug", options: { cache: process.env.NODE_ENV === "production" } }));
 
     // Server static files (JS/CSS/Media)
     server.use(koaStatic(path.join(__dirname, "static/dist")));

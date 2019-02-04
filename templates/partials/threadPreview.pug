@@ -5,7 +5,7 @@ mixin threadPreview(post)
                 if file.thumbSuffix               
                     img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
                 else
-                    a(href=`/files/${file.fileId}.${file.extension}`).fileLink #{file.originalName}
+                    a(href=`/files/${file.fileId}.${file.extension}`).fileLink !{file.originalName}
             if post.subject
                 .subject !{post.subject}
         .content !{post.content}
