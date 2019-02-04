@@ -1,6 +1,6 @@
 mixin threadPreview(post)
     .threadPreview
-        a(href="threads/" + post.id)
+        a(href="threads/" + post.id title=new Date(post.date).toLocaleString())
             each file in post.files 
                 if file.thumbSuffix               
                     img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
@@ -8,4 +8,4 @@ mixin threadPreview(post)
                     a(href=`/files/${file.fileId}.${file.extension}`).fileLink !{file.originalName}
             if post.subject
                 .subject !{post.subject}
-        .content !{post.content}
+            .content !{post.content}

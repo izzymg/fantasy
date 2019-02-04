@@ -1,0 +1,18 @@
+@import "vars";
+
+.threadPreview {
+    display: inline-block;
+    margin: 5px 10px;
+    border: 1px solid lightgrey;
+    max-height: 200px;
+    max-width: 150px;
+    padding: 5px;
+    vertical-align: top;
+    overflow: hidden;
+    .content {
+        color: black;
+    }
+    .subject {
+        color: $subject;
+    }
+}

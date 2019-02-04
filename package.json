@@ -6,7 +6,9 @@
   "scripts": {
     "lint": "eslint **/*.js",
     "fix-lint": "eslint **/*.js --fix",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build-css": "sass static/src/css:static/dist/css",
+    "watch-css": "sass --watch static/src/css:static/dist/css"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +25,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "eslint": "^5.12.1"
+    "eslint": "^5.12.1",
+    "sass": "^1.16.1"
   }
 }

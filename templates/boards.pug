@@ -1,15 +1,19 @@
 extends layout.pug
 block head
+    link(rel="stylesheet" href="/css/boards.css")
     title Boards - #{webname}
 block content
-    h1 Boards
+    .title
+        h1 Boards
     if boards
-        ul.boards
-        for board in boards
-            li.board
-                a(href="/boards/" + board.url + "/") /#{board.url}/ - #{board.title}
-                h4 #{board.desc}
-                if board.sfw
-                    span This is a safe-for-work board
-                else
-                    span 18+ This is a not safe for work board
+        .boards
+            for board in boards
+                .board
+                    h1
+                        a(href="/boards/" + board.url + "/") /#{board.url}/ - #{board.title}
+                    h3
+                        p.about #{board.about}
+                    if board.sfw
+                        span This is a safe-for-work board
+                    else
+                        span 18+ This is a not safe for work board

@@ -1,0 +1,36 @@
+@import "vars";
+
+html {
+    font-family: $normal-fonts;
+}
+
+body {
+    margin: 0;
+}
+
+a {
+    color: $links;
+    text-decoration: none;
+}
+
+.navbar {
+    border-bottom: 1px solid lightgrey;
+    padding: 20px;
+}
+
+.navbar a {
+    margin: 0 10px;
+}
+
+.content {
+    margin: 10px 5px;
+    .title {
+        text-align: center;
+    }
+}
+
+h1, h2, h3, h4 {
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+}

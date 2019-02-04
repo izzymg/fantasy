@@ -3,11 +3,15 @@ include partials/threadPreview.pug
 include partials/boardInfo.pug
 include partials/postForm.pug
 block head
+    link(rel="stylesheet" href="/css/catalog.css")
+    link(rel="stylesheet" href="/css/postForm.css")
     title /#{board.url}/ - #{board.title} - #{webname}
 block content
-    h1 /#{board.url}/ - #{board.title}
-    h3 #{board.about}
-    +postForm
+    .title
+        a(href=`/boards/${board.url}`)
+            h1 /#{board.url}/ - #{board.title}
+        h3 #{board.about}
+        +postForm
     +boardInfo
     .threads
         if threads
