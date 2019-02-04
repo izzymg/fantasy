@@ -5,7 +5,7 @@ exports.render = async ctx => {
         const threadsData = await db.fetchAll(
             `SELECT id, name, subject, content, date, lastBump, fileId, thumbSuffix, originalName, extension
             FROM posts_${ctx.state.board.url} posts
-            INNER JOIN files_${ctx.state.board.url} files
+            LEFT JOIN files_${ctx.state.board.url} files
             ON files.postId = posts.id
             WHERE parent = 0
             ORDER BY lastBump ASC`

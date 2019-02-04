@@ -50,6 +50,8 @@ router.post("/boards/:board/", boards.checkBoard, parseRequests.parsePost, board
 // Thread
 router.get("/boards/:board/threads/:thread", boards.checkBoard, thread.render);
 
+router.post("/boards/:board/threads/:thread", boards.checkBoard, parseRequests.parsePost, boards.submitReply);
+
 // Serve files
 router.get("/files/:filename", files.render);
 

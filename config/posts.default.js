@@ -24,5 +24,8 @@ module.exports = {
         requireSubject: true,
         requireContent: false,
         requireFiles: true
+    },
+    replies: {
+        requireContentOrFiles: true,
     }
 };

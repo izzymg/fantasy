@@ -41,6 +41,7 @@ exports.rename = function (path, newPath) {
 exports.standardText = function (str) {
     if (!str) { return null; }
     str = str.trim();
+    if (!str) { return null; }
     return str
         .replace(/\//g, "&#x2F;")
         .replace(/\\/g, "&#x5C;")
