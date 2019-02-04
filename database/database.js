@@ -56,6 +56,7 @@ module.exports = {
     },
     fetchAll: async function (sql, values, nestTables) {
         const res = await query(sql, values, nestTables);
+        if(res.length < 1) { return null; }
         return [...res];
     },
     query: async function (sql, values, nestTables) {

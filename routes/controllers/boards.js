@@ -107,7 +107,7 @@ exports.submitPost = async ctx => {
 
 
 exports.render = async ctx => {
-    if (boardCache.length > 0) {
+    if (boardCache && boardCache.length > 0) {
         return await ctx.render("boards", { boards: boardCache });
     }
     const boards = await db.fetchAll("SELECT * FROM boards");
