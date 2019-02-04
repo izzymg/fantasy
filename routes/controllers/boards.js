@@ -25,14 +25,56 @@ exports.checkBoard = async (ctx, next) => {
     return await next();
 };
 
-exports.processPost = async (ctx, next) => {
-    const post = ctx.state.postData.post;
-    const files = ctx.state.postData.files;
+exports.submitThread = async ctx => {
+
+    // Form data
+    const post = ctx.state.post.post;
+    const files = ctx.state.post.files;
     if (!post) {
         return ctx.throw(500, "No post object found on context state");
     }
+
+    // Validate field existence
+
+    if (!post.name) {
+        post.name = postsConfig.defaultName;
+    }
+    if (!post.content) {
+        if (postsConfig.threads.requireContent) {
+            return ctx.throw(400, "Post content required");
+        }
+        post.content = "";
+    }
+    if (!post.subject) {
+        if (postsConfig.threads.requireSubject) {
+            return ctx.throw(400, "Post subject required");
+        }
+        post.subject = "";
+    }
+
+    if (!files || files.length < 1) {
+        if (postsConfig.threads.requireFiles) {
+            return ctx.throw(400, "File required to post");
+        }
+    }
+
+    // Standardise/escape text
+
+    post.name = miscFunctions.standardText(post.name);
+    post.subject = miscFunctions.standardText(post.subject);
+    post.content = miscFunctions.standardText(post.content);
+    post.parent = 0;
+
+    if (files.length < 1) {
+        ctx.state.post.files = null;
+    } else {
+        for (const file of files) {
+            file.originalName = miscFunctions.standardText(file.originalName);
+        }
+    }    
+
     const insertPost = await db.query(`INSERT INTO posts_${ctx.state.board.url} set ?`, post);
-    let i = 0;
+    let processedFiles = 0;
     if (files) {
         await Promise.all(files.map(async file => {
             const permaPath = path.join(postsConfig.filesDir, `${file.fileId}.${file.extension}`);
@@ -51,12 +93,10 @@ exports.processPost = async (ctx, next) => {
             delete file.tempPath;
             file.postId = insertPost.inserted;
             await db.query(`INSERT INTO files_${ctx.state.board.url} set ?`, file);
-            i++;
+            processedFiles++;
         }));
     }
-    ctx.state.processedFiles = i;
-    ctx.state.postId = insertPost.inserted;
-    await next();
+    ctx.body = `Created post ${insertPost.inserted} ${processedFiles ? `and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
 };
 
 

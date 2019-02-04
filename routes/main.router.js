@@ -16,14 +16,14 @@ async function setup() {
     }
 }
 
-router.use(async (ctx, next) => {
+router.get("*", async (ctx, next) => {
     try {
         await next();
     } catch(error) {
-        if(ctx.status === 404) {
+        if(error.status === 404) {
             return ctx.render("notfound");
         }
-        return await next();
+        return ctx.throw(error);
     }
 });
 
@@ -45,13 +45,7 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
 router.get("/boards/", boards.render);
 router.get("/boards/:board/", boards.checkBoard, catalog.render);
 
-router.post("/boards/:board/", boards.checkBoard, parseRequests.parseThread, parseRequests.validateThread, boards.processPost,
-    async ctx => {
-        const postId = ctx.state.postId;
-        const files = ctx.state.processedFiles;
-        ctx.body = `Created post ${postId} ${files ? `and uploaded ${files} ${files > 1 ? "files." : "file."}` : "."}`;
-    }
-);
+router.post("/boards/:board/", boards.checkBoard, parseRequests.parsePost, boards.submitThread);
 
 // Thread
 router.get("/boards/:board/threads/:thread", boards.checkBoard, thread.render);

@@ -2,7 +2,6 @@
 
 const postsConfig = require("../config/posts");
 const multipart = require("../libs/multipart");
-const { standardText } = require("../libs/miscfunctions");
 
 function fieldCheck(str, max, name) {
     if (!str) {
@@ -17,7 +16,7 @@ function fieldCheck(str, max, name) {
     return null;
 }
 
-exports.parseThread = async (ctx, next) => {
+exports.parsePost = async (ctx, next) => {
 
     if (!ctx.is("multipart/form-data")) {
         return ctx.throw(400, "Expected multipart/form-data");
@@ -30,8 +29,7 @@ exports.parseThread = async (ctx, next) => {
             post: {
                 name: data.fields.name,
                 subject: data.fields.subject,
-                content: data.fields.content,
-                parent: 0
+                content: data.fields.content
             }
         };
         let lengthErr;
@@ -41,7 +39,7 @@ exports.parseThread = async (ctx, next) => {
         if (lengthErr) {
             return ctx.throw(400, lengthErr);
         }
-        ctx.state.postData = post;
+        ctx.state.post = post;
         return await next();
     } catch (error) {
         switch (error) {
@@ -57,40 +55,4 @@ exports.parseThread = async (ctx, next) => {
                 return ctx.throw(500, new Error(error));
         }
     }
-};
-
-exports.validateThread = async (ctx, next) => {
-    const post = ctx.state.postData.post;
-    const files = ctx.state.postData.files;
-    if (!post.name) {
-        post.name = postsConfig.defaultName;
-    }
-    if (!post.content) {
-        if (postsConfig.threads.requireContent) {
-            return ctx.throw(400, "Post content required");
-        }
-        post.content = "";
-    }
-    if (!post.subject) {
-        if (postsConfig.threads.requireSubject) {
-            return ctx.throw(400, "Post subject required");
-        }
-        post.subject = "";
-    }
-    if (!files || files.length < 1) {
-        if (postsConfig.threads.requireFiles) {
-            return ctx.throw(400, "File required to post");
-        }
-    }
-    post.name = standardText(post.name);
-    post.subject = standardText(post.subject);
-    post.content = standardText(post.content);
-    if (files.length < 1) {
-        ctx.state.postData.files = null;
-    } else {
-        for (const file of files) {
-            file.originalName = standardText(file.originalName);
-        }
-    }
-    return await next();
 };
