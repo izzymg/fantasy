@@ -1,4 +1,3 @@
-const postsConfig = require("./config/posts");
 const db = require("./database/database");
 (async () => {
     db.open();
@@ -23,9 +22,9 @@ const db = require("./database/database");
             console.log(`Db Setup: Found /${board.url}/ - initializing tables`);
             await db.query(`CREATE TABLE IF NOT EXISTS posts_${board.url} (
                 id int PRIMARY KEY AUTO_INCREMENT,
-                name varchar(${postsConfig.maxNameLength}),
-                subject varchar(${postsConfig.maxSubjectLength}),
-                content varchar(${postsConfig.maxContentLength}),
+                name text,
+                subject text,
+                content text,
                 date datetime DEFAULT CURRENT_TIMESTAMP,
                 parent int NOT NULL DEFAULT 0,
                 lastBump datetime DEFAULT CURRENT_TIMESTAMP)`);

@@ -45,12 +45,12 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
 router.get("/boards/", boards.render);
 router.get("/boards/:board/", boards.checkBoard, catalog.render);
 
-router.post("/boards/:board/", boards.checkBoard, parseRequests.parsePost, boards.submitThread);
+router.post("/boards/:board/", boards.checkBoard, parseRequests.parsePost, boards.validateThread, boards.submitPost);
 
 // Thread
 router.get("/boards/:board/threads/:thread", boards.checkBoard, thread.render);
 
-router.post("/boards/:board/threads/:thread", boards.checkBoard, parseRequests.parsePost, boards.submitReply);
+router.post("/boards/:board/threads/:thread", boards.checkBoard, parseRequests.parsePost, boards.validateReply, boards.submitPost);
 
 // Serve files
 router.get("/files/:filename", files.render);

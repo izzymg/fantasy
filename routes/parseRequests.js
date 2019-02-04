@@ -2,6 +2,7 @@
 
 const postsConfig = require("../config/posts");
 const multipart = require("../libs/multipart");
+const { standardText } = require("../libs/miscfunctions");
 
 function fieldCheck(str, max, name) {
     if (!str) {
@@ -20,25 +21,9 @@ exports.parsePost = async (ctx, next) => {
     if (!ctx.is("multipart/form-data")) {
         return ctx.throw(400, "Expected multipart/form-data");
     }
-
+    let data;
     try {
-        const data = await multipart(ctx, postsConfig.maxFileSize, postsConfig.maxFiles, postsConfig.tmpDir, postsConfig.md5);
-        const post = {
-            files: data.files,
-            post: {
-                name: data.fields.name,
-                subject: data.fields.subject,
-                content: data.fields.content
-            }
-        };
-        let lengthErr;
-        lengthErr = fieldCheck(post.post.name, postsConfig.maxNameLength, "Name") || lengthErr;
-        lengthErr = fieldCheck(post.post.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
-        lengthErr = fieldCheck(post.post.content, postsConfig.maxContentLength, "Content") || lengthErr;
-        if (lengthErr) {
-            return ctx.throw(400, lengthErr);
-        }
-        ctx.state.post = post;
+        data = await multipart(ctx, postsConfig.maxFileSize, postsConfig.maxFiles, postsConfig.tmpDir, postsConfig.md5);
     } catch (error) {
         switch (error) {
             case "UNACCEPTED_MIMETYPE":
@@ -53,5 +38,25 @@ exports.parsePost = async (ctx, next) => {
                 return ctx.throw(500, new Error(error));
         }
     }
+
+    const post = {
+        files: data.files,
+        post: {
+            name: standardText(data.fields.name),
+            subject: standardText(data.fields.subject),
+            content: standardText(data.fields.content)
+        }
+    };
+    for (const file of post.files) {
+        file.originalName = standardText(file.originalName);
+    }
+    let lengthErr;
+    lengthErr = fieldCheck(post.post.name, postsConfig.maxNameLength, "Name") || lengthErr;
+    lengthErr = fieldCheck(post.post.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
+    lengthErr = fieldCheck(post.post.content, postsConfig.maxContentLength, "Content") || lengthErr;
+    if (lengthErr) {
+        return ctx.throw(400, lengthErr);
+    }
+    ctx.state.post = post;
     return await next();
 };
