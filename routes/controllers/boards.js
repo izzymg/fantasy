@@ -27,7 +27,7 @@ exports.checkBoard = async (ctx, next) => {
 
 exports.checkThread = async (ctx, next) => {
     const thread = await db.fetch(`SELECT id FROM posts_${ctx.state.board.url} WHERE id = ? AND parent = 0`, ctx.params.thread);
-    if(!thread) {
+    if (!thread) {
         return ctx.throw(404);
     }
     await next();
@@ -88,7 +88,7 @@ exports.validateReply = async (ctx, next) => {
 exports.submitPost = async ctx => {
     const insertPost = await db.query(`INSERT INTO posts_${ctx.state.board.url} set ?`, ctx.state.post.post);
     let processedFiles = 0;
-    if(ctx.state.post.files && ctx.state.post.files.length > 1) {
+    if (ctx.state.post.files && ctx.state.post.files.length > 0) {
         await Promise.all(ctx.state.post.files.map(async file => {
             const permaPath = path.join(postsConfig.filesDir, `${file.fileId}.${file.extension}`);
 

@@ -24,6 +24,8 @@ ESLint included - Semicolons, unix style/LF line endings, double quotes, spaces.
 
 `npm run lint` 
 
+`npm run watch-css`
+
 #### Getting started
 
 You must go to the ./config directory and change remove the .default from all filenames.
@@ -37,5 +39,7 @@ Read through the configurations, many options may be unsafe for production.
 In your MySQL/Postgres instance, run `create database zthree`
 
 Once you've configured `secrets.js`, run `node ./setup.js` to create the tables required.
+
+`npm run build-css`
 
 `npm start` or `node ./server.js`
