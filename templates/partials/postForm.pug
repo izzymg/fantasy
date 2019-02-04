@@ -1,0 +1,9 @@
+mixin postForm
+    div.postFormBox
+        form.postForm(method="post" enctype="multipart/form-data")
+            input.formName(type="text" name="name" placeholder="Name")
+            input.formSubject(type="text" name="subject" placeholder="Subject")
+            textarea.formContent(type="text" name="content" placeholder="Content")
+            .formUpload
+                input.formFile(name="image" type="file" placeholder="Upload image")
+            input.formSubmit(type="submit" value="Submit Post")

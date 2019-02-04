@@ -88,28 +88,30 @@ exports.validateReply = async (ctx, next) => {
 exports.submitPost = async ctx => {
     const insertPost = await db.query(`INSERT INTO posts_${ctx.state.board.url} set ?`, ctx.state.post.post);
     let processedFiles = 0;
-    await Promise.all(ctx.state.post.files.map(async file => {
-        const permaPath = path.join(postsConfig.filesDir, `${file.fileId}.${file.extension}`);
+    if(ctx.state.post.files && ctx.state.post.files.length > 1) {
+        await Promise.all(ctx.state.post.files.map(async file => {
+            const permaPath = path.join(postsConfig.filesDir, `${file.fileId}.${file.extension}`);
 
-        // Move temp file into permanent store
-        try {
-            await miscFunctions.rename(file.tempPath, permaPath);
-        } catch (error) {
-            await miscFunctions.unlink(file.tempPath);
-        }
+            // Move temp file into permanent store
+            try {
+                await miscFunctions.rename(file.tempPath, permaPath);
+            } catch (error) {
+                await miscFunctions.unlink(file.tempPath);
+            }
 
-        // Create thumbnail if mimetype contains "image"
-        if (file.mimetype.indexOf("image") != -1) {
-            await miscFunctions.createThumbnail(permaPath, path.join(postsConfig.filesDir, `${file.fileId}${postsConfig.thumbSuffix}.jpg`), postsConfig.thumbWidth);
-            file.thumbSuffix = postsConfig.thumbSuffix;
-        }
+            // Create thumbnail if mimetype contains "image"
+            if (file.mimetype.indexOf("image") != -1) {
+                await miscFunctions.createThumbnail(permaPath, path.join(postsConfig.filesDir, `${file.fileId}${postsConfig.thumbSuffix}.jpg`), postsConfig.thumbWidth);
+                file.thumbSuffix = postsConfig.thumbSuffix;
+            }
 
-        // Object is modified to fit database columns
-        delete file.tempPath;
-        file.postId = insertPost.inserted;
-        processedFiles++;
-        await db.query(`INSERT INTO files_${ctx.state.board.url} set ?`, file);
-    }));
+            // Object is modified to fit database columns
+            delete file.tempPath;
+            file.postId = insertPost.inserted;
+            processedFiles++;
+            await db.query(`INSERT INTO files_${ctx.state.board.url} set ?`, file);
+        }));
+    }
     ctx.body = `Created post ${insertPost.inserted}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
 };
 
