@@ -17,7 +17,6 @@ function fieldCheck(str, max, name) {
 }
 
 exports.parsePost = async (ctx, next) => {
-
     if (!ctx.is("multipart/form-data")) {
         return ctx.throw(400, "Expected multipart/form-data");
     }
@@ -40,7 +39,6 @@ exports.parsePost = async (ctx, next) => {
             return ctx.throw(400, lengthErr);
         }
         ctx.state.post = post;
-        return await next();
     } catch (error) {
         switch (error) {
             case "UNACCEPTED_MIMETYPE":
@@ -55,4 +53,5 @@ exports.parsePost = async (ctx, next) => {
                 return ctx.throw(500, new Error(error));
         }
     }
+    return await next();
 };

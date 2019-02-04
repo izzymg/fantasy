@@ -23,6 +23,9 @@ const query = function (sql, values = [], nestTables = false) {
     return new Promise((resolve, reject) => {
         db.query({ sql, nestTables }, values, (error, results) => {
             if (error) {
+                if(error.code === "ER_NO_SUCH_TABLE") {
+                    console.error("Noticed no-such-table - ensure you ran the setup.js file");
+                }
                 reject(error);
             }
             resolve(results);
