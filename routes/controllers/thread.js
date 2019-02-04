@@ -29,12 +29,14 @@ exports.render = async (ctx, next) => {
         const replies = {};
         if (repliesData) {
             repliesData.forEach(reply => {
-                if (replies[reply.posts.id]) {
+                if (replies[reply.posts.id] && reply.files.fileId) {
                     replies[reply.posts.id].files.push(reply.files);
                 } else {
                     replies[reply.posts.id] = reply.posts;
-                    replies[reply.posts.id].files = [];
-                    replies[reply.posts.id].files.push(reply.files);
+                    if (reply.files.fileId) {
+                        replies[reply.posts.id].files = [];
+                        replies[reply.posts.id].files.push(reply.files);
+                    }
                 }
             });
         }

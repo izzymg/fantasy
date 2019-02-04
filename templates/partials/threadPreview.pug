@@ -1,11 +1,12 @@
 mixin threadPreview(post)
     .threadPreview
         a(href="threads/" + post.id title=new Date(post.date).toLocaleString())
-            each file in post.files 
-                if file.thumbSuffix               
-                    img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
+            if post.files
+                each file in post.files 
+                    if file.thumbSuffix               
+                        img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
                 else
                     a(href=`/files/${file.fileId}.${file.extension}`).fileLink !{file.originalName}
             if post.subject
-                .subject !{post.subject}
-            .content !{post.content}
+                span.subject !{post.subject}
+            p.content !{post.content}

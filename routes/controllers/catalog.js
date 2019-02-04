@@ -14,12 +14,14 @@ exports.render = async ctx => {
         // Remove duplicate post data and add files to posts
         if (threadsData) {
             threadsData.forEach(thread => {
-                if (threads[thread.posts.id]) {
+                if (threads[thread.posts.id] && thread.files.fileId) {
                     threads[thread.posts.id].files.push(thread.files);
                 } else {
                     threads[thread.posts.id] = thread.posts;
-                    threads[thread.posts.id].files = [];
-                    threads[thread.posts.id].files.push(thread.files);
+                    if (thread.files.fileId) {
+                        threads[thread.posts.id].files = [];
+                        threads[thread.posts.id].files.push(thread.files);
+                    }
                 }
             });
         }

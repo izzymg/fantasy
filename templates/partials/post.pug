@@ -1,18 +1,21 @@
 mixin post(post)
     .post
-        .postFiles
-            for file in post.files
-                if file.thumbSuffix               
-                    img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
-                else
-                    span.file #{file.originalName}
-                a(href=`/files/${file.fileId}.${file.extension}`).filename #{file.originalName}
         .postInfo
-            a(name=post.id href="#" + post.id)
-                span.id #{post.id}
+            a.postId(name=post.id href="#" + post.id)
+                span.id no.#{post.id}
             span.name !{post.name}
             if post.subject
                 span.subject !{post.subject}
-            span.date #{new Date(post.date).toLocaleString()}
+            span(titl=post.date).date #{new Date(post.date).toLocaleString()}
+        if post.files
+            .files
+                for file in post.files
+                    .fileInfo
+                        a(href=`/files/${file.fileId}.${file.extension}`) #{file.originalName}
+                    a(href=`/files/${file.fileId}.${file.extension}`).file
+                        if file.thumbSuffix               
+                            img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
+                        else
+                            span #{file.originalName}
         .content
             p !{post.content}

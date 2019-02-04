@@ -1,0 +1,56 @@
+@import "vars";
+
+.post {
+    overflow: hidden;
+    margin: 5px 0;
+
+    .files {
+        margin: 5px 0;
+    }
+
+    .file {
+        float: left;
+        clear: both;
+        margin-left: 5px;
+    }
+
+    .fileInfo {
+        padding: 1px 5px;
+        text-decoration: underline;
+        display: inline;
+    }
+
+    .postInfo {
+        width: 100%;
+        .postId {
+            float: right;
+            margin: 0 5px;
+        }
+        .subject {
+            color: $subject;
+            float: left;
+        }
+        .name {
+            color: $name;
+            margin: 0 5px;
+        }
+        .date {
+            font-size: 0.9em;
+        }
+    }
+    .content {
+        display: inline-block;
+        p {
+            margin: 0;
+            padding: 0;
+        }
+    }
+}
+
+.replies .post {
+    padding: 5px;
+    background: #fff;
+    border: 1px solid lightgrey;
+    box-shadow: rgb(29, 29, 29) 1px 1px 5px solid;
+    color: #2e2e2e;
+}
