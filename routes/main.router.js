@@ -6,12 +6,26 @@ const boards = require("./controllers/boards");
 const catalog = require("./controllers/catalog");
 const thread = require("./controllers/thread");
 const files = require("./controllers/files");
-const notfound = require("./controllers/notfound");
 
 // Boards are cached to prevent excess DB queries
-function setup() {
-    boards.genCache();
+async function setup() {
+    try {
+        await boards.genCache();
+    } catch(e) {
+        throw e;
+    }
 }
+
+router.use(async (ctx, next) => {
+    try {
+        await next();
+    } catch(error) {
+        if(ctx.status === 404) {
+            return ctx.render("notfound");
+        }
+        return await next();
+    }
+});
 
 router.get("/", home.render);
 
@@ -46,7 +60,8 @@ router.get("/boards/:board/threads/:thread", boards.checkBoard, thread.render);
 router.get("/files/:filename", files.render);
 
 // Fallthroughs
-router.get("*", notfound.render);
-router.get("/404", notfound.render);
+router.get("*", async ctx => {
+    await ctx.render("notfound");
+});
 
 module.exports = { setup, routes: router.routes() };

@@ -19,7 +19,6 @@ if (databaseConfig.debugMetrics) {
 }
 
 const query = function (sql, values = [], nestTables = false) {
-    console.log(nestTables);
     if (!db) throw "No database connection, did you call open()?";
     return new Promise((resolve, reject) => {
         db.query({ sql, nestTables }, values, (error, results) => {

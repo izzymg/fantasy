@@ -4,12 +4,9 @@ const path = require("path");
 const postsConfig = require("../../config/posts");
 var boardCache = [];
 
-exports.genCache = () => {
-    db.fetchAll("SELECT * FROM boards").then(boards => {
-        boardCache = boards;
-    }).catch(e => {
-        throw `Error caching boards\n${e}`;
-    });
+exports.genCache = async () => {
+    const boards = await db.fetchAll("SELECT * FROM boards");
+    boardCache = boards;
 };
 
 exports.checkBoard = async (ctx, next) => {
@@ -20,9 +17,9 @@ exports.checkBoard = async (ctx, next) => {
             return await next();
         }
     }
-    const board = db.fetch("SELECT * FROM boards where url = ?", boardUrl);
+    const board = await db.fetch("SELECT * FROM boards where url = ?", boardUrl);
     if (!board) {
-        return ctx.throw(404, "Board not found");
+        return ctx.throw(404);
     }
     ctx.state.board = board;
     return await next();
