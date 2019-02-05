@@ -7,10 +7,11 @@ exports.createThumbnail = async function (inFilename, outFilename, width) {
         const metadata = await image.metadata();
         // Don't resize if image is smaller than a thumbnail
         if (metadata.width > width) {
-            return await image.resize(150).toFormat("jpeg").toFile(outFilename);
+            await image.resize(150).toFormat("jpeg").toFile(outFilename);
         } else {
-            return await image.toFormat("jpeg").toFile(outFilename);
+            await image.toFormat("jpeg").toFile(outFilename);
         }
+        image.end();
     } catch (e) {
         throw new Error(e);
     }

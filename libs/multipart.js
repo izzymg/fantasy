@@ -9,35 +9,36 @@ const miscfunctions = require("./miscfunctions");
 const crypto = require("crypto");
 
 module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
-    return new Promise((resolve, reject) => {
 
-        // New busboy instance with request headers
-        const busboy = new Busboy({
-            headers: ctx.headers, limits: {
-                fileSize: maxFileSize,
-                fields: 3,
-                files: maxFiles
-            }
-        });
-
-        let files = [];
-        let fields = {};
-        let temps = [];
-
-        // Unlink all written temp files
-        async function cleanup() {
-            for (const t of temps) {
-                await miscfunctions.unlink(t);
-            }
+    // New busboy instance with request headers
+    const busboy = new Busboy({
+        headers: ctx.headers, limits: {
+            fileSize: maxFileSize,
+            fields: 3,
+            files: maxFiles
         }
+    });
 
+    let files = [];
+    let fields = {};
+    let temps = [];
+
+    // Unlink all written temp files
+    async function cleanup() {
+        for (const t of temps) {
+            await miscfunctions.unlink(t);
+        }
+    }
+
+    return new Promise((resolve, reject) => {
         // Read incoming files
-        busboy.on("file", function (fieldname, file, originalName) {
+        busboy.on("file", (fieldname, file, originalName) => {
             // Create unique file ID and write stream to temp path
             const fileId = uuid();
             const tempPath = path.join(tmpDir, fileId);
             temps.push(tempPath);
             const ws = fs.createWriteStream(tempPath);
+            ws.on("error", (error) => reject(error));
 
             let mimetype;
             let extension;
@@ -65,12 +66,10 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
                 }
             });
 
-            ws.on("error", (error) => reject(error));
-
-            file.on("limit", () => cleanup().then(() => reject("FILE_SIZE_LIMIT")).catch(e => reject(e)));
-
             file.on("end", () => {
-                if(!firstBytes) {
+                file.unpipe(ws);
+                ws.end();
+                if (!firstBytes) {
                     return;
                 }
                 const fileObj = {
@@ -86,6 +85,7 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
                 return files.push(fileObj);
             });
 
+            file.on("limit", () => cleanup().then(() => reject("FILE_SIZE_LIMIT")).catch(e => reject(e)));
             // Write to temp
             file.pipe(ws);
         });
