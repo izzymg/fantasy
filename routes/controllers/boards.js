@@ -6,7 +6,7 @@ var boardCache = [];
 
 exports.genCache = async () => {
     const boards = await db.fetchAll("SELECT url, title, about, bumpLimit, maxThreads, createdAt FROM boards");
-    boardCache = boards;
+    boardCache = boards || [];
 };
 
 exports.checkBoard = async (ctx, next) => {
@@ -102,10 +102,10 @@ exports.submitPost = async ctx => {
         },
         {
             sql: "INSERT INTO posts SET boardId = @boardId, ?",
-            values: {...ctx.state.post}
+            values: ctx.state.post
         }
     ];
-    const [,,,insertPost] = await db.transaction(queries);
+    const [, , , insertPost] = await db.transaction(queries);
     let processedFiles = 0;
     if (files && files.length > 0) {
         await Promise.all(files.map(async file => {
