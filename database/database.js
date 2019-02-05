@@ -26,12 +26,87 @@ const query = function (sql, values = [], nestTables = false) {
                 if(error.code === "ER_NO_SUCH_TABLE") {
                     console.error("Noticed no-such-table - ensure you ran the setup.js file");
                 }
-                reject(error);
+                return reject(error);
             }
             resolve(results);
         });
     });
 };
+
+const getConnection = function() {
+    if(!db) throw "No database connection, did you call open()?";
+    return new Promise((resolve, reject) => {
+        db.getConnection((error, connection) => {
+            if(error) {
+                return reject(error);
+            }
+            return resolve({
+                query: function(sql, values, nestTables = false) {
+                    return new Promise((resolve, reject) => {
+                        connection.query({ sql: sql, nestTables}, values, (err, results) => {
+                            if(err) {
+                                reject(err);
+                            }
+                            resolve(results);
+                        });
+                    });
+                },
+                rollback: function() {
+                    return new Promise((resolve) => {
+                        connection.rollback(() => {
+                            resolve();
+                        });
+                    });
+                },
+                release: function() {
+                    return connection.release();
+                },
+                beginTransaction: function() {
+                    return new Promise((resolve, reject) => {
+                        connection.beginTransaction((error) => {
+                            if(error) {
+                                return reject(error);
+                            }
+                            return resolve();
+                        });
+                    });
+                },
+                commit: function() {
+                    return new Promise((resolve, reject) => {
+                        connection.commit((error) => {
+                            if(error) {
+                                return reject(error);
+                            }
+                            return resolve();
+                        });
+                    });
+                }
+            });
+        });
+    });
+};
+
+
+const transaction = async function(queries) {
+    if(!db) throw "No database connection, did you call open()?";
+    let connection;
+    let aggregate = [];
+    try {
+        connection = await getConnection();
+        for(const query of queries) {
+            const values = await connection.query(query.sql, query.values || [], query.nestTables || false);
+            aggregate.push(values);
+        }
+        await connection.commit();
+    } catch(e) {
+        await connection.rollback();
+        await connection.release();
+        throw e;
+    }
+    await connection.release();
+    return aggregate;
+};
+
 module.exports = {
     open: async function () {
         db = mysql.createPool(settings);
@@ -43,8 +118,9 @@ module.exports = {
             console.log("Closing database connection");
             db.end((error) => {
                 if (error) {
-                    reject(error);
+                    return reject(error);
                 }
+                db = null;
                 resolve();
             });
         });
@@ -62,5 +138,9 @@ module.exports = {
     query: async function (sql, values, nestTables) {
         const res = await query(sql, values, nestTables);
         return { affected: res.affectedRows || 0, inserted: res.insertId || null, changed: res.changedRows || 0 };
+    },
+    transaction: async function(queries) {
+        const res = await transaction(queries);
+        return res;
     }
 };
