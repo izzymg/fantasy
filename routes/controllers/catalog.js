@@ -12,15 +12,17 @@ exports.render = async ctx => {
             ctx.state.board.url, true);
         const threads = {};
         // Remove duplicates from query and join files to posts
-        for(const thread of threadsData) {
-            if(threads[thread.posts.id] && thread.files.fileId) {
-                threads[thread.posts.id].files.push(thread.files);
-            } else {
-                // Copy thread posts table into new key/val pair
-                threads[thread.posts.id] = thread.posts;
-                // Add thread files array
-                if(thread.files.fileId) {
-                    threads[thread.posts.id].files = [thread.files];
+        if(threadsData) {
+            for(const thread of threadsData) {
+                if(threads[thread.posts.id] && thread.files.fileId) {
+                    threads[thread.posts.id].files.push(thread.files);
+                } else {
+                    // Copy thread posts table into new key/val pair
+                    threads[thread.posts.id] = thread.posts;
+                    // Add thread files array
+                    if(thread.files.fileId) {
+                        threads[thread.posts.id].files = [thread.files];
+                    }
                 }
             }
         }
