@@ -1,6 +1,6 @@
 const db = require("../../database/database");
 
-exports.render = async (ctx, next) => {
+exports.render = async ctx => {
     try {
         const [opData, repliesData] = await Promise.all([
             db.fetchAll(`SELECT boardId AS id, createdAt AS date, name, subject, content, sticky,

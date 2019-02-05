@@ -8,7 +8,8 @@
     "fix-lint": "eslint **/*.js --fix",
     "start": "node server.js",
     "build-css": "sass static/src/css:static/dist/css",
-    "watch-css": "sass --watch static/src/css:static/dist/css"
+    "watch-css": "sass --watch static/src/css:static/dist/css",
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "eslint": "^5.12.1",
+    "mocha": "^5.2.0",
     "sass": "^1.16.1"
   }
 }

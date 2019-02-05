@@ -86,7 +86,6 @@ const getConnection = function() {
     });
 };
 
-
 const transaction = async function(queries) {
     if(!db) throw "No database connection, did you call open()?";
     let connection;
@@ -115,7 +114,6 @@ module.exports = {
     close: function () {
         if (!db) throw "No db connection but called close()";
         return new Promise((resolve, reject) => {
-            console.log("Closing database connection");
             db.end((error) => {
                 if (error) {
                     return reject(error);
