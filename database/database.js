@@ -13,8 +13,10 @@ var settings = {
     connectionLimit: databaseConfig.maxConnections
 };
 
-if (databaseConfig.debugMetrics) {
-    console.warn("Enabling db debugging/metrics.");
+var metrics;
+
+if (databaseConfig.debug) {
+    console.warn("Enabling db debugging.");
     settings.debug = ["ComQueryPacket"];
 }
 
@@ -109,10 +111,26 @@ const transaction = async function(queries) {
 module.exports = {
     open: async function () {
         db = mysql.createPool(settings);
+        if (databaseConfig.metrics) {
+            console.log("Enabling metrics");
+            metrics = {
+                timesAcquired: 0,
+                timesEnqueued: 0
+            };
+            db.on("acquire", () => {
+                metrics.timesAcquired++;
+            });
+            db.on("enqueue", () => {
+                metrics.timesEnqueued++;
+            });
+        }
         return { host: settings.host, port: settings.port };
     },
     close: function () {
         if (!db) throw "No db connection but called close()";
+        if(databaseConfig.metrics) {
+            console.log(`Connections acquired from pool: ${metrics.timesAcquired}\nTimes queries had to wait for a connection: ${metrics.timesEnqueued}`);
+        }
         return new Promise((resolve, reject) => {
             db.end((error) => {
                 if (error) {

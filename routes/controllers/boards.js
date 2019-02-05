@@ -17,7 +17,7 @@ exports.checkBoard = async (ctx, next) => {
             return await next();
         }
     }
-    const board = await db.fetch("SELECT url, title, about, bumpLimit, maxThreads, createdAt FROM boards where boardUrl = ?", boardUrl);
+    const board = await db.fetch("SELECT url, title, about, bumpLimit, maxThreads, createdAt FROM boards where url = ?", boardUrl);
     if (!board) {
         return ctx.throw(404);
     }

@@ -9,6 +9,8 @@ module.exports = {
     maxConnections: 5,
     // Maximum time the database should try to get a connection in MS
     maxAcquireTime: 6000,
-    // Enable this to get metrics logs. Performance impact and spams stdout.
-    debugMetrics: false
+    // Enable to stam stdout with every SQL query
+    debug: false,
+    // Enable to get details on connection pooling
+    metrics: true
 };
