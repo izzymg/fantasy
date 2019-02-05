@@ -5,7 +5,7 @@ const postsConfig = require("../../config/posts");
 var boardCache = [];
 
 exports.genCache = async () => {
-    const boards = await db.fetchAll("SELECT * FROM boards");
+    const boards = await db.fetchAll("SELECT url, title, about, bumpLimit, maxThreads, createdAt FROM boards");
     boardCache = boards;
 };
 
@@ -17,7 +17,7 @@ exports.checkBoard = async (ctx, next) => {
             return await next();
         }
     }
-    const board = await db.fetch("SELECT * FROM boards where url = ?", boardUrl);
+    const board = await db.fetch("SELECT url, title, about, bumpLimit, maxThreads, createdAt FROM boards where url = ?", boardUrl);
     if (!board) {
         return ctx.throw(404);
     }
@@ -26,7 +26,7 @@ exports.checkBoard = async (ctx, next) => {
 };
 
 exports.checkThread = async (ctx, next) => {
-    const thread = await db.fetch(`SELECT id FROM posts_${ctx.state.board.url} WHERE id = ? AND parent = 0`, ctx.params.thread);
+    const thread = await db.fetch(``, ctx.params.thread);
     if (!thread) {
         return ctx.throw(404);
     }
@@ -86,7 +86,7 @@ exports.validateReply = async (ctx, next) => {
 };
 
 exports.submitPost = async ctx => {
-    const insertPost = await db.query(`INSERT INTO posts_${ctx.state.board.url} set ?`, ctx.state.post.post);
+    const insertPost = await db.query(``, ctx.state.post.post);
     let processedFiles = 0;
     if (ctx.state.post.files && ctx.state.post.files.length > 0) {
         await Promise.all(ctx.state.post.files.map(async file => {
@@ -109,7 +109,7 @@ exports.submitPost = async ctx => {
             delete file.tempPath;
             file.postId = insertPost.inserted;
             processedFiles++;
-            await db.query(`INSERT INTO files_${ctx.state.board.url} set ?`, file);
+            await db.query(``, file);
         }));
     }
     ctx.body = `Created post ${insertPost.inserted}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
@@ -120,6 +120,6 @@ exports.render = async ctx => {
     if (boardCache && boardCache.length > 0) {
         return await ctx.render("boards", { boards: boardCache });
     }
-    const boards = await db.fetchAll("SELECT * FROM boards");
+    const boards = await db.fetchAll("SELECT url, title, about, bumpLimit, maxThreads, createdAt FROM boards");
     await ctx.render("boards", { boards });
 };

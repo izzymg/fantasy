@@ -3,27 +3,26 @@ const db = require("../../database/database");
 exports.render = async ctx => {
     try {
         const threadsData = await db.fetchAll(
-            `SELECT id, name, subject, content, date, lastBump, fileId, thumbSuffix, originalName, extension
-            FROM posts_${ctx.state.board.url} posts
-            LEFT JOIN files_${ctx.state.board.url} files
-            ON files.postId = posts.id
-            WHERE parent = 0
-            ORDER BY lastBump ASC`
-            , null, true);
+            `SELECT boardId AS id, createdAt AS date, name, subject, content, sticky,
+                fileId, extension, thumbSuffix
+            FROM posts
+            LEFT JOIN files ON posts.uid = files.postUid
+            WHERE boardUrl = ? AND parent = 0
+            ORDER BY lastBump ASC`,
+            ctx.state.board.url, true);
         const threads = {};
-        // Remove duplicate post data and add files to posts
-        if (threadsData) {
-            threadsData.forEach(thread => {
-                if (threads[thread.posts.id] && thread.files.fileId) {
-                    threads[thread.posts.id].files.push(thread.files);
-                } else {
-                    threads[thread.posts.id] = thread.posts;
-                    if (thread.files.fileId) {
-                        threads[thread.posts.id].files = [];
-                        threads[thread.posts.id].files.push(thread.files);
-                    }
+        // Remove duplicates from query and join files to posts
+        for(const thread of threadsData) {
+            if(threads[thread.posts.id] && thread.files.fileId) {
+                threads[thread.posts.id].files.push(thread.files);
+            } else {
+                // Copy thread posts table into new key/val pair
+                threads[thread.posts.id] = thread.posts;
+                // Add thread files array
+                if(thread.files.fileId) {
+                    threads[thread.posts.id].files = [thread.files];
                 }
-            });
+            }
         }
         return await ctx.render("catalog", { threads });
     } catch (error) {
