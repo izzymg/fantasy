@@ -17,7 +17,7 @@ exports.checkBoard = async (ctx, next) => {
             return await next();
         }
     }
-    const board = await db.fetch("SELECT url, title, about, bumpLimit, maxThreads, createdAt FROM boards where url = ?", boardUrl);
+    const board = await db.fetch("SELECT url, title, about, bumpLimit, maxThreads, createdAt FROM boards where boardUrl = ?", boardUrl);
     if (!board) {
         return ctx.throw(404);
     }
@@ -26,7 +26,7 @@ exports.checkBoard = async (ctx, next) => {
 };
 
 exports.checkThread = async (ctx, next) => {
-    const thread = await db.fetch(``, ctx.params.thread);
+    const thread = await db.fetch("SELECT boardId FROM posts WHERE parent = 0 AND boardUrl = ? AND boardId = ?", [ctx.state.board.url, ctx.params.thread]);
     if (!thread) {
         return ctx.throw(404);
     }
@@ -86,8 +86,26 @@ exports.validateReply = async (ctx, next) => {
 };
 
 exports.submitPost = async ctx => {
-    const insertPost = await db.query(``, ctx.state.post.post);
+    ctx.state.post.post.boardUrl = ctx.state.board.url;
+    const queries = [
+        {
+            sql: "SELECT @boardId:=MAX(boardId) FROM posts WHERE boardUrl = ?",
+            values: ctx.state.board.url
+        },
+        {
+            sql: "SET @boardId = COALESCE(@boardId, 0)"
+        },
+        {
+            sql: "SET @boardId = @boardId + 1"
+        },
+        {
+            sql: "INSERT INTO posts SET boardId = @boardId, ?",
+            values: ctx.state.post.post
+        }
+    ];
+    await db.transaction(queries);
     let processedFiles = 0;
+    /*
     if (ctx.state.post.files && ctx.state.post.files.length > 0) {
         await Promise.all(ctx.state.post.files.map(async file => {
             const permaPath = path.join(postsConfig.filesDir, `${file.fileId}.${file.extension}`);
@@ -109,10 +127,11 @@ exports.submitPost = async ctx => {
             delete file.tempPath;
             file.postId = insertPost.inserted;
             processedFiles++;
-            await db.query(``, file);
+            await db.query("", file);
         }));
     }
-    ctx.body = `Created post ${insertPost.inserted}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
+    */
+    ctx.body = `Post created${processedFiles ? `, uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
 };
 
 

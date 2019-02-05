@@ -27,13 +27,13 @@ exports.render = async (ctx, next) => {
         let replyCount = 0;
         if(repliesData) {
             repliesData.forEach(reply => {
-                if(replies[reply.id] && reply.files.fileId) {
-                    replies[reply.id].files.push(reply.files);
+                if(replies[reply.posts.id] && reply.files.fileId) {
+                    replies[reply.posts.id].files.push(reply.files);
                 } else {
-                    replies[reply.id] = reply.post;
+                    replies[reply.posts.id] = reply.posts;
                     replyCount++;
                     if(reply.files.fileId) {
-                        replies[reply.id].files = [reply.files];
+                        replies[reply.posts.id].files = [reply.files];
                     }
                 }
             });
