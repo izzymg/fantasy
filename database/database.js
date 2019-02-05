@@ -139,8 +139,5 @@ module.exports = {
         const res = await query(sql, values, nestTables);
         return { affected: res.affectedRows || 0, inserted: res.insertId || null, changed: res.changedRows || 0 };
     },
-    transaction: async function(queries) {
-        const res = await transaction(queries);
-        return res;
-    }
+    transaction: transaction
 };
