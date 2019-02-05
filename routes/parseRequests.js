@@ -41,19 +41,17 @@ exports.parsePost = async (ctx, next) => {
 
     const post = {
         files: data.files,
-        post: {
-            name: standardText(data.fields.name),
-            subject: standardText(data.fields.subject),
-            content: standardText(data.fields.content)
-        }
+        name: standardText(data.fields.name),
+        subject: standardText(data.fields.subject),
+        content: standardText(data.fields.content)
     };
     for (const file of post.files) {
         file.originalName = standardText(file.originalName);
     }
     let lengthErr;
-    lengthErr = fieldCheck(post.post.name, postsConfig.maxNameLength, "Name") || lengthErr;
-    lengthErr = fieldCheck(post.post.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
-    lengthErr = fieldCheck(post.post.content, postsConfig.maxContentLength, "Content") || lengthErr;
+    lengthErr = fieldCheck(post.name, postsConfig.maxNameLength, "Name") || lengthErr;
+    lengthErr = fieldCheck(post.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
+    lengthErr = fieldCheck(post.content, postsConfig.maxContentLength, "Content") || lengthErr;
     if (lengthErr) {
         return ctx.throw(400, lengthErr);
     }

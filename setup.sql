@@ -27,5 +27,7 @@ CREATE TABLE IF NOT EXISTS files (
     fileId varchar(36) PRIMARY KEY,
     extension tinytext NOT NULL,
     mimetype tinytext,
-    thumbSuffix tinytext DEFAULT NULL
+    thumbSuffix tinytext DEFAULT NULL,
+    originalName text,
+    hash text
 )ENGINE=InnoDB;
