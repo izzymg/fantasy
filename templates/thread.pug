@@ -5,18 +5,18 @@ include partials/postForm.pug
 block head
     link(rel="stylesheet" href="/css/postForm.css")
     link(rel="stylesheet" href="/css/thread.css")
-    title /#{board.url}/ - #{thread.op.subject || ""} - #{webname}
+    title /#{board.url}/ - #{op.subject || ""} - #{webname}
 block content
     .title
         h1
             a(href=`/boards/${board.url}/`) /#{board.url}/ - #{board.title}
-        h3.fancy !{thread.op.subject}
+        h3.fancy !{op.subject}
     +postForm
     +boardInfo
     .thread
         #op
-            +post(thread.op)
+            +post(op)
         .replies        
-            for reply in thread.replies
+            for reply in replies
                 +post(reply)
                     p #{reply.id}
