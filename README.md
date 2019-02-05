@@ -3,7 +3,7 @@
 
 Imageboard/BBS written in NodeJS with Koa and MySQLJS/MySQL
 
-Not currently safe for production
+Tested only on MariaDB - not currently safe for production
 
 #### Dependencies:
 
@@ -13,8 +13,11 @@ Run `npm install` once you've installed NodeJS and npm to automatically pull in 
 
 * koa
 * busboy
+* sharp
 * pug
 * mysql
+* sass
+* uuid
 
 #### Development
 
@@ -36,9 +39,11 @@ All configuration files are commented with explanations on each value.
 
 Read through the configurations, many options may be unsafe for production.
 
-In your MySQL/Postgres instance, run `create database zthree`
+In your MySQL client, connect to your database instance and run `create database zthree`
 
-Once you've configured `secrets.js`, run `node ./setup.js` to create the tables required.
+Then in your terminal, run `mysql -h [yourdbhost.com] -u [username] -p zthree < ./setup.sql`
+
+This will run a set of CREATE TABLE commands
 
 `npm run build-css`
 
