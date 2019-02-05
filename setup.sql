@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS boards (
     bumpLimit integer DEFAULT 0,
     maxThreads integer DEFAULT 2,
     createdAt datetime DEFAULT CURRENT_TIMESTAMP
-)ENGINE=InnoDB;
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS posts (
     uid integer PRIMARY KEY AUTO_INCREMENT,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS posts (
     content text,
     sticky boolean DEFAULT FALSE,
     UNIQUE KEY board_uid (boardUrl, boardId)
-)ENGINE=InnoDB;
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS files (
     postUid integer NOT NULL,
@@ -30,4 +30,4 @@ CREATE TABLE IF NOT EXISTS files (
     thumbSuffix tinytext DEFAULT NULL,
     originalName text,
     hash text
-)ENGINE=InnoDB;
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

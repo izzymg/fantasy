@@ -43,8 +43,6 @@ exports.standardText = function (str) {
     str = str.trim();
     if (!str) { return null; }
     return str
-        .replace(/\//g, "&#x2F;")
-        .replace(/\\/g, "&#x5C;")
         .replace(/&/g, "&amp;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#x27;")
