@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS posts (
     content text,
     sticky boolean DEFAULT FALSE,
     UNIQUE KEY board_uid (boardUrl, boardId)
-)ENGINE=Aria;
+)ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS files (
     postUid integer NOT NULL,
