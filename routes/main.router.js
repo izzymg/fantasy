@@ -1,6 +1,5 @@
 const Router = require("koa-router");
 const router = new Router({ strict: true });
-const parseRequests = require("./parseRequests");
 const home = require("./controllers/home");
 const boards = require("./controllers/boards");
 const catalog = require("./controllers/catalog");
@@ -11,7 +10,7 @@ const files = require("./controllers/files");
 async function setup() {
     try {
         await boards.genCache();
-    } catch(e) {
+    } catch (e) {
         throw e;
     }
 }
@@ -19,8 +18,8 @@ async function setup() {
 router.get("*", async (ctx, next) => {
     try {
         await next();
-    } catch(error) {
-        if(error.status === 404) {
+    } catch (error) {
+        if (error.status === 404) {
             return ctx.render("notfound");
         }
         return ctx.throw(error);
@@ -45,12 +44,12 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
 router.get("/boards/", boards.render);
 router.get("/boards/:board/", boards.checkBoard, catalog.render);
 
-router.post("/boards/:board/", boards.checkBoard, parseRequests.parsePost, boards.validateThread, boards.submitPost);
+router.post("/boards/:board/", boards.checkBoard, catalog.post);
 
 // Thread
 router.get("/boards/:board/threads/:thread", boards.checkBoard, thread.render);
 
-router.post("/boards/:board/threads/:thread", boards.checkBoard, boards.checkThread, parseRequests.parsePost, boards.validateReply, boards.submitPost);
+router.post("/boards/:board/threads/:thread", boards.checkBoard, thread.post);
 
 // Serve files
 router.get("/files/:filename", files.render);

@@ -5,7 +5,7 @@ const Busboy = require("busboy");
 const fs = require("fs");
 const uuid = require("uuid/v4");
 const path = require("path");
-const miscfunctions = require("./miscfunctions");
+const fileFunctions = require("./fileFunctions");
 const crypto = require("crypto");
 
 module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
@@ -26,7 +26,7 @@ module.exports = function (ctx, maxFileSize, maxFiles, tmpDir, createHash) {
     // Unlink all written temp files
     async function cleanup() {
         for (const t of temps) {
-            await miscfunctions.unlink(t);
+            await fileFunctions.unlink(t);
         }
     }
 
