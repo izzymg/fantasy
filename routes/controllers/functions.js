@@ -5,7 +5,8 @@ const path = require("path");
 const multipart = require("../../libs/multipart");
 const { trimEscapeHtml } = require("../../libs/textFunctions");
 
-exports.getMultipart = async function (ctx) {
+// Strips files and fields off of multipart requests
+async function getMultipart(ctx) {
 
     if (!ctx.is("multipart/form-data")) {
         throw { status: 400, text: "Expected multipart/form-data" };
@@ -40,9 +41,9 @@ exports.getMultipart = async function (ctx) {
         }
     }
     return { fields: data.fields, files: data.files };
-};
+}
 
-exports.submitPost = async function ({ boardUrl, parent, name, subject, content }, files) {
+async function submitPost({ boardUrl, parent, name, subject, content }, files) {
     const queries = [
         {
             sql: "SELECT @boardId:=MAX(boardId) FROM posts WHERE boardUrl = ?",
@@ -90,4 +91,41 @@ exports.submitPost = async function ({ boardUrl, parent, name, subject, content 
         }));
     }
     return { postId, processedFiles };
+}
+
+async function deletePostAndReplies(id, board) {
+    const files = await db.fetchAll(
+        `SELECT fileId, extension, thumbSuffix 
+        FROM files INNER JOIN posts ON files.postUid = posts.uid
+        WHERE boardUrl = ? AND (boardId = ? OR parent = ?)`,
+        [board, id, id]);
+    let deletedFiles = 0;
+    if (files && files.length > 1) {
+        await Promise.all(files.map(file => {
+            const fp = fp.join(postsConfig.filesDir, file.fileId + (file.thumbSuffix ? file.thumbSuffix + file.extension : file.extension));
+            deletedFiles++;
+            return fileFunctions.unlink(fp);
+        }));
+    }
+    const { affected } = await db.query(
+        `DELETE posts, files FROM posts
+        LEFT JOIN files ON files.postUid = posts.uid
+        WHERE boardUrl = ? AND (boardId = ? OR parent = ?)`,
+        [board, id, id]);
+    // Affected rows includes file entries deleted in sql join: subtracted for number of posts only
+    return { deletedPosts: affected - deletedFiles, deletedFiles };
+}
+
+async function deleteOldestThread(board) {
+    const oldest = await db.fetch("SELECT boardId, boardUrl, MIN(lastBump) WHERE boardUrl = ?", board);
+    if (oldest) {
+        return await deletePostAndReplies(oldest.boardId, oldest.boardUrl);
+    }
+}
+
+module.exports = {
+    getMultipart,
+    submitPost,
+    deletePostAndReplies,
+    deleteOldestThread
 };
