@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS posts (
     boardId integer NOT NULL,
     parent integer NOT NULL DEFAULT 0,
     createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    lastBump datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    lastBump datetime,
     name text,
     subject text,
     content text,

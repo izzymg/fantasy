@@ -43,7 +43,7 @@ async function getMultipart(ctx) {
     return { fields: data.fields, files: data.files };
 }
 
-async function submitPost({ boardUrl, parent, name, subject, content }, files) {
+async function submitPost({ boardUrl, parent, name, subject, content, lastBump }, files) {
     const queries = [
         {
             sql: "SELECT @boardId:=MAX(boardId) FROM posts WHERE boardUrl = ?",
@@ -57,7 +57,7 @@ async function submitPost({ boardUrl, parent, name, subject, content }, files) {
         },
         {
             sql: "INSERT INTO posts SET boardId = @boardId, ?",
-            values: { parent, name, subject, content, boardUrl }
+            values: { boardUrl, parent, name, subject, content, lastBump }
         },
         {
             sql: "SELECT @boardId as postId"
@@ -101,10 +101,12 @@ async function deletePostAndReplies(id, board) {
         [board, id, id]);
     let deletedFiles = 0;
     if (files && files.length > 1) {
-        await Promise.all(files.map(file => {
-            const fp = fp.join(postsConfig.filesDir, file.fileId + (file.thumbSuffix ? file.thumbSuffix + file.extension : file.extension));
+        await Promise.all(files.map(async file => {
+            await fileFunctions.unlink(path.join(postsConfig.filesDir, file.fileId + "." + file.extension));
+            if (file.thumbSuffix) {
+                await fileFunctions.unlink(path.join(postsConfig.filesDir, file.fileId + file.thumbSuffix + "." + file.extension));
+            }
             deletedFiles++;
-            return fileFunctions.unlink(fp);
         }));
     }
     const { affected } = await db.query(
@@ -116,16 +118,31 @@ async function deletePostAndReplies(id, board) {
     return { deletedPosts: affected - deletedFiles, deletedFiles };
 }
 
-async function deleteOldestThread(board) {
-    const oldest = await db.fetch("SELECT boardId, boardUrl, MIN(lastBump) WHERE boardUrl = ?", board);
-    if (oldest) {
-        return await deletePostAndReplies(oldest.boardId, oldest.boardUrl);
+async function deleteOldestThread(boardUrl, boardMaxThreads) {
+    const num = await db.fetch("SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0", boardUrl);
+    if (num.count >= boardMaxThreads) {
+        const oldest = await db.fetch("SELECT boardId, MIN(lastBump) FROM posts WHERE boardUrl = ?", boardUrl);
+        if (oldest) {
+            return await deletePostAndReplies(oldest.boardId, boardUrl);
+        }
     }
+}
+
+async function bumpPost(boardUrl, id, boardBumpLimit) {
+    const numReplies = await db.query("SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?", [boardUrl, id]);
+    if (numReplies.count < boardBumpLimit) {
+        const { affected } = await db.query("UPDATE posts SET lastBump = NOW() WHERE boardUrl = ? AND parent = 0 AND boardId = ?", [boardUrl, id]);
+        if (!affected) {
+            throw "Bump failed";
+        }
+    }
+    return;
 }
 
 module.exports = {
     getMultipart,
     submitPost,
     deletePostAndReplies,
-    deleteOldestThread
+    deleteOldestThread,
+    bumpPost
 };

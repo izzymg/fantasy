@@ -54,8 +54,10 @@ exports.post = async ctx => {
             name: fields.name,
             subject: fields.subject,
             content: fields.content,
-        }, files);
-
+            lastBump: new Date(Date.now())
+        }, files
+    );
+    await functions.deleteOldestThread(ctx.state.board.url, ctx.state.board.maxThreads);
     return ctx.body = `Created thread ${postId}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
 };
 

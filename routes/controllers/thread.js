@@ -53,7 +53,7 @@ exports.post = async ctx => {
         subject: fields.subject,
         content: fields.content
     }, files);
-
+    await functions.bumpPost(ctx.state.board.url, thread.boardId);
     return ctx.body = `Created reply ${postId}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
 };
 
