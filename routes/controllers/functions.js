@@ -70,21 +70,21 @@ async function getMultipart(ctx) {
 async function submitPost({ boardUrl, parent, name, subject, content, lastBump }, files) {
     const queries = [
         {
-            sql: "SELECT @boardId:=MAX(boardId) FROM posts WHERE boardUrl = ?",
+            sql: "SELECT @postId:=MAX(postId) FROM posts WHERE boardUrl = ?",
             values: boardUrl
         },
         {
-            sql: "SET @boardId = COALESCE(@boardId, 0)"
+            sql: "SET @postId = COALESCE(@postId, 0)"
         },
         {
-            sql: "SET @boardId = @boardId + 1"
+            sql: "SET @postId = @postId + 1"
         },
         {
-            sql: "INSERT INTO posts SET boardId = @boardId, ?",
+            sql: "INSERT INTO posts SET postId = @postId, ?",
             values: { boardUrl, parent, name, subject, content, lastBump }
         },
         {
-            sql: "SELECT @boardId as postId"
+            sql: "SELECT @postId as postId"
         }
     ];
     const [, , , insertPost, selectId] = await db.transaction(queries);
@@ -121,7 +121,7 @@ async function deletePostAndReplies(id, board) {
     const files = await db.fetchAll(
         `SELECT fileId, extension, thumbSuffix 
         FROM files INNER JOIN posts ON files.postUid = posts.uid
-        WHERE boardUrl = ? AND (boardId = ? OR parent = ?)`,
+        WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
         [board, id, id]);
     let deletedFiles = 0;
     if (files && files.length > 1) {
@@ -136,7 +136,7 @@ async function deletePostAndReplies(id, board) {
     const { affected } = await db.query(
         `DELETE posts, files FROM posts
         LEFT JOIN files ON files.postUid = posts.uid
-        WHERE boardUrl = ? AND (boardId = ? OR parent = ?)`,
+        WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
         [board, id, id]);
     // Affected rows includes file entries deleted in sql join: subtracted for number of posts only
     return { deletedPosts: affected - deletedFiles, deletedFiles };
@@ -145,9 +145,9 @@ async function deletePostAndReplies(id, board) {
 async function deleteOldestThread(boardUrl, boardMaxThreads) {
     const num = await db.fetch("SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0", boardUrl);
     if (num.count >= boardMaxThreads) {
-        const oldest = await db.fetch("SELECT boardId, MIN(lastBump) FROM posts WHERE boardUrl = ?", boardUrl);
+        const oldest = await db.fetch("SELECT postId, MIN(lastBump) FROM posts WHERE boardUrl = ?", boardUrl);
         if (oldest) {
-            return await deletePostAndReplies(oldest.boardId, boardUrl);
+            return await deletePostAndReplies(oldest.postId, boardUrl);
         }
     }
 }
@@ -155,7 +155,7 @@ async function deleteOldestThread(boardUrl, boardMaxThreads) {
 async function bumpPost(boardUrl, id, boardBumpLimit) {
     const numReplies = await db.query("SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?", [boardUrl, id]);
     if (numReplies.count < boardBumpLimit) {
-        const { affected } = await db.query("UPDATE posts SET lastBump = NOW() WHERE boardUrl = ? AND parent = 0 AND boardId = ?", [boardUrl, id]);
+        const { affected } = await db.query("UPDATE posts SET lastBump = NOW() WHERE boardUrl = ? AND parent = 0 AND postId = ?", [boardUrl, id]);
         if (!affected) {
             throw "Bump failed";
         }

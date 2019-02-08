@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS boards (
 CREATE TABLE IF NOT EXISTS posts (
     uid integer PRIMARY KEY AUTO_INCREMENT,
     boardUrl varchar(15) NOT NULL,
-    boardId integer NOT NULL,
+    postId integer NOT NULL,
     parent integer NOT NULL DEFAULT 0,
     createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lastBump datetime,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS posts (
     subject text,
     content text,
     sticky boolean DEFAULT FALSE,
-    UNIQUE KEY board_uid (boardUrl, boardId)
+    UNIQUE KEY board_uid (boardUrl, postId)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS files (

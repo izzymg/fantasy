@@ -5,7 +5,7 @@ const { lengthCheck } = require("../../libs/textFunctions");
 
 exports.post = async ctx => {
 
-    const thread = await db.fetch("SELECT boardId FROM posts WHERE parent = 0 AND boardUrl = ? AND boardId = ?",
+    const thread = await db.fetch("SELECT postId FROM posts WHERE parent = 0 AND boardUrl = ? AND postId = ?",
         [ctx.state.board.url, ctx.params.thread]
     );
     if (!thread) {
@@ -48,24 +48,24 @@ exports.post = async ctx => {
 
     const { postId, processedFiles } = await functions.submitPost({
         boardUrl: ctx.state.board.url,
-        parent: thread.boardId,
+        parent: thread.postId,
         name: fields.name,
         subject: fields.subject,
         content: fields.content
     }, files);
-    await functions.bumpPost(ctx.state.board.url, thread.boardId);
+    await functions.bumpPost(ctx.state.board.url, thread.postId);
     return ctx.body = `Created reply ${postId}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
 };
 
 exports.render = async ctx => {
     try {
         const [opData, repliesData] = await Promise.all([
-            db.fetchAll(`SELECT boardId AS id, createdAt AS date, name, subject, content, sticky,
+            db.fetchAll(`SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
                 fileId, extension, thumbSuffix
                 FROM posts
                 LEFT JOIN files ON files.postUid = posts.uid
-                WHERE parent = 0 AND boardUrl = ? AND boardId = ?`, [ctx.state.board.url, ctx.params.thread], true),
-            db.fetchAll(`SELECT boardId AS id, createdAt AS date, name, subject, content, sticky,
+                WHERE parent = 0 AND boardUrl = ? AND postId = ?`, [ctx.state.board.url, ctx.params.thread], true),
+            db.fetchAll(`SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
             fileId, extension, thumbSuffix
             FROM posts
             LEFT JOIN files ON files.postUid = posts.uid

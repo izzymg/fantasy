@@ -64,7 +64,7 @@ exports.post = async ctx => {
 exports.render = async ctx => {
     try {
         const threadsData = await db.fetchAll(
-            `SELECT boardId AS id, createdAt AS date, name, subject, content, sticky,
+            `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
                 fileId, extension, thumbSuffix
             FROM posts
             LEFT JOIN files ON posts.uid = files.postUid
