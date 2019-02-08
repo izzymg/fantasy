@@ -3,7 +3,8 @@ const secretsConfig = require("../config/secrets").redis;
 const client = redis.createClient({
     host: secretsConfig.host,
     password: secretsConfig.password,
-    port: secretsConfig.port
+    port: secretsConfig.port,
+    string_numbers: false
 });
 
 const { promisify } = require("util");
@@ -23,6 +24,7 @@ client.on("end", () => {
 
 module.exports = {
     close: () => client.quit(),
+    del: promisify(client.del).bind(client),
     hDel: promisify(client.hdel).bind(client),
     hGet: promisify(client.hget).bind(client),
     hSet: promisify(client.hset).bind(client),
