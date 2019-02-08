@@ -3,7 +3,7 @@ var boardCache = [];
 
 exports.genCache = async () => {
     const boards = await db.fetchAll(
-        "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt FROM boards",
+        "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt FROM boards"
     );
     boardCache = boards || [];
 };
@@ -18,7 +18,7 @@ exports.checkBoard = async (ctx, next) => {
     }
     const board = await db.fetch(
         "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt FROM boards where url = ?",
-        boardUrl,
+        boardUrl
     );
     if (!board) {
         return ctx.throw(404);
@@ -32,7 +32,7 @@ exports.render = async ctx => {
         return await ctx.render("boards", { boards: boardCache });
     }
     const boards = await db.fetchAll(
-        "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt FROM boards",
+        "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt FROM boards"
     );
     await ctx.render("boards", { boards });
 };

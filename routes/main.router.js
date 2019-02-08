@@ -5,6 +5,7 @@ const boards = require("./controllers/boards");
 const catalog = require("./controllers/catalog");
 const thread = require("./controllers/thread");
 const files = require("./controllers/files");
+const mod = require("./controllers/mod");
 const auth = require("./controllers/auth");
 
 // Boards are cached to prevent excess DB queries
@@ -50,7 +51,7 @@ router.post(
     boards.checkBoard,
     auth.checkCooldown,
     catalog.post,
-    auth.createCooldown,
+    auth.createCooldown
 );
 
 // Thread
@@ -61,19 +62,22 @@ router.post(
     boards.checkBoard,
     auth.checkCooldown,
     thread.post,
-    auth.createCooldown,
+    auth.createCooldown
 );
+
+router.post("/boards/:board/delete/:post", auth.checkSession, boards.checkBoard, mod.deletePost);
 
 // Serve files
 router.get("/files/:filename", files.render);
 
 // Authentication
-router.get("/protected-test", async ctx => {
-    if (ctx.session && ctx.session.role == "admin") {
+router.get("/protected-test", auth.checkSession, async ctx => {
+    if (ctx.state.session && ctx.state.session.role == "admin") {
         return (ctx.body = "You are able to access this resource");
     }
     return ctx.throw(403, "You don't have permission");
 });
+
 router.post("/login", auth.login);
 router.get("/login", auth.checkSession, auth.render);
 router.get("/logout", auth.logout);

@@ -57,7 +57,7 @@ exports.post = async (ctx, next) => {
             content: fields.content,
             lastBump: new Date(Date.now()),
         },
-        files,
+        files
     );
     await functions.deleteOldestThread(ctx.state.board.url, ctx.state.board.maxThreads);
     ctx.body = `Created thread ${postId}${
@@ -78,7 +78,7 @@ exports.render = async ctx => {
             WHERE boardUrl = ? AND parent = 0
             ORDER BY lastBump DESC`,
             ctx.state.board.url,
-            true,
+            true
         );
 
         if (!threadsData) {

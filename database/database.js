@@ -98,7 +98,7 @@ const transaction = async function(queries) {
             const values = await connection.query(
                 query.sql,
                 query.values || [],
-                query.nestTables || false,
+                query.nestTables || false
             );
             aggregate.push(values);
         }
@@ -136,7 +136,7 @@ module.exports = {
             console.log(
                 `Connections acquired from pool: ${
                     metrics.timesAcquired
-                }\nTimes queries had to wait for a connection: ${metrics.timesEnqueued}`,
+                }\nTimes queries had to wait for a connection: ${metrics.timesEnqueued}`
             );
         }
         return new Promise((resolve, reject) => {

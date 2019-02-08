@@ -30,7 +30,7 @@ function init() {
         koaViews(path.join(__dirname, "templates"), {
             extension: "pug",
             options: { cache: process.env.NODE_ENV === "production" },
-        }),
+        })
     );
 
     // Server static files (JS/CSS/Media)
@@ -68,8 +68,8 @@ function init() {
         })
         .catch(e =>
             console.error(
-                `${e}\n\tThe above error prevented setting up server routes. Check your database connectivity and credentials.`,
-            ),
+                `${e}\n\tThe above error prevented setting up server routes. Check your database connectivity and credentials.`
+            )
         );
     server.use(mainRouter.routes);
 

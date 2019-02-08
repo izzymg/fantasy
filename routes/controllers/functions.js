@@ -41,7 +41,7 @@ async function getMultipart(ctx) {
             postsConfig.maxFileSize,
             postsConfig.maxFiles,
             postsConfig.tmpDir,
-            postsConfig.md5,
+            postsConfig.md5
         );
     } catch (error) {
         switch (error) {
@@ -106,7 +106,7 @@ async function submitPost({ boardUrl, parent, name, subject, content, lastBump }
             files.map(async file => {
                 const permaPath = path.join(
                     postsConfig.filesDir,
-                    `${file.fileId}.${file.extension}`,
+                    `${file.fileId}.${file.extension}`
                 );
 
                 // Move temp file into permanent store
@@ -122,9 +122,9 @@ async function submitPost({ boardUrl, parent, name, subject, content, lastBump }
                         permaPath,
                         path.join(
                             postsConfig.filesDir,
-                            `${file.fileId}${postsConfig.thumbSuffix}.jpg`,
+                            `${file.fileId}${postsConfig.thumbSuffix}.jpg`
                         ),
-                        postsConfig.thumbWidth,
+                        postsConfig.thumbWidth
                     );
                     file.thumbSuffix = postsConfig.thumbSuffix;
                 }
@@ -134,7 +134,7 @@ async function submitPost({ boardUrl, parent, name, subject, content, lastBump }
                 file.postUid = insertPost.insertId;
                 processedFiles++;
                 await db.query("INSERT INTO files SET ?", file);
-            }),
+            })
         );
     }
     return { postId, processedFiles };
@@ -145,32 +145,37 @@ async function deletePostAndReplies(id, board) {
         `SELECT fileId, extension, thumbSuffix 
         FROM files INNER JOIN posts ON files.postUid = posts.uid
         WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
-        [board, id, id],
+        [board, id, id]
     );
     let deletedFiles = 0;
-    if (files && files.length > 1) {
+    if (files && files.length > 0) {
         await Promise.all(
             files.map(async file => {
-                await fileFunctions.unlink(
-                    path.join(postsConfig.filesDir, file.fileId + "." + file.extension),
-                );
-                if (file.thumbSuffix) {
+                try {
                     await fileFunctions.unlink(
-                        path.join(
-                            postsConfig.filesDir,
-                            file.fileId + file.thumbSuffix + "." + file.extension,
-                        ),
+                        path.join(postsConfig.filesDir, file.fileId + "." + file.extension)
                     );
+                } catch (e) {
+                    console.error(e);
                 }
-                deletedFiles++;
-            }),
+                if (file.thumbSuffix) {
+                    try {
+                        await fileFunctions.unlink(
+                            path.join(postsConfig.filesDir, file.fileId + file.thumbSuffix + ".jpg")
+                        );
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    deletedFiles++;
+                }
+            })
         );
     }
     const { affected } = await db.query(
         `DELETE posts, files FROM posts
         LEFT JOIN files ON files.postUid = posts.uid
         WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
-        [board, id, id],
+        [board, id, id]
     );
     // Affected rows includes file entries deleted in sql join: subtracted for number of posts only
     return { deletedPosts: affected - deletedFiles, deletedFiles };
@@ -179,12 +184,12 @@ async function deletePostAndReplies(id, board) {
 async function deleteOldestThread(boardUrl, boardMaxThreads) {
     const num = await db.fetch(
         "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0",
-        boardUrl,
+        boardUrl
     );
     if (num.count > boardMaxThreads) {
         const oldest = await db.fetch(
             "SELECT postId, MIN(lastBump) FROM posts WHERE boardUrl = ?",
-            boardUrl,
+            boardUrl
         );
         if (oldest) {
             return await deletePostAndReplies(oldest.postId, boardUrl);
@@ -195,12 +200,12 @@ async function deleteOldestThread(boardUrl, boardMaxThreads) {
 async function bumpPost(boardUrl, id, boardBumpLimit) {
     const numReplies = await db.fetch(
         "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?",
-        [boardUrl, id],
+        [boardUrl, id]
     );
     if (numReplies.count < boardBumpLimit) {
         const { affected } = await db.query(
             "UPDATE posts SET lastBump = NOW() WHERE boardUrl = ? AND parent = 0 AND postId = ?",
-            [boardUrl, id],
+            [boardUrl, id]
         );
         if (!affected) {
             throw "Bump failed";

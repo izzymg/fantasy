@@ -23,7 +23,7 @@ describe("hooks", () => {
     describe("Query: create table", () => {
         it("Should create a table named 'zthreetesting' with two columns", async () => {
             const res = await database.query(
-                "CREATE TABLE IF NOT EXISTS zthreetesting (id int primary key auto_increment, value text)",
+                "CREATE TABLE IF NOT EXISTS zthreetesting (id int primary key auto_increment, value text)"
             );
             assert(res.affected === 0);
         });
@@ -32,12 +32,12 @@ describe("hooks", () => {
     describe("Query: insert into and fetch", () => {
         it("Should insert a row into zthreetesting, return the ID and fetch it", async () => {
             const res = await database.query(
-                "INSERT INTO zthreetesting (value) values ('test value')",
+                "INSERT INTO zthreetesting (value) values ('test value')"
             );
             assert(res.inserted === 1);
             const row = await database.fetch(
                 "SELECT id, value FROM zthreetesting WHERE id = ?",
-                res.inserted,
+                res.inserted
             );
             assert(row.id === res.inserted);
             assert(row.value === "test value");

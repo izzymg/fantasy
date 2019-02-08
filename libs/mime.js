@@ -3,7 +3,7 @@ const signatures = {
     // There are two potential accepted gif types
     "474946383761": "image/gif",
     "474946383961": "image/gif",
-    "FFD8": "image/jpeg",
+    FFD8: "image/jpeg",
 };
 
 exports.extensions = {
@@ -12,7 +12,7 @@ exports.extensions = {
     "image/jpeg": "jpg",
 };
 
-exports.getAcceptedMimetype = function (buffer) {
+exports.getAcceptedMimetype = function(buffer) {
     // First 10 bytes of buffer in hex
     const bufferHex = buffer.toString("hex");
     for (let signature in signatures) {

@@ -92,7 +92,7 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
             file.on("limit", () =>
                 cleanup()
                     .then(() => reject("FILE_SIZE_LIMIT"))
-                    .catch(e => reject(e)),
+                    .catch(e => reject(e))
             );
             // Write to temp
             file.pipe(ws);
@@ -112,22 +112,22 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
         busboy.on("error", error =>
             cleanup()
                 .then(() => reject(error))
-                .catch(e => reject(e)),
+                .catch(e => reject(e))
         );
         busboy.on("filesLimit", () =>
             cleanup()
                 .then(() => reject("FILES_LIMIT"))
-                .catch(e => reject(e)),
+                .catch(e => reject(e))
         );
         busboy.on("fieldsLimit", () =>
             cleanup()
                 .then(() => reject("FIELDS_LIMIT"))
-                .catch(e => reject(e)),
+                .catch(e => reject(e))
         );
         busboy.on("partsLimit", () =>
             cleanup()
                 .then(() => reject("PARTS_LIMIT"))
-                .catch(e => reject(e)),
+                .catch(e => reject(e))
         );
 
         // Pipe request object

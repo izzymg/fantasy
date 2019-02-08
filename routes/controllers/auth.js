@@ -17,7 +17,7 @@ exports.checkCooldown = async (ctx, next) => {
         await redis.hDel(ctx.ip, "cooldown");
     } else if (cd) {
         return (ctx.body = `You need to wait ${Math.floor(
-            (cd - now) / 1000,
+            (cd - now) / 1000
         )} seconds before posting again`);
     }
     return next();
@@ -59,7 +59,7 @@ exports.login = async ctx => {
 
     const user = await database.fetch(
         "SELECT password, role FROM users WHERE username = ?",
-        fields.username,
+        fields.username
     );
     if (user) {
         const authenticated = await bcrypt.compare(fields.password, user.password);
@@ -92,7 +92,6 @@ exports.logout = async ctx => {
 };
 
 exports.checkSession = async (ctx, next) => {
-    if (ctx.session) return next();
     if (ctx.cookies) {
         const sessionId = ctx.cookies.get("id");
         if (sessionId) {

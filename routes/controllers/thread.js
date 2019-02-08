@@ -6,7 +6,7 @@ const { lengthCheck } = require("../../libs/textFunctions");
 exports.post = async (ctx, next) => {
     const thread = await db.fetch(
         "SELECT postId FROM posts WHERE parent = 0 AND boardUrl = ? AND postId = ?",
-        [ctx.state.board.url, ctx.params.thread],
+        [ctx.state.board.url, ctx.params.thread]
     );
     if (!thread) {
         return ctx.throw(404);
@@ -56,7 +56,7 @@ exports.post = async (ctx, next) => {
             subject: fields.subject,
             content: fields.content,
         },
-        files,
+        files
     );
     await functions.bumpPost(ctx.state.board.url, thread.postId, ctx.state.board.bumpLimit);
     ctx.body = `Created reply ${postId}${
@@ -77,7 +77,7 @@ exports.render = async ctx => {
                 LEFT JOIN files ON files.postUid = posts.uid
                 WHERE parent = 0 AND boardUrl = ? AND postId = ?`,
                 [ctx.state.board.url, ctx.params.thread],
-                true,
+                true
             ),
             db.fetchAll(
                 `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
@@ -86,7 +86,7 @@ exports.render = async ctx => {
             LEFT JOIN files ON files.postUid = posts.uid
             WHERE boardUrl = ? AND parent = ?`,
                 [ctx.state.board.url, ctx.params.thread],
-                true,
+                true
             ),
         ]);
         if (!opData) {
