@@ -1,4 +1,4 @@
-const session = require("../../libs/session");
+const redis = require("../../database/redis");
 const uuid = require("uuid/v4");
 const database = require("../../database/database");
 const bcrypt = require("bcrypt");
@@ -39,7 +39,7 @@ exports.login = async ctx => {
         }
         if (authenticated) {
             const sessionId = uuid();
-            await session.setSession(sessionId, { username: fields.username, role: user.role || "" }, 60 * 60);
+            await redis.hashSet(sessionId, { username: fields.username, role: user.role || "" }, 60 * 60);
             ctx.set("set-cookie", `id=${sessionId}`);
             return ctx.body = "Login successful, authenticated";
         }
@@ -54,7 +54,7 @@ exports.requireRole = function (role) {
             if (sessionId) {
                 let userSession;
                 try {
-                    userSession = await session.getSession(sessionId);
+                    userSession = await redis.hashGet(sessionId);
                 } catch (error) {
                     return ctx.throw(500, error);
                 }

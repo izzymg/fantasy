@@ -19,4 +19,31 @@ client.on("end", () => {
     console.log("Redis disconnecting");
 });
 
-module.exports = client;
+module.exports = {
+    close: () => client.quit(),
+    hashSet: (key, object, expiry = null) =>
+        new Promise((resolve, reject) => {
+            client.hmset(key, object, (error) => {
+                if (error) {
+                    return reject(error);
+                }
+                if (expiry) {
+                    client.expire(key, expiry, (error) => {
+                        if (error) {
+                            return reject(error);
+                        }
+                        return resolve();
+                    });
+                }
+                return resolve();
+            });
+        }),
+    hashGet: (key) => new Promise((resolve, reject) => {
+        client.hgetall(key, (error, reply) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(reply);
+        });
+    })
+};

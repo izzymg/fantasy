@@ -12,6 +12,7 @@ const https = require("https");
 const logger = require("./libs/logger");
 
 const db = require("./database/database");
+const redis = require("./database/redis");
 const server = new Koa();
 
 db.open().then(settings => {
@@ -69,6 +70,7 @@ function init() {
     function onExit(sig) {
         console.log(`Received ${sig}, exiting`);
         db.close();
+        redis.close();
         process.exit(0);
     }
 
