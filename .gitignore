@@ -6,4 +6,3 @@ config/templates.js
 config/posts.js
 .vscode/
 static/dist
-exampleBoards.sql

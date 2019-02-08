@@ -4,6 +4,30 @@ const fileFunctions = require("../../libs/fileFunctions");
 const path = require("path");
 const multipart = require("../../libs/multipart");
 const { trimEscapeHtml } = require("../../libs/textFunctions");
+const parse = require("co-body");
+
+// Incomming JSON and urlencoded form data
+async function getForm(ctx) {
+    if (ctx.is("application/json")) {
+        try {
+            return await parse(ctx, { limit: "12kb" });
+        } catch (error) {
+            if (error.status === 400) {
+                throw { status: 400, text: "Received invalid JSON data" };
+            }
+        }
+    }
+    if (ctx.is("application/x-www-form-urlencoded")) {
+        try {
+            return await parse(ctx, { limit: "12kb" });
+        } catch (error) {
+            if (error.status === 400) {
+                throw { status: 400, text: "Received invalid formdata" };
+            }
+        }
+    }
+    throw { status: 400, text: "Expected JSON or urlencoded form data" };
+}
 
 // Strips files and fields off of multipart requests
 async function getMultipart(ctx) {
@@ -140,6 +164,7 @@ async function bumpPost(boardUrl, id, boardBumpLimit) {
 }
 
 module.exports = {
+    getForm,
     getMultipart,
     submitPost,
     deletePostAndReplies,

@@ -5,6 +5,7 @@ const boards = require("./controllers/boards");
 const catalog = require("./controllers/catalog");
 const thread = require("./controllers/thread");
 const files = require("./controllers/files");
+const auth = require("./controllers/auth");
 
 // Boards are cached to prevent excess DB queries
 async function setup() {
@@ -53,6 +54,12 @@ router.post("/boards/:board/threads/:thread", boards.checkBoard, thread.post);
 
 // Serve files
 router.get("/files/:filename", files.render);
+
+// Authentication
+router.get("/protected-test", auth.requireRole("admin"), async ctx => {
+    ctx.body = "Successful, you are authorized";
+});
+router.post("/login", auth.login);
 
 // Fallthroughs
 router.get("*", async ctx => {

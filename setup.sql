@@ -31,3 +31,9 @@ CREATE TABLE IF NOT EXISTS files (
     originalName text,
     hash text
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS users (
+    username varchar(100) PRIMARY KEY,
+    password text NOT NULL,
+    role tinytext
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

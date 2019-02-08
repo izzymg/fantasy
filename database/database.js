@@ -1,5 +1,5 @@
 const mysql = require("mysql");
-const secretsConfig = require("../config/secrets");
+const secretsConfig = require("../config/secrets").database;
 const databaseConfig = require("../config/database");
 var db;
 
@@ -25,7 +25,7 @@ const query = function (sql, values = [], nestTables = false) {
     return new Promise((resolve, reject) => {
         db.query({ sql, nestTables }, values, (error, results) => {
             if (error) {
-                if(error.code === "ER_NO_SUCH_TABLE") {
+                if (error.code === "ER_NO_SUCH_TABLE") {
                     console.error("Noticed no-such-table - ensure you ran the setup.js file");
                 }
                 return reject(error);
@@ -35,48 +35,48 @@ const query = function (sql, values = [], nestTables = false) {
     });
 };
 
-const getConnection = function() {
-    if(!db) throw "No database connection, did you call open()?";
+const getConnection = function () {
+    if (!db) throw "No database connection, did you call open()?";
     return new Promise((resolve, reject) => {
         db.getConnection((error, connection) => {
-            if(error) {
+            if (error) {
                 return reject(error);
             }
             return resolve({
-                query: function(sql, values, nestTables = false) {
+                query: function (sql, values, nestTables = false) {
                     return new Promise((resolve, reject) => {
-                        connection.query({ sql: sql, nestTables}, values, (err, results) => {
-                            if(err) {
+                        connection.query({ sql: sql, nestTables }, values, (err, results) => {
+                            if (err) {
                                 reject(err);
                             }
                             resolve(results);
                         });
                     });
                 },
-                rollback: function() {
+                rollback: function () {
                     return new Promise((resolve) => {
                         connection.rollback(() => {
                             resolve();
                         });
                     });
                 },
-                release: function() {
+                release: function () {
                     return connection.release();
                 },
-                beginTransaction: function() {
+                beginTransaction: function () {
                     return new Promise((resolve, reject) => {
                         connection.beginTransaction((error) => {
-                            if(error) {
+                            if (error) {
                                 return reject(error);
                             }
                             return resolve();
                         });
                     });
                 },
-                commit: function() {
+                commit: function () {
                     return new Promise((resolve, reject) => {
                         connection.commit((error) => {
-                            if(error) {
+                            if (error) {
                                 return reject(error);
                             }
                             return resolve();
@@ -88,18 +88,18 @@ const getConnection = function() {
     });
 };
 
-const transaction = async function(queries) {
-    if(!db) throw "No database connection, did you call open()?";
+const transaction = async function (queries) {
+    if (!db) throw "No database connection, did you call open()?";
     let connection;
     let aggregate = [];
     try {
         connection = await getConnection();
-        for(const query of queries) {
+        for (const query of queries) {
             const values = await connection.query(query.sql, query.values || [], query.nestTables || false);
             aggregate.push(values);
         }
         await connection.commit();
-    } catch(e) {
+    } catch (e) {
         await connection.rollback();
         await connection.release();
         throw e;
@@ -128,7 +128,7 @@ module.exports = {
     },
     close: function () {
         if (!db) throw "No db connection but called close()";
-        if(databaseConfig.metrics) {
+        if (databaseConfig.metrics) {
             console.log(`Connections acquired from pool: ${metrics.timesAcquired}\nTimes queries had to wait for a connection: ${metrics.timesEnqueued}`);
         }
         return new Promise((resolve, reject) => {
@@ -148,7 +148,7 @@ module.exports = {
     },
     fetchAll: async function (sql, values, nestTables) {
         const res = await query(sql, values, nestTables);
-        if(res.length < 1) { return null; }
+        if (res.length < 1) { return null; }
         return [...res];
     },
     query: async function (sql, values, nestTables) {
