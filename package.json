@@ -1,38 +1,40 @@
 {
-  "name": "zthree",
-  "version": "1.0.0",
-  "description": "Imageboard/BBS software",
-  "main": "server.js",
-  "scripts": {
-    "lint": "eslint **/*.js",
-    "fix-lint": "eslint **/*.js --fix",
-    "start": "node server.js",
-    "build-css": "sass static/src/css:static/dist/css",
-    "watch-css": "sass --watch static/src/css:static/dist/css",
-    "test": "mocha"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "bcrypt": "^3.0.4",
-    "busboy": "^0.3.0",
-    "co-body": "^6.0.0",
-    "koa": "^2.7.0",
-    "koa-router": "^7.4.0",
-    "koa-sendfile": "^2.0.1",
-    "koa-static": "^5.0.0",
-    "koa-views": "^6.1.5",
-    "mysql": "^2.16.0",
-    "pug": "^2.0.3",
-    "redis": "^2.8.0",
-    "sharp": "^0.21.3",
-    "uuid": "^3.3.2"
-  },
-  "devDependencies": {
-    "eslint": "^5.12.1",
-    "eslint-config-prettier": "^4.0.0",
-    "mocha": "^5.2.0",
-    "prettier": "^1.16.4",
-    "sass": "^1.16.1"
-  }
+    "name": "zthree",
+    "version": "1.0.0",
+    "description": "Imageboard/BBS software",
+    "main": "server.js",
+    "scripts": {
+        "lint": "eslint **/*.js",
+        "fix-lint": "eslint **/*.js --fix",
+        "prettier": "prettier **/*.js -c",
+        "prettier-fix": "prettier **/*.js --write",
+        "start": "node server.js",
+        "build-css": "sass static/src/css:static/dist/css",
+        "watch-css": "sass --watch static/src/css:static/dist/css",
+        "test": "mocha"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^3.0.4",
+        "busboy": "^0.3.0",
+        "co-body": "^6.0.0",
+        "koa": "^2.7.0",
+        "koa-router": "^7.4.0",
+        "koa-sendfile": "^2.0.1",
+        "koa-static": "^5.0.0",
+        "koa-views": "^6.1.5",
+        "mysql": "^2.16.0",
+        "pug": "^2.0.3",
+        "redis": "^2.8.0",
+        "sharp": "^0.21.3",
+        "uuid": "^3.3.2"
+    },
+    "devDependencies": {
+        "eslint": "^5.12.1",
+        "eslint-config-prettier": "^4.0.0",
+        "mocha": "^5.2.0",
+        "prettier": "^1.16.4",
+        "sass": "^1.16.1"
+    }
 }
