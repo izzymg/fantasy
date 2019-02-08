@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS files (
     mimetype tinytext,
     thumbSuffix tinytext DEFAULT NULL,
     originalName text,
+    size integer,
     hash text
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

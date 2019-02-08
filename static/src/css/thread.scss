@@ -10,15 +10,15 @@
 
     .file {
         float: left;
-        clear: both;
-        margin-left: 5px;
+        clear: left;
+        margin: 0 10px;
     }
 
     .fileInfo {
-        padding: 1px 5px;
         display: inline;
         .extra {
             font-size: small;
+            color: black;
         }
     }
 
@@ -41,7 +41,7 @@
         }
     }
     .content {
-        display: inline-block;
+        display: inline;
         p {
             margin: 0;
             padding: 0;

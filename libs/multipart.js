@@ -82,6 +82,7 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
                     originalName,
                     mimetype,
                     extension,
+                    size: ws.bytesWritten
                 };
                 if (createHash) {
                     fileObj.hash = md5.digest().toString("hex");
