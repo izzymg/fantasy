@@ -16,7 +16,7 @@ async function setup() {
     }
 }
 
-router.get("*", auth.checkSession, async (ctx, next) => {
+router.get("*", async (ctx, next) => {
     try {
         await next();
     } catch (error) {
@@ -27,7 +27,7 @@ router.get("*", auth.checkSession, async (ctx, next) => {
     }
 });
 
-router.get("/", home.render);
+router.get("/", auth.checkSession, home.render);
 
 // Redirect to "folder" directories (trailing slash)
 // This is so relative HTML links work consistently
@@ -42,13 +42,13 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
 });
 
 // Render boards list and board catalog
-router.get("/boards/", boards.render);
-router.get("/boards/:board/", boards.checkBoard, catalog.render);
+router.get("/boards/", auth.checkSession, boards.render);
+router.get("/boards/:board/", auth.checkSession, boards.checkBoard, catalog.render);
 
 router.post("/boards/:board/", boards.checkBoard, auth.checkCooldown, catalog.post, auth.createCooldown);
 
 // Thread
-router.get("/boards/:board/threads/:thread", boards.checkBoard, thread.render);
+router.get("/boards/:board/threads/:thread", auth.checkSession, boards.checkBoard, thread.render);
 
 router.post("/boards/:board/threads/:thread", boards.checkBoard, auth.checkCooldown, thread.post, auth.createCooldown);
 
@@ -58,7 +58,7 @@ router.get("/files/:filename", files.render);
 // Authentication
 router.get("/protected-test", async ctx => {
     if (ctx.session && ctx.session.role == "admin") {
-        return ctx.body = "Successful, you are authorized";
+        return ctx.body = "You are able to access this resource";
     }
     return ctx.throw(403, "You don't have permission");
 });

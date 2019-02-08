@@ -6,7 +6,8 @@ const functions = require("./functions");
 
 exports.createCooldown = async (ctx, next) => {
     try {
-        await redis.set(ctx.ip, "cd", ctx.state.board.cooldown);
+        await redis.hSet(ctx.ip, "cooldown", Date.now() + (ctx.state.board.cooldown * 1000));
+        await redis.expire(ctx.ip, 24 * 60 * 60);
     } catch (error) {
         ctx.throw(500, new Error(error));
     }
@@ -16,14 +17,17 @@ exports.createCooldown = async (ctx, next) => {
 exports.checkCooldown = async (ctx, next) => {
     let cd;
     try {
-        cd = await redis.get(ctx.ip);
+        cd = await redis.hGet(ctx.ip, "cooldown");
     } catch (error) {
         return ctx.throw(500, new Error(error));
     }
-    if (!cd) {
-        return next();
+    let now = Date.now();
+    if (cd && cd < now) {
+        await redis.hDel(ctx.ip, "cooldown");
+    } else if (cd) {
+        return ctx.body = `You need to wait ${Math.floor((cd - now) / 1000)} seconds before posting again`;
     }
-    return ctx.body = `You need to wait ${ctx.state.board.cooldown} seconds between posts`;
+    return next();
 };
 
 exports.login = async ctx => {
@@ -62,7 +66,11 @@ exports.login = async ctx => {
         if (authenticated) {
             const sessionId = uuid();
             try {
-                await redis.hashSet(sessionId, { username: fields.username, role: user.role || "" }, 60 * 60);
+                await Promise.all([
+                    redis.hSet(sessionId, "username", fields.username),
+                    redis.hSet(sessionId, "role", user.role),
+                    redis.expire(sessionId, 60 * 60)]
+                );
             } catch (error) {
                 return ctx.throw(500, new Error(error));
             }
@@ -78,7 +86,7 @@ exports.logout = async ctx => {
         const sessionId = ctx.cookies.get("id");
         if (sessionId) {
             try {
-                await redis.del(sessionId);
+                await redis.hDel(sessionId);
                 return ctx.body = "Logged out";
             } catch (error) {
                 return ctx.throw(500, error);
@@ -92,16 +100,17 @@ exports.checkSession = async (ctx, next) => {
     if (ctx.cookies) {
         const sessionId = ctx.cookies.get("id");
         if (sessionId) {
-            let userSession;
+            let username, role;
             try {
-                userSession = await redis.hashGet(sessionId);
+                username = await redis.hGet(sessionId, "username");
+                role = await redis.hGet(sessionId, "role");
             } catch (error) {
                 return ctx.throw(500, new Error(error));
             }
-            if (userSession) {
+            if (username && role) {
                 ctx.state.session = {
-                    role: userSession.role,
-                    username: userSession.username
+                    username,
+                    role
                 };
                 return next();
             }
