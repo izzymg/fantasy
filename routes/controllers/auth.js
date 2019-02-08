@@ -4,6 +4,28 @@ const database = require("../../database/database");
 const bcrypt = require("bcrypt");
 const functions = require("./functions");
 
+exports.createCooldown = async (ctx, next) => {
+    try {
+        await redis.set(ctx.ip, "cd", ctx.state.board.cooldown);
+    } catch (error) {
+        ctx.throw(500, new Error(error));
+    }
+    return next();
+};
+
+exports.checkCooldown = async (ctx, next) => {
+    let cd;
+    try {
+        cd = await redis.get(ctx.ip);
+    } catch (error) {
+        return ctx.throw(500, new Error(error));
+    }
+    if (!cd) {
+        return next();
+    }
+    return ctx.body = `You need to wait ${ctx.state.board.cooldown} seconds between posts`;
+};
+
 exports.login = async ctx => {
 
     let fields;
@@ -35,11 +57,15 @@ exports.login = async ctx => {
         try {
             authenticated = await bcrypt.compare(fields.password, user.password);
         } catch (error) {
-            return ctx.throw(500, error);
+            return ctx.throw(500, new Error(error));
         }
         if (authenticated) {
             const sessionId = uuid();
-            await redis.hashSet(sessionId, { username: fields.username, role: user.role || "" }, 60 * 60);
+            try {
+                await redis.hashSet(sessionId, { username: fields.username, role: user.role || "" }, 60 * 60);
+            } catch (error) {
+                return ctx.throw(500, new Error(error));
+            }
             ctx.set("set-cookie", `id=${sessionId}`);
             return ctx.body = "Login successful, authenticated";
         }
@@ -56,7 +82,7 @@ exports.requireRole = function (role) {
                 try {
                     userSession = await redis.hashGet(sessionId);
                 } catch (error) {
-                    return ctx.throw(500, error);
+                    return ctx.throw(500, new Error(error));
                 }
                 if (userSession && userSession.role && userSession.role === role) {
                     return next();

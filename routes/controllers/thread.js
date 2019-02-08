@@ -3,7 +3,7 @@ const functions = require("./functions");
 const postsConfig = require("../../config/posts");
 const { lengthCheck } = require("../../libs/textFunctions");
 
-exports.post = async ctx => {
+exports.post = async (ctx, next) => {
 
     const thread = await db.fetch("SELECT postId FROM posts WHERE parent = 0 AND boardUrl = ? AND postId = ?",
         [ctx.state.board.url, ctx.params.thread]
@@ -54,7 +54,8 @@ exports.post = async ctx => {
         content: fields.content
     }, files);
     await functions.bumpPost(ctx.state.board.url, thread.postId);
-    return ctx.body = `Created reply ${postId}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
+    ctx.body = `Created reply ${postId}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
+    return next();
 };
 
 exports.render = async ctx => {

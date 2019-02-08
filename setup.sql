@@ -3,8 +3,9 @@ CREATE TABLE IF NOT EXISTS boards (
     title tinytext NOT NULL,
     about text,
     sfw boolean DEFAULT true,
-    bumpLimit integer DEFAULT 0,
-    maxThreads integer DEFAULT 2,
+    bumpLimit integer DEFAULT 200,
+    maxThreads integer DEFAULT 30,
+    cooldown smallint DEFAULT 60,
     createdAt datetime DEFAULT CURRENT_TIMESTAMP
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

@@ -21,25 +21,40 @@ client.on("end", () => {
 
 module.exports = {
     close: () => client.quit(),
-    hashSet: (key, object, expiry = null) =>
-        new Promise((resolve, reject) => {
-            client.hmset(key, object, (error) => {
-                if (error) {
-                    return reject(error);
-                }
-                if (expiry) {
-                    client.expire(key, expiry, (error) => {
-                        if (error) {
-                            return reject(error);
-                        }
-                        return resolve();
-                    });
-                }
-                return resolve();
-            });
-        }),
+    hashSet: (key, object, expiry = null) => new Promise((resolve, reject) => {
+        client.hmset(key, object, (error) => {
+            if (error) {
+                return reject(error);
+            }
+            if (expiry) {
+                client.expire(key, expiry, (error) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve();
+                });
+            }
+            return resolve();
+        });
+    }),
     hashGet: (key) => new Promise((resolve, reject) => {
         client.hgetall(key, (error, reply) => {
+            if (error) {
+                return reject(error);
+            }
+            return resolve(reply);
+        });
+    }),
+    set: (key, value, expiry = null) => new Promise((resolve, reject) => {
+        client.set(key, value, "EX", expiry, (error) => {
+            if (error) {
+                reject(error);
+            }
+            resolve();
+        });
+    }),
+    get: (key) => new Promise((resolve, reject) => {
+        client.get(key, (error, reply) => {
             if (error) {
                 return reject(error);
             }

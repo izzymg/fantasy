@@ -3,7 +3,7 @@ const postsConfig = require("../../config/posts");
 const functions = require("./functions");
 const { lengthCheck } = require("../../libs/textFunctions");
 
-exports.post = async ctx => {
+exports.post = async (ctx, next) => {
 
     let formData;
 
@@ -58,7 +58,8 @@ exports.post = async ctx => {
         }, files
     );
     await functions.deleteOldestThread(ctx.state.board.url, ctx.state.board.maxThreads);
-    return ctx.body = `Created thread ${postId}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
+    ctx.body = `Created thread ${postId}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
+    return next();
 };
 
 exports.render = async ctx => {

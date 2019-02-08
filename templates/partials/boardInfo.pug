@@ -7,6 +7,7 @@ mixin boardInfo
             span(title="This board allows NSFW content") 18+ NSFW Board
         span(title="Threads after this limit will knock the oldest bumped thread off the board.") Max threads: #{board.maxThreads}
         span(title="After threads reach this many replies, further replies will no longer bump the thread.") Bump limit: #{board.bumpLimit}
+        span(title="Time you must wait between posts") Cooldown: #{board.cooldown} seconds
         if replyCount
             span(class = replyCount > board.bumpLimit ? "errored" : null) Replies: #{replyCount}
     hr
