@@ -144,7 +144,7 @@ async function deletePostAndReplies(id, board) {
 
 async function deleteOldestThread(boardUrl, boardMaxThreads) {
     const num = await db.fetch("SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0", boardUrl);
-    if (num.count >= boardMaxThreads) {
+    if (num.count > boardMaxThreads) {
         const oldest = await db.fetch("SELECT postId, MIN(lastBump) FROM posts WHERE boardUrl = ?", boardUrl);
         if (oldest) {
             return await deletePostAndReplies(oldest.postId, boardUrl);
