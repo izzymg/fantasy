@@ -63,7 +63,7 @@ router.get("/protected-test", async ctx => {
     return ctx.throw(403, "You don't have permission");
 });
 router.post("/login", auth.login);
-router.get("/login", auth.render);
+router.get("/login", auth.checkSession, auth.render);
 router.get("/logout", auth.logout);
 
 // Fallthroughs

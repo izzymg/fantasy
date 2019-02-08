@@ -89,6 +89,7 @@ exports.logout = async ctx => {
 };
 
 exports.checkSession = async (ctx, next) => {
+    if (ctx.session) return next();
     if (ctx.cookies) {
         const sessionId = ctx.cookies.get("id");
         if (sessionId) {
