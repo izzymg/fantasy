@@ -11,7 +11,8 @@ mixin post(post)
             .files
                 for file in post.files
                     .fileInfo
-                        a(href=`/files/${file.fileId}.${file.extension}`) #{file.originalName}
+                        a(href=`/files/${file.fileId}.${file.extension}`) #{file.originalName} 
+                            span.extra (#{file.mimetype})
                     a(href=`/files/${file.fileId}.${file.extension}`).file
                         if file.thumbSuffix               
                             img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail

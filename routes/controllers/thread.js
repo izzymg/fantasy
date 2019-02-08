@@ -72,7 +72,7 @@ exports.render = async ctx => {
         const [opData, repliesData] = await Promise.all([
             db.fetchAll(
                 `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
-                fileId, extension, thumbSuffix
+                fileId, extension, thumbSuffix, originalName, mimetype
                 FROM posts
                 LEFT JOIN files ON files.postUid = posts.uid
                 WHERE parent = 0 AND boardUrl = ? AND postId = ?`,
@@ -81,7 +81,7 @@ exports.render = async ctx => {
             ),
             db.fetchAll(
                 `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
-                fileId, extension, thumbSuffix
+                fileId, extension, thumbSuffix, originalName, mimetype
                 FROM posts
                 LEFT JOIN files ON files.postUid = posts.uid
                 WHERE boardUrl = ? AND parent = ?
