@@ -2,12 +2,14 @@ mixin boardInfo
     hr
     .boardInfo
         if board.sfw
-            span(title="You may only post safe-for-work content") SFW Board
+            span.item(title="You may only post safe-for-work content") SFW Board
         else
-            span(title="This board allows NSFW content") 18+ NSFW Board
-        span(title="Threads after this limit will knock the oldest bumped thread off the board.") Max threads: #{board.maxThreads}
-        span(title="After threads reach this many replies, further replies will no longer bump the thread.") Bump limit: #{board.bumpLimit}
-        span(title="Time you must wait between posts") Cooldown: #{board.cooldown} seconds
+            span.item(title="This board allows NSFW content")
+                span.errored 18+ 
+                span NSFW Board
+        span.item(title="Threads after this limit will knock the oldest bumped thread off the board.") Max threads: #{board.maxThreads}
+        span.item(title="After threads reach this many replies, further replies will no longer bump the thread.") Bump limit: #{board.bumpLimit}
+        span.item(title="Time you must wait between posts") Cooldown: #{board.cooldown} seconds
         if replyCount
-            span(class = replyCount > board.bumpLimit ? "errored" : null) Replies: #{replyCount}
+            span.item(class = replyCount > board.bumpLimit ? "errored" : null) Replies: #{replyCount}
     hr

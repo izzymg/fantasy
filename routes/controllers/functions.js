@@ -46,7 +46,7 @@ async function getMultipart(ctx) {
     } catch (error) {
         switch (error) {
             case "UNACCEPTED_MIMETYPE":
-                throw { status: 400, text: "Unaccepted mimetype" };
+                throw { status: 400, text: "Unsupported file format" };
             case "FILE_SIZE_LIMIT":
                 throw {
                     status: 400,

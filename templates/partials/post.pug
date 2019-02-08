@@ -19,4 +19,4 @@ mixin post(post)
                         else
                             span #{file.originalName}
         .content
-            p.fancy!= post.content
+            p !{post.content}

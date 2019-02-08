@@ -23,7 +23,7 @@ hr {
 }
 
 .boardInfo, hr {
-    span::after {
+    .item::after {
         content: " /";
     }
     span {
@@ -48,11 +48,7 @@ hr {
     }
 }
 
-.fancy {
-    font-family: $fancy-fonts;
-}
-
-.content {
+.pagecontent {
     margin: 10px 5px;
     .title {
         text-align: center;

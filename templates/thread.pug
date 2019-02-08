@@ -10,8 +10,8 @@ block content
     .title
         h1
             a(href=`/boards/${board.url}/`) /#{board.url}/ - #{board.title}
-        h3.fancy !{op.subject}
-    +postForm
+        h3 !{op.subject}
+    +postForm("Submit reply")
     +boardInfo
     .thread
         #op

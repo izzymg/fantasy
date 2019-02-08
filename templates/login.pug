@@ -1,9 +1,10 @@
 extends layout.pug
 block head
+    link(rel="stylesheet" href="/css/login.css")
     title Login - #{webname}
 block content
     .title
-        p Login
+        h2 Login
     form(method="POST" action="/login")
         input.username(type="text" name="username" placeholder="Username")
         input.password(type="password" name="password" placeholder="Password")
