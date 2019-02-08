@@ -3,13 +3,13 @@ const signatures = {
     // There are two potential accepted gif types
     "474946383761": "image/gif",
     "474946383961": "image/gif",
-    "FFD8": "image/jpeg"
+    "FFD8": "image/jpeg",
 };
 
 exports.extensions = {
     "image/png": "png",
     "image/gif": "gif",
-    "image/jpeg": "jpg"
+    "image/jpeg": "jpg",
 };
 
 exports.getAcceptedMimetype = function (buffer) {

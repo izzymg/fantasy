@@ -45,12 +45,24 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
 router.get("/boards/", auth.checkSession, boards.render);
 router.get("/boards/:board/", auth.checkSession, boards.checkBoard, catalog.render);
 
-router.post("/boards/:board/", boards.checkBoard, auth.checkCooldown, catalog.post, auth.createCooldown);
+router.post(
+    "/boards/:board/",
+    boards.checkBoard,
+    auth.checkCooldown,
+    catalog.post,
+    auth.createCooldown,
+);
 
 // Thread
 router.get("/boards/:board/threads/:thread", auth.checkSession, boards.checkBoard, thread.render);
 
-router.post("/boards/:board/threads/:thread", boards.checkBoard, auth.checkCooldown, thread.post, auth.createCooldown);
+router.post(
+    "/boards/:board/threads/:thread",
+    boards.checkBoard,
+    auth.checkCooldown,
+    thread.post,
+    auth.createCooldown,
+);
 
 // Serve files
 router.get("/files/:filename", files.render);
@@ -58,7 +70,7 @@ router.get("/files/:filename", files.render);
 // Authentication
 router.get("/protected-test", async ctx => {
     if (ctx.session && ctx.session.role == "admin") {
-        return ctx.body = "You are able to access this resource";
+        return (ctx.body = "You are able to access this resource");
     }
     return ctx.throw(403, "You don't have permission");
 });

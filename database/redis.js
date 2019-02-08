@@ -4,7 +4,7 @@ const client = redis.createClient({
     host: secretsConfig.host,
     password: secretsConfig.password,
     port: secretsConfig.port,
-    string_numbers: false
+    string_numbers: false,
 });
 
 const { promisify } = require("util");
@@ -13,7 +13,7 @@ client.on("connect", () => {
     console.log(`Redis connected on ${secretsConfig.host}:${secretsConfig.port}`);
 });
 
-client.on("error", (error) => {
+client.on("error", error => {
     console.error("Redis failure", error);
     client.quit();
 });

@@ -1,14 +1,16 @@
 const fs = require("fs");
 const sharp = require("sharp");
 
-
-exports.createThumbnail = async function (inFilename, outFilename, width) {
+exports.createThumbnail = async function(inFilename, outFilename, width) {
     try {
         const image = sharp(inFilename);
         const metadata = await image.metadata();
         // Don't resize if image is smaller than a thumbnail
         if (metadata.width > width) {
-            await image.resize(150).toFormat("jpeg").toFile(outFilename);
+            await image
+                .resize(150)
+                .toFormat("jpeg")
+                .toFile(outFilename);
         } else {
             await image.toFormat("jpeg").toFile(outFilename);
         }
@@ -18,7 +20,7 @@ exports.createThumbnail = async function (inFilename, outFilename, width) {
     }
 };
 
-exports.unlink = function (path) {
+exports.unlink = function(path) {
     return new Promise((resolve, reject) => {
         fs.unlink(path, error => {
             if (error) {
@@ -29,7 +31,7 @@ exports.unlink = function (path) {
     });
 };
 
-exports.rename = function (path, newPath) {
+exports.rename = function(path, newPath) {
     return new Promise((resolve, reject) => {
         fs.rename(path, newPath, error => {
             if (error) {

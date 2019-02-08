@@ -1,5 +1,5 @@
 // Sequelize is used for the SQL connection
-// It pools connections using node-pool, read on connection pooling here 
+// It pools connections using node-pool, read on connection pooling here
 // https://en.wikipedia.org/wiki/Connection_pool
 // It's important to adjust these based on traffic and metrics
 
@@ -12,5 +12,5 @@ module.exports = {
     // Enable to stam stdout with every SQL query
     debug: false,
     // Enable to get details on connection pooling
-    metrics: true
+    metrics: true,
 };

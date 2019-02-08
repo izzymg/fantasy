@@ -23,9 +23,9 @@ module.exports = {
     threads: {
         requireSubject: true,
         requireContent: false,
-        requireFiles: true
+        requireFiles: true,
     },
     replies: {
         requireContentOrFiles: true,
-    }
+    },
 };

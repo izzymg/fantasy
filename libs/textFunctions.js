@@ -11,11 +11,14 @@ exports.lengthCheck = (str, max, name) => {
     return null;
 };
 
-
-exports.trimEscapeHtml = function (str) {
-    if (!str) { return null; }
+exports.trimEscapeHtml = function(str) {
+    if (!str) {
+        return null;
+    }
     str = str.trim();
-    if (!str) { return null; }
+    if (!str) {
+        return null;
+    }
     return str
         .replace(/&/g, "&amp;")
         .replace(/"/g, "&quot;")

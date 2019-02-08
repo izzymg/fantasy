@@ -15,17 +15,23 @@ const db = require("./database/database");
 const redis = require("./database/redis");
 const server = new Koa();
 
-db.open().then(settings => {
-    console.log(`Starting SQL connection on ${settings.host}:${settings.port}`);
-    init();
-}).catch(e => {
-    console.error("Error initialising db connection", e);
-});
+db.open()
+    .then(settings => {
+        console.log(`Starting SQL connection on ${settings.host}:${settings.port}`);
+        init();
+    })
+    .catch(e => {
+        console.error("Error initialising db connection", e);
+    });
 
 function init() {
-
     // Views
-    server.use(koaViews(path.join(__dirname, "templates"), { extension: "pug", options: { cache: process.env.NODE_ENV === "production" } }));
+    server.use(
+        koaViews(path.join(__dirname, "templates"), {
+            extension: "pug",
+            options: { cache: process.env.NODE_ENV === "production" },
+        }),
+    );
 
     // Server static files (JS/CSS/Media)
     server.use(koaStatic(path.join(__dirname, "static/dist")));
@@ -47,14 +53,24 @@ function init() {
     });
 
     server.on("error", error => {
-        if (serverConfig.consoleErrors) { console.error(`ZThree: ${error}`); console.trace(error); }
+        if (serverConfig.consoleErrors) {
+            console.error(`ZThree: ${error}`);
+            console.trace(error);
+        }
         logger.logOut(error, serverConfig.log);
     });
 
     // Routes setup
-    mainRouter.setup().then(() => {
-        console.log("Routes setup");
-    }).catch(e => console.error(`${e}\n\tThe above error prevented setting up server routes. Check your database connectivity and credentials.`));
+    mainRouter
+        .setup()
+        .then(() => {
+            console.log("Routes setup");
+        })
+        .catch(e =>
+            console.error(
+                `${e}\n\tThe above error prevented setting up server routes. Check your database connectivity and credentials.`,
+            ),
+        );
     server.use(mainRouter.routes);
 
     // Create server
@@ -62,9 +78,11 @@ function init() {
         console.log(`HTTP Listening ${serverConfig.host}:${serverConfig.port}`);
     });
     if (serverConfig.https) {
-        https.createServer(server.callback()).listen(serverConfig.httpsPort, serverConfig.host, () => {
-            console.log(`HTTPS Listening ${serverConfig.host}:${serverConfig.httpsPort}`);
-        });
+        https
+            .createServer(server.callback())
+            .listen(serverConfig.httpsPort, serverConfig.host, () => {
+                console.log(`HTTPS Listening ${serverConfig.host}:${serverConfig.httpsPort}`);
+            });
     }
 
     function onExit(sig) {

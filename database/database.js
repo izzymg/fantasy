@@ -10,7 +10,7 @@ var settings = {
     user: secretsConfig.username,
     password: secretsConfig.password,
     acquireTimeout: databaseConfig.maxAcquireTime,
-    connectionLimit: databaseConfig.maxConnections
+    connectionLimit: databaseConfig.maxConnections,
 };
 
 var metrics;
@@ -20,7 +20,7 @@ if (databaseConfig.debug) {
     settings.debug = ["ComQueryPacket"];
 }
 
-const query = function (sql, values = [], nestTables = false) {
+const query = function(sql, values = [], nestTables = false) {
     if (!db) throw "No database connection, did you call open()?";
     return new Promise((resolve, reject) => {
         db.query({ sql, nestTables }, values, (error, results) => {
@@ -35,7 +35,7 @@ const query = function (sql, values = [], nestTables = false) {
     });
 };
 
-const getConnection = function () {
+const getConnection = function() {
     if (!db) throw "No database connection, did you call open()?";
     return new Promise((resolve, reject) => {
         db.getConnection((error, connection) => {
@@ -43,7 +43,7 @@ const getConnection = function () {
                 return reject(error);
             }
             return resolve({
-                query: function (sql, values, nestTables = false) {
+                query: function(sql, values, nestTables = false) {
                     return new Promise((resolve, reject) => {
                         connection.query({ sql: sql, nestTables }, values, (err, results) => {
                             if (err) {
@@ -53,19 +53,19 @@ const getConnection = function () {
                         });
                     });
                 },
-                rollback: function () {
-                    return new Promise((resolve) => {
+                rollback: function() {
+                    return new Promise(resolve => {
                         connection.rollback(() => {
                             resolve();
                         });
                     });
                 },
-                release: function () {
+                release: function() {
                     return connection.release();
                 },
-                beginTransaction: function () {
+                beginTransaction: function() {
                     return new Promise((resolve, reject) => {
-                        connection.beginTransaction((error) => {
+                        connection.beginTransaction(error => {
                             if (error) {
                                 return reject(error);
                             }
@@ -73,29 +73,33 @@ const getConnection = function () {
                         });
                     });
                 },
-                commit: function () {
+                commit: function() {
                     return new Promise((resolve, reject) => {
-                        connection.commit((error) => {
+                        connection.commit(error => {
                             if (error) {
                                 return reject(error);
                             }
                             return resolve();
                         });
                     });
-                }
+                },
             });
         });
     });
 };
 
-const transaction = async function (queries) {
+const transaction = async function(queries) {
     if (!db) throw "No database connection, did you call open()?";
     let connection;
     let aggregate = [];
     try {
         connection = await getConnection();
         for (const query of queries) {
-            const values = await connection.query(query.sql, query.values || [], query.nestTables || false);
+            const values = await connection.query(
+                query.sql,
+                query.values || [],
+                query.nestTables || false,
+            );
             aggregate.push(values);
         }
         await connection.commit();
@@ -109,13 +113,13 @@ const transaction = async function (queries) {
 };
 
 module.exports = {
-    open: async function () {
+    open: async function() {
         db = mysql.createPool(settings);
         if (databaseConfig.metrics) {
             console.log("Enabling metrics");
             metrics = {
                 timesAcquired: 0,
-                timesEnqueued: 0
+                timesEnqueued: 0,
             };
             db.on("acquire", () => {
                 metrics.timesAcquired++;
@@ -126,13 +130,17 @@ module.exports = {
         }
         return { host: settings.host, port: settings.port };
     },
-    close: function () {
+    close: function() {
         if (!db) throw "No db connection but called close()";
         if (databaseConfig.metrics) {
-            console.log(`Connections acquired from pool: ${metrics.timesAcquired}\nTimes queries had to wait for a connection: ${metrics.timesEnqueued}`);
+            console.log(
+                `Connections acquired from pool: ${
+                    metrics.timesAcquired
+                }\nTimes queries had to wait for a connection: ${metrics.timesEnqueued}`,
+            );
         }
         return new Promise((resolve, reject) => {
-            db.end((error) => {
+            db.end(error => {
                 if (error) {
                     return reject(error);
                 }
@@ -141,19 +149,27 @@ module.exports = {
             });
         });
     },
-    fetch: async function (sql, values, nestTables) {
+    fetch: async function(sql, values, nestTables) {
         const res = await query(sql, values, nestTables);
-        if (res.length < 1) { return null; }
+        if (res.length < 1) {
+            return null;
+        }
         return { ...res[0] };
     },
-    fetchAll: async function (sql, values, nestTables) {
+    fetchAll: async function(sql, values, nestTables) {
         const res = await query(sql, values, nestTables);
-        if (res.length < 1) { return null; }
+        if (res.length < 1) {
+            return null;
+        }
         return [...res];
     },
-    query: async function (sql, values, nestTables) {
+    query: async function(sql, values, nestTables) {
         const res = await query(sql, values, nestTables);
-        return { affected: res.affectedRows || 0, inserted: res.insertId || null, changed: res.changedRows || 0 };
+        return {
+            affected: res.affectedRows || 0,
+            inserted: res.insertId || null,
+            changed: res.changedRows || 0,
+        };
     },
-    transaction: transaction
+    transaction: transaction,
 };

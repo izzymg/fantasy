@@ -10,7 +10,11 @@ const db = require("./database/database");
         const dbInfo = await db.open();
         console.log(`Connected to db on ${dbInfo.host}:${dbInfo.port}`);
         const hash = await bcrypt.hash(adminPassword, 15);
-        await db.query("INSERT INTO users SET ?", { username: adminUsername, password: hash, role: "admin" });
+        await db.query("INSERT INTO users SET ?", {
+            username: adminUsername,
+            password: hash,
+            role: "admin",
+        });
         console.log(`Created user ${adminUsername}, closing db connection and exiting.`);
         return await db.close();
     } catch (e) {

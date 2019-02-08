@@ -15,14 +15,14 @@ describe("hooks", () => {
                 boardUrl: "g",
                 parent: 0,
                 name: "Anonymous",
-                subject: "Mocha test thread"
+                subject: "Mocha test thread",
             });
             assert(typeof thread.postId === "number");
             const reply = await functions.submitPost({
                 boardUrl: "g",
                 parent: thread.postId,
                 name: "Anonymous",
-                content: "Reply to test thread"
+                content: "Reply to test thread",
             });
             const { deletedPosts } = await functions.deletePostAndReplies(thread.postId, "g");
             assert(deletedPosts === 2);
