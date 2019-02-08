@@ -1,12 +1,12 @@
 mixin threadPreview(post)
     .threadPreview
         a(href="threads/" + post.id title=new Date(post.date).toLocaleString())
+            if post.subject
+                span.subject !{post.subject}
             if post.files
                 - let file = post.files[0]
                     if file.thumbSuffix               
                         img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
                     else
                         a(href=`/files/${file.fileId}.${file.extension}`).fileLink !{file.originalName}
-            if post.subject
-                span.subject !{post.subject}
             p.content !{post.content}

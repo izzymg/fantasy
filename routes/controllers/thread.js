@@ -39,10 +39,7 @@ exports.post = async (ctx, next) => {
     } else if (postsConfig.replies.requireContentOrFiles && (!files || files.length < 1)) {
         return ctx.throw(400, "File or content required to post replies.");
     }
-    if (fields.subject) {
-        lengthErr =
-            lengthCheck(fields.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
-    }
+    fields.subject = null;
 
     if (lengthErr) {
         return ctx.throw(400, lengthErr);
