@@ -79,7 +79,7 @@ exports.render = async ctx => {
         // Remove duplicate post data from op
         const op = opData[0].posts;
         op.files = opData.map(data => data.files);
-
+        if (!repliesData) { return await ctx.render("thread", { op }); }
         let replyCount = 0;
         // Remove duplicate post data from join and process into ordered array
         const replies = [];

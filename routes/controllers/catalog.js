@@ -74,6 +74,8 @@ exports.render = async ctx => {
             ctx.state.board.url, true
         );
 
+        if (!threadsData) { return await ctx.render("catalog"); }
+
         // Remove duplicate post data from join and process into ordered array
         const threads = [];
         threadsData.forEach(threadData => {

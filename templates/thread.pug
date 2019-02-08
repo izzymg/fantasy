@@ -16,7 +16,8 @@ block content
     .thread
         #op
             +post(op)
-        .replies        
-            each reply in replies
-                +post(reply)
-                    p #{reply.id}
+        .replies
+            if replies     
+                each reply in replies
+                    +post(reply)
+                        p #{reply.id}
