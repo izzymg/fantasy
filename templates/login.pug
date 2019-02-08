@@ -1,0 +1,10 @@
+extends layout.pug
+block head
+    title Login - #{webname}
+block content
+    .title
+        p Login
+    form(method="POST" action="/login")
+        input.username(type="text" name="username" placeholder="Username")
+        input.password(type="password" name="password" placeholder="Password")
+        input.submit(type="submit" value="Login")

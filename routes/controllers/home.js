@@ -1,7 +1,1 @@
-exports.render = async ctx => {
-    try {
-        await ctx.render("home");
-    } catch (error) {
-        return ctx.throw(500, error);
-    }
-};
+exports.render = async ctx => await ctx.render("home");

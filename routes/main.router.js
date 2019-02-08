@@ -16,7 +16,7 @@ async function setup() {
     }
 }
 
-router.get("*", async (ctx, next) => {
+router.get("*", auth.checkSession, async (ctx, next) => {
     try {
         await next();
     } catch (error) {
@@ -56,10 +56,15 @@ router.post("/boards/:board/threads/:thread", boards.checkBoard, auth.checkCoold
 router.get("/files/:filename", files.render);
 
 // Authentication
-router.get("/protected-test", auth.requireRole("admin"), async ctx => {
-    ctx.body = "Successful, you are authorized";
+router.get("/protected-test", async ctx => {
+    if (ctx.session && ctx.session.role == "admin") {
+        return ctx.body = "Successful, you are authorized";
+    }
+    return ctx.throw(403, "You don't have permission");
 });
 router.post("/login", auth.login);
+router.get("/login", auth.render);
+router.get("/logout", auth.logout);
 
 // Fallthroughs
 router.get("*", async ctx => {

@@ -60,5 +60,11 @@ module.exports = {
             }
             return resolve(reply);
         });
+    }),
+    del: (key) => new Promise((resolve, reject) => {
+        client.del(key, (error) => {
+            if (error) reject(error);
+            return resolve();
+        });
     })
 };

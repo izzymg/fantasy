@@ -73,22 +73,41 @@ exports.login = async ctx => {
     return ctx.throw(401, "Incorrect username or password");
 };
 
-exports.requireRole = function (role) {
-    return async (ctx, next) => {
-        if (ctx.cookies) {
-            const sessionId = ctx.cookies.get("id");
-            if (sessionId) {
-                let userSession;
-                try {
-                    userSession = await redis.hashGet(sessionId);
-                } catch (error) {
-                    return ctx.throw(500, new Error(error));
-                }
-                if (userSession && userSession.role && userSession.role === role) {
-                    return next();
-                }
+exports.logout = async ctx => {
+    if (ctx.cookies) {
+        const sessionId = ctx.cookies.get("id");
+        if (sessionId) {
+            try {
+                await redis.del(sessionId);
+                return ctx.body = "Logged out";
+            } catch (error) {
+                return ctx.throw(500, error);
             }
         }
-        return ctx.throw(403, "You don't have permission to perform that action");
-    };
+    }
+    return ctx.body = "You weren't logged in";
 };
+
+exports.checkSession = async (ctx, next) => {
+    if (ctx.cookies) {
+        const sessionId = ctx.cookies.get("id");
+        if (sessionId) {
+            let userSession;
+            try {
+                userSession = await redis.hashGet(sessionId);
+            } catch (error) {
+                return ctx.throw(500, new Error(error));
+            }
+            if (userSession) {
+                ctx.state.session = {
+                    role: userSession.role,
+                    username: userSession.username
+                };
+                return next();
+            }
+        }
+    }
+    return next();
+};
+
+exports.render = async ctx => await ctx.render("login");
