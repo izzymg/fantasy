@@ -153,7 +153,7 @@ async function deleteOldestThread(boardUrl, boardMaxThreads) {
 }
 
 async function bumpPost(boardUrl, id, boardBumpLimit) {
-    const numReplies = await db.query("SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?", [boardUrl, id]);
+    const numReplies = await db.fetch("SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?", [boardUrl, id]);
     if (numReplies.count < boardBumpLimit) {
         const { affected } = await db.query("UPDATE posts SET lastBump = NOW() WHERE boardUrl = ? AND parent = 0 AND postId = ?", [boardUrl, id]);
         if (!affected) {

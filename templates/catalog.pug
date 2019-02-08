@@ -15,7 +15,7 @@ block content
     +boardInfo
     .threads
         if threads
-            for thread in threads
+            each thread in threads
                 +threadPreview(thread)
         else
             h3 No threads yet

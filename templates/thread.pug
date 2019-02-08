@@ -17,6 +17,6 @@ block content
         #op
             +post(op)
         .replies        
-            for reply in replies
+            each reply in replies
                 +post(reply)
                     p #{reply.id}

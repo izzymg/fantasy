@@ -53,7 +53,7 @@ exports.post = async (ctx, next) => {
         subject: fields.subject,
         content: fields.content
     }, files);
-    await functions.bumpPost(ctx.state.board.url, thread.postId);
+    await functions.bumpPost(ctx.state.board.url, thread.postId, ctx.state.board.bumpLimit);
     ctx.body = `Created reply ${postId}${processedFiles ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}` : "."}`;
     return next();
 };
@@ -80,22 +80,26 @@ exports.render = async ctx => {
         const op = opData[0].posts;
         op.files = opData.map(data => data.files);
 
-        // Remove duplicate post data from replies
-        const replies = {};
         let replyCount = 0;
-        if (repliesData) {
-            repliesData.forEach(reply => {
-                if (replies[reply.posts.id] && reply.files.fileId) {
-                    replies[reply.posts.id].files.push(reply.files);
-                } else {
-                    replies[reply.posts.id] = reply.posts;
-                    replyCount++;
-                    if (reply.files.fileId) {
-                        replies[reply.posts.id].files = [reply.files];
-                    }
+        // Remove duplicate post data from join and process into ordered array
+        const replies = [];
+        repliesData.forEach(replyData => {
+            let found = false;
+            replies.forEach(reply => {
+                if (reply.id === replyData.posts.id) {
+                    reply.files.push(replyData.files);
+                    found = true;
                 }
             });
-        }
+            if (!found) {
+                replyData.posts.files = [];
+                if (replyData.files.fileId) {
+                    replyData.posts.files.push(replyData.files);
+                }
+                replies.push(replyData.posts);
+                replyCount++;
+            }
+        });
 
         return await ctx.render("thread", { replies, op, replyCount });
     } catch (error) {
