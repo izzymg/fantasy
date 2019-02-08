@@ -81,10 +81,11 @@ exports.render = async ctx => {
             ),
             db.fetchAll(
                 `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
-            fileId, extension, thumbSuffix
-            FROM posts
-            LEFT JOIN files ON files.postUid = posts.uid
-            WHERE boardUrl = ? AND parent = ?`,
+                fileId, extension, thumbSuffix
+                FROM posts
+                LEFT JOIN files ON files.postUid = posts.uid
+                WHERE boardUrl = ? AND parent = ?
+                ORDER BY createdAt ASC`,
                 [ctx.state.board.url, ctx.params.thread],
                 true
             ),
