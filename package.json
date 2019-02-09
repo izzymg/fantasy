@@ -4,10 +4,8 @@
     "description": "Imageboard/BBS software",
     "main": "server.js",
     "scripts": {
-        "lint": "eslint **/*.js",
-        "fix-lint": "eslint **/*.js --fix",
-        "prettier": "prettier **/*.js -c",
-        "prettier-fix": "prettier **/*.js --write",
+        "lint": "eslint '**/*.js'",
+        "fix-lint": "eslint '**/*.js' --fix",
         "start": "node server.js",
         "build-css": "sass static/src/css:static/dist/css",
         "watch-css": "sass --watch static/src/css:static/dist/css",
@@ -34,7 +32,6 @@
         "eslint": "^5.12.1",
         "eslint-config-prettier": "^4.0.0",
         "mocha": "^5.2.0",
-        "prettier": "^1.16.4",
         "sass": "^1.16.1"
     }
 }

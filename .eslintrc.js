@@ -11,10 +11,11 @@ module.exports = {
     },
     rules: {
         "arrow-body-style": ["error", "as-needed"],
-        indent: ["error", 4, { SwitchCase: 1 }],
+        "quote-props": ["error", "consistent"],
+        "indent": ["error", 4, { "SwitchCase": 1 }],
         "linebreak-style": ["error", "unix"],
-        quotes: ["error", "double"],
-        semi: ["error", "always"],
+        "quotes": ["error", "double"],
+        "semi": ["error", "always"],
         "no-console": "off",
     },
 };
