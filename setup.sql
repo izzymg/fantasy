@@ -39,3 +39,8 @@ CREATE TABLE IF NOT EXISTS users (
     password text NOT NULL,
     role tinytext
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS boardmods (
+    username varchar(100) NOT NULL,
+    boardUrl varchar(15) NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
