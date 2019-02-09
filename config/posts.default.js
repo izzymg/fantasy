@@ -14,7 +14,7 @@ module.exports = {
     // Temporary files will be written here
     // Use string path (e.g. "tempDir: /tmp/")
     // Ensure directory exists and has correct permissions before running
-    tmpDir: require("os").tmpdir,
+    tmpDir: require("os").tmpdir(),
     filesDir: "/var/www/files",
     // Appended onto the filename of created thumbnails
     thumbSuffix: "_thumb",
