@@ -19,6 +19,8 @@ async function setup() {
     }
 }
 
+router.get("*", auth.checkSession);
+
 router.get("*", async (ctx, next) => {
     try {
         await next();
@@ -30,7 +32,7 @@ router.get("*", async (ctx, next) => {
     }
 });
 
-router.get("/", auth.checkSession, home.render);
+router.get("/",  home.render);
 
 // Redirect to "folder" directories (trailing slash)
 // This is so relative HTML links work consistently
@@ -44,43 +46,42 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
     await ctx.redirect(`/boards/${ctx.params.board}/threads/${ctx.params.thread}`);
 });
 
-// Render boards list and board catalog
-router.get("/boards/",
-    auth.checkSession, boards.render);
-router.get("/boards/:board/",
-    auth.checkSession, boards.checkBoard, catalog.render);
+// Boards list
+router.get("/boards/", boards.render);
+
+router.all("/boards/:board/*", boards.checkBoard);
+
+router.get("/boards/:board/", catalog.render);
 
 router.post("/boards/:board/",
-    boards.checkBoard, auth.checkCooldown, middleware.getMultipart,
+    auth.checkCooldown, middleware.getMultipart,
     catalog.post, auth.createCooldown
 );
 
 // Thread
-router.get("/boards/:board/threads/:thread", 
-    auth.checkSession, boards.checkBoard, thread.render);
+router.get("/boards/:board/threads/:thread", thread.render);
 
 router.post("/boards/:board/threads/:thread",
-    boards.checkBoard, auth.checkCooldown, middleware.getMultipart,
+    auth.checkCooldown, middleware.getMultipart,
     thread.post, auth.createCooldown
 );
 
-router.post("/boards/:board/delete/:post",
-    auth.checkSession, boards.checkBoard, mod.deletePost);
+router.post("/boards/:board/delete/:post", mod.deletePost);
 
 // Serve files
 router.get("/files/:filename", files.render);
 
 // Authentication
 router.post("/login", middleware.getForm, auth.login);
-router.get("/login", auth.checkSession, auth.render);
+router.get("/login",  auth.render);
 router.get("/logout", auth.logout);
 
 router.get("/dashboard", 
-    auth.checkSession, dashboard.render);
+    dashboard.render);
 router.post("/dashboard/createUser", 
-    auth.checkSession, middleware.getForm, dashboard.createUser);
+    middleware.getForm, dashboard.createUser);
 router.post("/dashboard/changePassword", 
-    auth.checkSession, middleware.getForm, dashboard.changePassword);
+    middleware.getForm, dashboard.changePassword);
 
 // Fallthroughs
 router.get("*", async ctx => {

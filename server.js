@@ -61,14 +61,14 @@ function init() {
     });
 
     // Routes setup
-    mainRouter
-        .setup()
+    mainRouter.setup()
         .then(() => {
             console.log("Routes setup");
         })
         .catch(e =>
             console.error(
-                `${e}\n\tThe above error prevented setting up server routes. Check your database connectivity and credentials.`
+                `${e}\n\tThe above error prevented setting up server routes.
+                Check your database connectivity and credentials.`
             )
         );
     server.use(mainRouter.routes);
