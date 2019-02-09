@@ -17,7 +17,7 @@ if (secretsFile) {
             host: "localhost",
         },
     };
-    // then replace "null" at the top of this file with a string location of that file
-    // e.g. const secretsFile = "/var/www/secrets.js";
-    // However it is generally safe to write them here, as it is not tracked by git nor exposed in anyway
+    /* then replace "null" at the top of this file with a string location of that file
+    e.g. const secretsFile = "/var/www/secrets.js";
+    However it is generally safe to write them here */
 }

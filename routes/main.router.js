@@ -72,18 +72,13 @@ router.post("/boards/:board/delete/:post", auth.checkSession, boards.checkBoard,
 router.get("/files/:filename", files.render);
 
 // Authentication
-router.get("/protected-test", auth.checkSession, async ctx => {
-    if (ctx.state.session && ctx.state.session.role == "admin") {
-        return (ctx.body = "You are able to access this resource");
-    }
-    return ctx.throw(403, "You don't have permission");
-});
-
 router.post("/login", auth.login);
 router.get("/login", auth.checkSession, auth.render);
 router.get("/logout", auth.logout);
 
 router.get("/dashboard", auth.checkSession, dashboard.render);
+router.post("/dashboard/createUser", auth.checkSession, dashboard.createUser);
+router.post("/dashboard/changePassword", auth.checkSession, dashboard.changePassword);
 
 // Fallthroughs
 router.get("*", async ctx => {

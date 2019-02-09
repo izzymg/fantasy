@@ -5,7 +5,7 @@ exports.deletePost = async ctx => {
     if (!post) {
         return ctx.throw(403, "Expected post to delete");
     }
-    if (ctx.state.session && ctx.state.session.role && ctx.state.session.role == "admin") {
+    if (ctx.state.session && ctx.state.session.role && ctx.state.session.role == "administrator") {
         const { deletedFiles, deletedPosts } = await functions.deletePostAndReplies(
             post,
             ctx.state.board.url

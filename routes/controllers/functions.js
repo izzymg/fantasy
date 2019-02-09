@@ -5,6 +5,7 @@ const path = require("path");
 const multipart = require("../../libs/multipart");
 const { trimEscapeHtml } = require("../../libs/textFunctions");
 const parse = require("co-body");
+const bcrypt = require("bcrypt");
 
 // Incomming JSON and urlencoded form data
 async function getForm(ctx) {
@@ -214,6 +215,34 @@ async function bumpPost(boardUrl, id, boardBumpLimit) {
     return;
 }
 
+async function createUser(username, password, role) {
+    const hash = await bcrypt.hash(password, 15);
+    const res = await db.query("INSERT INTO users SET ?", { username, password: hash, role });
+    if(!res.affected) {
+        throw "Create user failed";
+    }
+    return username;
+}
+
+async function getUser(username) {
+    return await db.fetch("SELECT role, password FROM users WHERE username = ?", username);
+}
+
+async function comparePasswords(raw, hash) {
+    return await bcrypt.compare(raw || "", hash);
+}
+
+async function updateUserPassword(username, newPassword) {
+    const hash = await bcrypt.hash(newPassword, 15);
+    const res = await db.query("UPDATE users SET password = ? WHERE username = ?",
+        [hash, username]
+    );
+    if(!res.changed) {
+        throw "Update password failed";
+    }
+    return username;
+}
+
 module.exports = {
     getForm,
     getMultipart,
@@ -221,4 +250,8 @@ module.exports = {
     deletePostAndReplies,
     deleteOldestThread,
     bumpPost,
+    createUser,
+    getUser,
+    comparePasswords,
+    updateUserPassword
 };

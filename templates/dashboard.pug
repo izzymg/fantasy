@@ -9,3 +9,19 @@ block content
     .blockLeft
         h2 #{session.username}
         a(href="/logout") Logout
+        h3 Change password
+            form(action="/dashboard/changePassword" method="POST")
+                input.currentPassword(type="password" name="currentPassword" placeholder="Current password")
+                input.newPassword(type="password" name="newPassword" placeholder="New password")
+                input.confirmation(type="password" name="confirmation" placeholder="Re-enter new password")
+                input.submit(type="submit" value="Change password")
+    .blockLeft
+        h2 Users
+        .createUser
+            h3 Create new user
+            form(action="/dashboard/createUser" method="POST")
+                input.username(type="text" name="username" placeholder="Username")
+                select.role(name="role")
+                    option(value="moderator") moderator
+                    option(value="administrator") administrator
+                input.submit(type="submit" value="Create user")

@@ -64,6 +64,9 @@ exports.login = async ctx => {
     if (user) {
         const authenticated = await bcrypt.compare(fields.password, user.password);
         if (authenticated) {
+            if(ctx.session) {
+                await redis.del(ctx.state.session.id);
+            }
             const sessionId = uuid();
             await Promise.all([
                 redis.hSet(sessionId, "username", fields.username),
@@ -99,6 +102,7 @@ exports.checkSession = async (ctx, next) => {
             const role = await redis.hGet(sessionId, "role");
             if (username && role) {
                 ctx.state.session = {
+                    id: sessionId,
                     username,
                     role,
                 };

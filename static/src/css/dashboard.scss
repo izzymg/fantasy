@@ -1,10 +1,22 @@
 @import "vars";
 
 .blockLeft {
-    display: block;
-    width: 35%;
-    margin: 20px 5px;
+    float: left;
+    width: 45%;
+    margin: 20px 10px;
     padding: 5px;
     background: #f7f7f7;
-    text-align: left;
+}
+
+.createUser {
+    form {
+        width: 100%;
+    }
+    .username {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 5px 0;
+        padding: 5px;
+        text-align: left;
+    }
 }
