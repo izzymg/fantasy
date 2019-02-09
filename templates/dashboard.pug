@@ -6,22 +6,29 @@ block content
     .title
         h1 Dashboard
         h3 #{session.role}
-    .blockLeft
+    if session.role === "administrator"
+        .block
+            .createUser
+                h3 Create new user
+                form(action="/dashboard/createUser" method="POST")
+                    input.username(type="text" name="username" placeholder="Username")
+                    select.role(name="role")
+                        option(value="moderator") moderator
+                        option(value="administrator") administrator
+                    input.submit(type="submit" value="Create user")
+            .userlist
+                h3 Users
+                if users
+                    each user in users
+                        .user
+                            a(title=`User created: ${new Date(user.createdAt).toLocaleString()}`).username #{user.username}
+                            span  - 
+                            span.role #{user.role}
+    .block
         h2 #{session.username}
         a(href="/logout") Logout
-        h3 Change password
-            form(action="/dashboard/changePassword" method="POST")
-                input.currentPassword(type="password" name="currentPassword" placeholder="Current password")
-                input.newPassword(type="password" name="newPassword" placeholder="New password")
-                input.confirmation(type="password" name="confirmation" placeholder="Re-enter new password")
-                input.submit(type="submit" value="Change password")
-    .blockLeft
-        h2 Users
-        .createUser
-            h3 Create new user
-            form(action="/dashboard/createUser" method="POST")
-                input.username(type="text" name="username" placeholder="Username")
-                select.role(name="role")
-                    option(value="moderator") moderator
-                    option(value="administrator") administrator
-                input.submit(type="submit" value="Create user")
+        form.changePassword(action="/dashboard/changePassword" method="POST")
+            input.currentPassword(type="password" name="currentPassword" placeholder="Current password")
+            input.newPassword(type="password" name="newPassword" placeholder="New password")
+            input.confirmation(type="password" name="confirmation" placeholder="Re-enter new password")
+            input.submit(type="submit" value="Change password")

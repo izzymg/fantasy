@@ -5,6 +5,10 @@ exports.render = async ctx => {
     if(!ctx.state.session) {
         return ctx.throw(404);
     }
+    if(ctx.state.session.role === "administrator") {
+        const users = await functions.getUsers();
+        return await ctx.render("dashboard", { users });
+    }
     return await ctx.render("dashboard");
 };
 
@@ -70,11 +74,11 @@ exports.changePassword = async ctx => {
     if(fields.confirmation !== fields.newPassword) {
         return ctx.throw(400, "New password and confirmation do not match");
     }
-    const user = await functions.getUser(ctx.state.session.username);
-    if(!user) {
+    const password = await functions.getUserPassword(ctx.state.session.username);
+    if(!password) {
         return ctx.throw(404);
     }
-    const authenticated = await functions.comparePasswords(fields.currentPassword, user.password);
+    const authenticated = await functions.comparePasswords(fields.currentPassword, password);
     if(!authenticated) {
         return ctx.throw(401, "Current password is incorrect.");
     }

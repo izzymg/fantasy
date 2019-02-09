@@ -224,8 +224,23 @@ async function createUser(username, password, role) {
     return username;
 }
 
+async function getUsers() {
+    return await db.fetchAll("SELECT username, role, createdAt FROM users");
+}
+
 async function getUser(username) {
-    return await db.fetch("SELECT role, password FROM users WHERE username = ?", username);
+    return await db.fetch("SELECT role, createdAt FROM users WHERE username = ?",
+        username
+    );
+}
+
+async function getUserPassword(username) {
+    const user = await db.fetch("SELECT role, password FROM users WHERE username = ?",
+        username
+    );
+    if(user) {
+        return user.password;
+    }
 }
 
 async function comparePasswords(raw, hash) {
@@ -252,6 +267,8 @@ module.exports = {
     bumpPost,
     createUser,
     getUser,
+    getUserPassword,
+    getUsers,
     comparePasswords,
     updateUserPassword
 };

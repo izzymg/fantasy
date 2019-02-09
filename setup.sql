@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS files (
 CREATE TABLE IF NOT EXISTS users (
     username varchar(100) PRIMARY KEY,
     password text NOT NULL,
-    role tinytext
+    role tinytext,
+    createdAt datetime DEFAULT CURRENT_TIMESTAMP
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS boardmods (
