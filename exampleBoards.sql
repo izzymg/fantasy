@@ -4,14 +4,16 @@ INSERT INTO boards (
     about,
     sfw,
     bumpLimit,
-    maxThreads) 
+    maxThreads,
+    cooldown) 
     VALUES (
     "dev",
     "Generic dev testing",
     "",
     true,
     300,
-    25
+    25,
+    20
 );
 
 INSERT INTO boards (
@@ -20,12 +22,14 @@ INSERT INTO boards (
     about,
     sfw,
     bumpLimit,
-    maxThreads) 
+    maxThreads,
+    cooldown) 
     VALUES (
     "bump",
     "Bump tests",
     "Testing bump limits and thread deletion",
     false,
     5,
-    3
+    3,
+    1
 );

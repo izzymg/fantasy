@@ -5,6 +5,14 @@ const client = redis.createClient({
     password: secretsConfig.password,
     port: secretsConfig.port,
     string_numbers: false,
+    retry_strategy: function(retry) {
+        if(retry.attempt < 2) {
+            console.error(retry.error);
+        }
+        console.log("Redis disconnected, attempting to reconnect in 15s.");
+        console.log(`Disconnected for: ${retry.total_retry_time / 1000} seconds`);
+        return 15 * 1000;
+    }
 });
 
 const { promisify } = require("util");
