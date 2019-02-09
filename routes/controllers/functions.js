@@ -215,6 +215,109 @@ async function bumpPost(boardUrl, id, boardBumpLimit) {
     return;
 }
 
+const getBoard = async url => await db.fetch(`SELECT url, title, about, bumpLimit, 
+    maxThreads, cooldown, createdAt, sfw FROM boards WHERE url = ?`, url);
+    
+const getBoards = async () => await db.fetchAll(`SELECT url, title, about, bumpLimit, 
+    maxThreads, cooldown, createdAt, sfw FROM boards`);
+
+const getThreads = async (board) => {
+    const data = await db.fetchAll(
+        `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
+            fileId, extension, thumbSuffix
+        FROM posts
+        LEFT JOIN files ON posts.uid = files.postUid
+        WHERE boardUrl = ? AND parent = 0
+        ORDER BY lastBump DESC`,
+        board,
+        true
+    );
+    // Remove duplicate post data from join and process into ordered array
+    if(!data) return;
+    const threads = [];
+    data.forEach(data => {
+        let found = false;
+        threads.forEach(thread => {
+            if (thread.id === data.posts.id) {
+                thread.files.push(data.files);
+                found = true;
+            }
+        });
+        if (!found) {
+            data.posts.files = [];
+            if (data.files.fileId) {
+                data.posts.files.push(data.files);
+            }
+            threads.push(data.posts);
+        }
+    });
+    return threads;
+};
+
+const getThread = async (board, id) => {
+    const [opData, repliesData] = await Promise.all([
+        db.fetchAll(
+            `SELECT postId AS id, createdAt, name, subject, content, sticky,
+            fileId, extension, thumbSuffix, originalName, mimetype, size
+            FROM posts
+            LEFT JOIN files ON files.postUid = posts.uid
+            WHERE parent = 0 AND boardUrl = ? AND postId = ?`,
+            [board, id],
+            true
+        ),
+        db.fetchAll(
+            `SELECT postId AS id, createdAt, name, subject, content, sticky,
+            fileId, extension, thumbSuffix, originalName, mimetype, size
+            FROM posts
+            LEFT JOIN files ON files.postUid = posts.uid
+            WHERE boardUrl = ? AND parent = ?
+            ORDER BY createdAt ASC`,
+            [board, id],
+            true
+        ),
+    ]);
+
+    if(!opData) return;
+
+    // Remove duplicate post data from op
+    const op = opData[0].posts;
+    op.files = opData.map(data => data.files);
+
+    if(!repliesData) {
+        return { op };
+    }
+    
+    let replyCount = 0;
+    // Remove duplicate post data from join and process into ordered array
+    const replies = [];
+    repliesData.forEach(replyData => {
+        let found = false;
+        replies.forEach(reply => {
+            if (reply.id === replyData.posts.id) {
+                reply.files.push(replyData.files);
+                found = true;
+            }
+        });
+        if (!found) {
+            replyData.posts.files = [];
+            if (replyData.files.fileId) {
+                replyData.posts.files.push(replyData.files);
+            }
+            replies.push(replyData.posts);
+            replyCount++;
+        }
+    });
+    return { op, replies, replyCount };
+};
+
+const postIsThread = async(board, id) => {
+    const post = await db.fetch("SELECT parent FROM posts WHERE boardUrl = ? AND postId = ?",
+        [board, id]
+    );
+    if(!post) return;
+    return (post.parent === 0);
+};
+
 async function createUser(username, password, role) {
     const hash = await bcrypt.hash(password, 15);
     const res = await db.query("INSERT INTO users SET ?", { username, password: hash, role });
@@ -234,17 +337,12 @@ async function getUser(username) {
     );
 }
 
-async function getUserPassword(username) {
-    const user = await db.fetch("SELECT role, password FROM users WHERE username = ?",
-        username
-    );
-    if(user) {
-        return user.password;
+async function comparePasswords(username, comparison) {
+    const user = await db.fetch("SELECT password FROM users WHERE username = ?", username);
+    if(!user) {
+        return false;
     }
-}
-
-async function comparePasswords(raw, hash) {
-    return await bcrypt.compare(raw || "", hash);
+    return await bcrypt.compare(comparison, user.password);
 }
 
 async function updateUserPassword(username, newPassword) {
@@ -267,8 +365,12 @@ module.exports = {
     bumpPost,
     createUser,
     getUser,
-    getUserPassword,
     getUsers,
     comparePasswords,
-    updateUserPassword
+    updateUserPassword,
+    getBoard,
+    getBoards,
+    getThreads,
+    getThread,
+    postIsThread
 };

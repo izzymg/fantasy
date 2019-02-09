@@ -1,4 +1,3 @@
-const db = require("../../database/database");
 const postsConfig = require("../../config/posts");
 const functions = require("./functions");
 const { lengthCheck } = require("../../libs/textFunctions");
@@ -70,39 +69,7 @@ exports.post = async (ctx, next) => {
 
 exports.render = async ctx => {
     try {
-        const threadsData = await db.fetchAll(
-            `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
-                fileId, extension, thumbSuffix
-            FROM posts
-            LEFT JOIN files ON posts.uid = files.postUid
-            WHERE boardUrl = ? AND parent = 0
-            ORDER BY lastBump DESC`,
-            ctx.state.board.url,
-            true
-        );
-
-        if (!threadsData) {
-            return await ctx.render("catalog");
-        }
-
-        // Remove duplicate post data from join and process into ordered array
-        const threads = [];
-        threadsData.forEach(threadData => {
-            let found = false;
-            threads.forEach(thread => {
-                if (thread.id === threadData.posts.id) {
-                    thread.files.push(threadData.files);
-                    found = true;
-                }
-            });
-            if (!found) {
-                threadData.posts.files = [];
-                if (threadData.files.fileId) {
-                    threadData.posts.files.push(threadData.files);
-                }
-                threads.push(threadData.posts);
-            }
-        });
+        const threads = await functions.getThreads(ctx.state.board.url);
         return await ctx.render("catalog", { threads });
     } catch (error) {
         return ctx.throw(500, error);

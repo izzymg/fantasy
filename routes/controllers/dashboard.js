@@ -74,11 +74,9 @@ exports.changePassword = async ctx => {
     if(fields.confirmation !== fields.newPassword) {
         return ctx.throw(400, "New password and confirmation do not match");
     }
-    const password = await functions.getUserPassword(ctx.state.session.username);
-    if(!password) {
-        return ctx.throw(404);
-    }
-    const authenticated = await functions.comparePasswords(fields.currentPassword, password);
+    const authenticated = await functions.comparePasswords(
+        ctx.state.session.username, fields.currentPassword
+    );
     if(!authenticated) {
         return ctx.throw(401, "Current password is incorrect.");
     }

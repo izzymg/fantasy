@@ -6,7 +6,7 @@ mixin post(post)
             span.name !{post.name}
             if post.subject
                 span.subject !{post.subject}
-            span(titl=post.date).date #{new Date(post.date).toLocaleString()}
+            span(title=post.date).date #{new Date(post.createdAt).toLocaleString()}
         if post.files.length > 0
             .files
                 for file in post.files

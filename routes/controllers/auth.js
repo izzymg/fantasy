@@ -1,7 +1,5 @@
 const redis = require("../../database/redis");
 const uuid = require("uuid/v4");
-const database = require("../../database/database");
-const bcrypt = require("bcrypt");
 const functions = require("./functions");
 
 exports.createCooldown = async (ctx, next) => {
@@ -57,28 +55,23 @@ exports.login = async ctx => {
         await redis.hSet(ctx.ip, "attemptAge", Date.now());
     }
 
-    const user = await database.fetch(
-        "SELECT password, role FROM users WHERE username = ?",
-        fields.username
-    );
-    if (user) {
-        const authenticated = await bcrypt.compare(fields.password, user.password);
-        if (authenticated) {
-            if(ctx.session) {
-                await redis.del(ctx.state.session.id);
-            }
-            const sessionId = uuid();
-            await Promise.all([
-                redis.hSet(sessionId, "username", fields.username),
-                redis.hSet(sessionId, "role", user.role),
-                redis.expire(sessionId, 60 * 60),
-            ]);
-            ctx.set("set-cookie", `id=${sessionId}`);
-            // Delete attempts when successful
-            await redis.hDel(ctx.ip, "attempts");
-            await redis.hDel(ctx.ip, "attemptAge");
-            return (ctx.body = "Login successful, authenticated");
+    const authenticated = await functions.comparePasswords(fields.username, fields.password);
+    if (authenticated) {
+        if(ctx.session) {
+            await redis.del(ctx.state.session.id);
         }
+        const user = await functions.getUser(fields.username);
+        const sessionId = uuid();
+        await Promise.all([
+            redis.hSet(sessionId, "username", fields.username),
+            redis.hSet(sessionId, "role", user.role),
+            redis.expire(sessionId, 60 * 60),
+        ]);
+        ctx.set("set-cookie", `id=${sessionId}`);
+        // Delete attempts when successful
+        await redis.hDel(ctx.ip, "attempts");
+        await redis.hDel(ctx.ip, "attemptAge");
+        return (ctx.body = "Login successful, authenticated");
     }
     return ctx.throw(401, "Incorrect username or password");
 };

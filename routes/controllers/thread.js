@@ -1,17 +1,12 @@
-const db = require("../../database/database");
 const functions = require("./functions");
 const postsConfig = require("../../config/posts");
 const { lengthCheck } = require("../../libs/textFunctions");
 
 exports.post = async (ctx, next) => {
-    const thread = await db.fetch(
-        "SELECT postId FROM posts WHERE parent = 0 AND boardUrl = ? AND postId = ?",
-        [ctx.state.board.url, ctx.params.thread]
-    );
-    if (!thread) {
+    const isThread = await functions.postIsThread(ctx.state.board.url, ctx.params.thread);
+    if(!isThread) {
         return ctx.throw(404);
     }
-
     let formData;
 
     try {
@@ -48,14 +43,14 @@ exports.post = async (ctx, next) => {
     const { postId, processedFiles } = await functions.submitPost(
         {
             boardUrl: ctx.state.board.url,
-            parent: thread.postId,
+            parent: ctx.params.thread,
             name: fields.name,
             subject: fields.subject,
             content: fields.content,
         },
         files
     );
-    await functions.bumpPost(ctx.state.board.url, thread.postId, ctx.state.board.bumpLimit);
+    await functions.bumpPost(ctx.state.board.url, ctx.params.thread, ctx.state.board.bumpLimit);
     ctx.body = `Created reply ${postId}${
         processedFiles
             ? ` and uploaded ${processedFiles} ${processedFiles > 1 ? "files." : "file."}`
@@ -65,61 +60,11 @@ exports.post = async (ctx, next) => {
 };
 
 exports.render = async ctx => {
-    try {
-        const [opData, repliesData] = await Promise.all([
-            db.fetchAll(
-                `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
-                fileId, extension, thumbSuffix, originalName, mimetype, size
-                FROM posts
-                LEFT JOIN files ON files.postUid = posts.uid
-                WHERE parent = 0 AND boardUrl = ? AND postId = ?`,
-                [ctx.state.board.url, ctx.params.thread],
-                true
-            ),
-            db.fetchAll(
-                `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
-                fileId, extension, thumbSuffix, originalName, mimetype, size
-                FROM posts
-                LEFT JOIN files ON files.postUid = posts.uid
-                WHERE boardUrl = ? AND parent = ?
-                ORDER BY createdAt ASC`,
-                [ctx.state.board.url, ctx.params.thread],
-                true
-            ),
-        ]);
-        if (!opData) {
-            return ctx.throw(404);
-        }
-
-        // Remove duplicate post data from op
-        const op = opData[0].posts;
-        op.files = opData.map(data => data.files);
-        if (!repliesData) {
-            return await ctx.render("thread", { op });
-        }
-        let replyCount = 0;
-        // Remove duplicate post data from join and process into ordered array
-        const replies = [];
-        repliesData.forEach(replyData => {
-            let found = false;
-            replies.forEach(reply => {
-                if (reply.id === replyData.posts.id) {
-                    reply.files.push(replyData.files);
-                    found = true;
-                }
-            });
-            if (!found) {
-                replyData.posts.files = [];
-                if (replyData.files.fileId) {
-                    replyData.posts.files.push(replyData.files);
-                }
-                replies.push(replyData.posts);
-                replyCount++;
-            }
-        });
-
-        return await ctx.render("thread", { replies, op, replyCount });
-    } catch (error) {
-        return ctx.throw(500, error);
+    const thread = await functions.getThread(
+        ctx.state.board.url, ctx.params.thread
+    );
+    if(!thread) {
+        return ctx.throw(404);
     }
+    return await ctx.render("thread", { op: thread.op, replies: thread.replies, replyCount: thread.replyCount });
 };
