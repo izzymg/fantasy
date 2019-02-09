@@ -11,7 +11,7 @@ html
             a(href="/boards") Boards
             if session && session.username
                 span.right #{session.username} - #{session.role}
-                a.right(href="/logout") Logout
+                a.right(href="/dashboard") Dashboard
             else
                 a.right(href="/login") Login
         .pagecontent

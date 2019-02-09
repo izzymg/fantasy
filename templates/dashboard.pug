@@ -1,0 +1,11 @@
+extends layout.pug
+block head
+    link(rel="stylesheet" href="/css/dashboard.css")
+    title Dashboard - #{webname}
+block content
+    .title
+        h1 Dashboard
+        h3 #{session.role}
+    .blockLeft
+        h2 #{session.username}
+        a(href="/logout") Logout

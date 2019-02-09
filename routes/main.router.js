@@ -6,6 +6,7 @@ const catalog = require("./controllers/catalog");
 const thread = require("./controllers/thread");
 const files = require("./controllers/files");
 const mod = require("./controllers/mod");
+const dashboard = require("./controllers/dashboard");
 const auth = require("./controllers/auth");
 
 // Boards are cached to prevent excess DB queries
@@ -81,6 +82,8 @@ router.get("/protected-test", auth.checkSession, async ctx => {
 router.post("/login", auth.login);
 router.get("/login", auth.checkSession, auth.render);
 router.get("/logout", auth.logout);
+
+router.get("/dashboard", auth.checkSession, dashboard.render);
 
 // Fallthroughs
 router.get("*", async ctx => {
