@@ -22,20 +22,10 @@ exports.checkCooldown = async (ctx, next) => {
 };
 
 exports.login = async ctx => {
-    let fields;
-    try {
-        fields = await functions.getForm(ctx);
-    } catch (error) {
-        if (error.status && error.status === 400) {
-            return ctx.throw(400, error.text);
-        }
-        return ctx.throw(500, error);
-    }
-
-    if (!fields.username) {
+    if (!ctx.fields.username) {
         return ctx.throw(400, "Expected username");
     }
-    if (!fields.password) {
+    if (!ctx.fields.password) {
         return ctx.throw(400, "Expected password");
     }
 
@@ -55,15 +45,17 @@ exports.login = async ctx => {
         await redis.hSet(ctx.ip, "attemptAge", Date.now());
     }
 
-    const authenticated = await functions.comparePasswords(fields.username, fields.password);
+    const authenticated = await functions.comparePasswords(
+        ctx.fields.username, ctx.fields.password
+    );
     if (authenticated) {
         if(ctx.session) {
             await redis.del(ctx.state.session.id);
         }
-        const user = await functions.getUser(fields.username);
+        const user = await functions.getUser(ctx.fields.username);
         const sessionId = uuid();
         await Promise.all([
-            redis.hSet(sessionId, "username", fields.username),
+            redis.hSet(sessionId, "username", ctx.fields.username),
             redis.hSet(sessionId, "role", user.role),
             redis.expire(sessionId, 60 * 60),
         ]);

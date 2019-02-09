@@ -11,6 +11,7 @@ module.exports = {
     },
     rules: {
         "arrow-body-style": ["error", "as-needed"],
+        "arrow-parens": ["error", "as-needed"],
         "quote-props": ["error", "consistent"],
         "indent": ["error", 4, { "SwitchCase": 1 }],
         "linebreak-style": ["error", "unix"],

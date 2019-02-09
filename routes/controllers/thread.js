@@ -7,34 +7,20 @@ exports.post = async (ctx, next) => {
     if(!isThread) {
         return ctx.throw(404);
     }
-    let formData;
-
-    try {
-        formData = await functions.getMultipart(ctx);
-    } catch (error) {
-        if (error.status && error.text && error.status === 400) {
-            return ctx.throw(400, error.text);
-        } else {
-            return ctx.throw(500, error);
-        }
-    }
-
-    const fields = formData.fields;
-    const files = formData.files;
 
     let lengthErr;
-    if (!fields.name) {
-        fields.name = postsConfig.defaultName;
+    if (!ctx.fields.name) {
+        ctx.fields.name = postsConfig.defaultName;
     } else {
-        lengthErr = lengthCheck(fields.name, postsConfig.maxNameLength, "Name") || lengthErr;
+        lengthErr = lengthCheck(ctx.fields.name, postsConfig.maxNameLength, "Name") || lengthErr;
     }
-    if (fields.content) {
+    if (ctx.fields.content) {
         lengthErr =
-            lengthCheck(fields.content, postsConfig.maxContentLength, "Content") || lengthErr;
-    } else if (postsConfig.replies.requireContentOrFiles && (!files || files.length < 1)) {
+            lengthCheck(ctx.fields.content, postsConfig.maxContentLength, "Content") || lengthErr;
+    } else if (postsConfig.replies.requireContentOrFiles && (!ctx.files || ctx.files.length < 1)) {
         return ctx.throw(400, "File or content required to post replies.");
     }
-    fields.subject = null;
+    ctx.fields.subject = null;
 
     if (lengthErr) {
         return ctx.throw(400, lengthErr);
@@ -44,11 +30,11 @@ exports.post = async (ctx, next) => {
         {
             boardUrl: ctx.state.board.url,
             parent: ctx.params.thread,
-            name: fields.name,
-            subject: fields.subject,
-            content: fields.content,
+            name: ctx.fields.name,
+            subject: ctx.fields.subject,
+            content: ctx.fields.content,
         },
-        files
+        ctx.files
     );
     await functions.bumpPost(ctx.state.board.url, ctx.params.thread, ctx.state.board.bumpLimit);
     ctx.body = `Created reply ${postId}${
@@ -66,5 +52,7 @@ exports.render = async ctx => {
     if(!thread) {
         return ctx.throw(404);
     }
-    return await ctx.render("thread", { op: thread.op, replies: thread.replies, replyCount: thread.replyCount });
+    return await ctx.render("thread", {
+        op: thread.op, replies: thread.replies, replyCount: thread.replyCount
+    });
 };

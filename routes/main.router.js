@@ -1,5 +1,6 @@
 const Router = require("koa-router");
 const router = new Router({ strict: true });
+const middleware = require("./middleware");
 const home = require("./controllers/home");
 const boards = require("./controllers/boards");
 const catalog = require("./controllers/catalog");
@@ -44,41 +45,42 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
 });
 
 // Render boards list and board catalog
-router.get("/boards/", auth.checkSession, boards.render);
-router.get("/boards/:board/", auth.checkSession, boards.checkBoard, catalog.render);
+router.get("/boards/",
+    auth.checkSession, boards.render);
+router.get("/boards/:board/",
+    auth.checkSession, boards.checkBoard, catalog.render);
 
-router.post(
-    "/boards/:board/",
-    boards.checkBoard,
-    auth.checkCooldown,
-    catalog.post,
-    auth.createCooldown
+router.post("/boards/:board/",
+    boards.checkBoard, auth.checkCooldown, middleware.getMultipart,
+    catalog.post, auth.createCooldown
 );
 
 // Thread
-router.get("/boards/:board/threads/:thread", auth.checkSession, boards.checkBoard, thread.render);
+router.get("/boards/:board/threads/:thread", 
+    auth.checkSession, boards.checkBoard, thread.render);
 
-router.post(
-    "/boards/:board/threads/:thread",
-    boards.checkBoard,
-    auth.checkCooldown,
-    thread.post,
-    auth.createCooldown
+router.post("/boards/:board/threads/:thread",
+    boards.checkBoard, auth.checkCooldown, middleware.getMultipart,
+    thread.post, auth.createCooldown
 );
 
-router.post("/boards/:board/delete/:post", auth.checkSession, boards.checkBoard, mod.deletePost);
+router.post("/boards/:board/delete/:post",
+    auth.checkSession, boards.checkBoard, mod.deletePost);
 
 // Serve files
 router.get("/files/:filename", files.render);
 
 // Authentication
-router.post("/login", auth.login);
+router.post("/login", middleware.getForm, auth.login);
 router.get("/login", auth.checkSession, auth.render);
 router.get("/logout", auth.logout);
 
-router.get("/dashboard", auth.checkSession, dashboard.render);
-router.post("/dashboard/createUser", auth.checkSession, dashboard.createUser);
-router.post("/dashboard/changePassword", auth.checkSession, dashboard.changePassword);
+router.get("/dashboard", 
+    auth.checkSession, dashboard.render);
+router.post("/dashboard/createUser", 
+    auth.checkSession, middleware.getForm, dashboard.createUser);
+router.post("/dashboard/changePassword", 
+    auth.checkSession, middleware.getForm, dashboard.changePassword);
 
 // Fallthroughs
 router.get("*", async ctx => {

@@ -2,84 +2,9 @@ const db = require("../../database/database");
 const postsConfig = require("../../config/posts");
 const fileFunctions = require("../../libs/fileFunctions");
 const path = require("path");
-const multipart = require("../../libs/multipart");
-const { trimEscapeHtml } = require("../../libs/textFunctions");
-const parse = require("co-body");
 const bcrypt = require("bcrypt");
 
-// Incomming JSON and urlencoded form data
-async function getForm(ctx) {
-    if (ctx.is("application/json")) {
-        try {
-            return await parse(ctx, { limit: "12kb" });
-        } catch (error) {
-            if (error.status === 400) {
-                throw { status: 400, text: "Received invalid JSON data" };
-            }
-        }
-    }
-    if (ctx.is("application/x-www-form-urlencoded")) {
-        try {
-            return await parse(ctx, { limit: "12kb" });
-        } catch (error) {
-            if (error.status === 400) {
-                throw { status: 400, text: "Received invalid formdata" };
-            }
-        }
-    }
-    throw { status: 400, text: "Expected JSON or urlencoded form data" };
-}
-
-// Strips files and fields off of multipart requests
-async function getMultipart(ctx) {
-    if (!ctx.is("multipart/form-data")) {
-        throw { status: 400, text: "Expected multipart/form-data" };
-    }
-    let data;
-    try {
-        data = await multipart(
-            ctx,
-            postsConfig.maxFileSize,
-            postsConfig.maxFiles,
-            postsConfig.tmpDir,
-            postsConfig.md5
-        );
-    } catch (error) {
-        switch (error) {
-            case "UNACCEPTED_MIMETYPE":
-                throw { status: 400, text: "Unsupported file format" };
-            case "FILE_SIZE_LIMIT":
-                throw {
-                    status: 400,
-                    text: `Files must be under ${Math.floor(postsConfig.maxFileSize / 1000)}kb`,
-                };
-            case "FILES_LIMIT":
-                throw {
-                    status: 400,
-                    text: `You may not send more than ${postsConfig.maxFiles} files`,
-                };
-            case "FIELDS_LIMIT":
-                throw { status: 400, text: "Too many text fields" };
-            default:
-                throw new Error(error);
-        }
-    }
-
-    if (data.fields) {
-        for (const field in data.fields) {
-            data.fields[field] = trimEscapeHtml(data.fields[field]);
-        }
-    }
-
-    if (data.files) {
-        for (const file of data.files) {
-            file.originalName = trimEscapeHtml(file.originalName);
-        }
-    }
-    return { fields: data.fields, files: data.files };
-}
-
-async function submitPost({ boardUrl, parent, name, subject, content, lastBump }, files) {
+exports.submitPost = async ({ boardUrl, parent, name, subject, content, lastBump }, files) =>  {
     const queries = [
         {
             sql: "SELECT @postId:=MAX(postId) FROM posts WHERE boardUrl = ?",
@@ -139,9 +64,9 @@ async function submitPost({ boardUrl, parent, name, subject, content, lastBump }
         );
     }
     return { postId, processedFiles };
-}
+};
 
-async function deletePostAndReplies(id, board) {
+exports.deletePostAndReplies = async (id, board) =>  {
     const files = await db.fetchAll(
         `SELECT fileId, extension, thumbSuffix 
         FROM files INNER JOIN posts ON files.postUid = posts.uid
@@ -180,9 +105,9 @@ async function deletePostAndReplies(id, board) {
     );
     // Affected rows includes file entries deleted in sql join: subtracted for number of posts only
     return { deletedPosts: affected - deletedFiles, deletedFiles };
-}
+};
 
-async function deleteOldestThread(boardUrl, boardMaxThreads) {
+exports.deleteOldestThread = async (boardUrl, boardMaxThreads) =>  {
     const num = await db.fetch(
         "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0",
         boardUrl
@@ -193,12 +118,12 @@ async function deleteOldestThread(boardUrl, boardMaxThreads) {
             boardUrl
         );
         if (oldest) {
-            return await deletePostAndReplies(oldest.postId, boardUrl);
+            return await exports.deletePostAndReplies(oldest.postId, boardUrl);
         }
     }
-}
+};
 
-async function bumpPost(boardUrl, id, boardBumpLimit) {
+exports.bumpPost = async (boardUrl, id, boardBumpLimit) =>  {
     const numReplies = await db.fetch(
         "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?",
         [boardUrl, id]
@@ -213,15 +138,15 @@ async function bumpPost(boardUrl, id, boardBumpLimit) {
         }
     }
     return;
-}
+};
 
-const getBoard = async url => await db.fetch(`SELECT url, title, about, bumpLimit, 
+exports.getBoard = async url => await db.fetch(`SELECT url, title, about, bumpLimit, 
     maxThreads, cooldown, createdAt, sfw FROM boards WHERE url = ?`, url);
-    
-const getBoards = async () => await db.fetchAll(`SELECT url, title, about, bumpLimit, 
-    maxThreads, cooldown, createdAt, sfw FROM boards`);
 
-const getThreads = async (board) => {
+exports.getBoards = async () => await db.fetchAll(`SELECT url, title, about, bumpLimit, 
+maxThreads, cooldown, createdAt, sfw FROM boards`);
+
+exports.getThreads = async board => {
     const data = await db.fetchAll(
         `SELECT postId AS id, createdAt AS date, name, subject, content, sticky,
             fileId, extension, thumbSuffix
@@ -254,7 +179,7 @@ const getThreads = async (board) => {
     return threads;
 };
 
-const getThread = async (board, id) => {
+exports.getThread = async (board, id) => {
     const [opData, repliesData] = await Promise.all([
         db.fetchAll(
             `SELECT postId AS id, createdAt, name, subject, content, sticky,
@@ -310,7 +235,7 @@ const getThread = async (board, id) => {
     return { op, replies, replyCount };
 };
 
-const postIsThread = async(board, id) => {
+exports.postIsThread = async(board, id) => {
     const post = await db.fetch("SELECT parent FROM posts WHERE boardUrl = ? AND postId = ?",
         [board, id]
     );
@@ -318,34 +243,30 @@ const postIsThread = async(board, id) => {
     return (post.parent === 0);
 };
 
-async function createUser(username, password, role) {
+exports.createUser = async (username, password, role) =>  {
     const hash = await bcrypt.hash(password, 15);
     const res = await db.query("INSERT INTO users SET ?", { username, password: hash, role });
     if(!res.affected) {
         throw "Create user failed";
     }
     return username;
-}
+};
 
-async function getUsers() {
-    return await db.fetchAll("SELECT username, role, createdAt FROM users");
-}
+exports.getUsers = async () =>  await db.fetchAll("SELECT username, role, createdAt FROM users");
 
-async function getUser(username) {
-    return await db.fetch("SELECT role, createdAt FROM users WHERE username = ?",
-        username
-    );
-}
+exports.getUser = async username =>  await db.fetch(
+    "SELECT role, createdAt FROM users WHERE username = ?", username
+);
 
-async function comparePasswords(username, comparison) {
+exports.comparePasswords = async (username, comparison) =>  {
     const user = await db.fetch("SELECT password FROM users WHERE username = ?", username);
     if(!user) {
         return false;
     }
     return await bcrypt.compare(comparison, user.password);
-}
+};
 
-async function updateUserPassword(username, newPassword) {
+exports.updateUserPassword = async (username, newPassword) =>  {
     const hash = await bcrypt.hash(newPassword, 15);
     const res = await db.query("UPDATE users SET password = ? WHERE username = ?",
         [hash, username]
@@ -354,23 +275,4 @@ async function updateUserPassword(username, newPassword) {
         throw "Update password failed";
     }
     return username;
-}
-
-module.exports = {
-    getForm,
-    getMultipart,
-    submitPost,
-    deletePostAndReplies,
-    deleteOldestThread,
-    bumpPost,
-    createUser,
-    getUser,
-    getUsers,
-    comparePasswords,
-    updateUserPassword,
-    getBoard,
-    getBoards,
-    getThreads,
-    getThread,
-    postIsThread
 };

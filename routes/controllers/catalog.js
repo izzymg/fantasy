@@ -3,47 +3,32 @@ const functions = require("./functions");
 const { lengthCheck } = require("../../libs/textFunctions");
 
 exports.post = async (ctx, next) => {
-    let formData;
-
-    try {
-        formData = await functions.getMultipart(ctx);
-    } catch (error) {
-        if (error.status && error.text && error.status === 400) {
-            return ctx.throw(400, error.text);
-        } else {
-            return ctx.throw(500, error);
-        }
-    }
-
-    const fields = formData.fields;
-    const files = formData.files;
-
     let lengthErr;
-    if (!fields.name) {
-        fields.name = postsConfig.defaultName;
+    if (!ctx.fields.name) {
+        ctx.fields.name = postsConfig.defaultName;
     } else {
-        lengthErr = lengthCheck(fields.name, postsConfig.maxNameLength, "Name") || lengthErr;
+        lengthErr = lengthCheck(ctx.fields.name, postsConfig.maxNameLength, "Name") || lengthErr;
     }
 
-    if (!fields.content && postsConfig.threads.requireContent) {
+    if (!ctx.fields.content && postsConfig.threads.requireContent) {
         return ctx.throw(400, "Post content required");
     } else {
         lengthErr =
-            lengthCheck(fields.content, postsConfig.maxContentLength, "Content") || lengthErr;
+            lengthCheck(ctx.fields.content, postsConfig.maxContentLength, "Content") || lengthErr;
     }
 
-    if (!fields.subject && postsConfig.threads.requireSubject) {
+    if (!ctx.fields.subject && postsConfig.threads.requireSubject) {
         return ctx.throw(400, "Post subject required");
     } else {
         lengthErr =
-            lengthCheck(fields.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
+            lengthCheck(ctx.fields.subject, postsConfig.maxSubjectLength, "Subject") || lengthErr;
     }
 
     if (lengthErr) {
         return ctx.throw(400, lengthErr);
     }
 
-    if (!files && files.length < 1 && postsConfig.threads.requireFiles) {
+    if (!ctx.files && ctx.files.length < 1 && postsConfig.threads.requireFiles) {
         return ctx.throw(400, "File required to post");
     }
 
@@ -51,12 +36,12 @@ exports.post = async (ctx, next) => {
         {
             boardUrl: ctx.state.board.url,
             parent: 0,
-            name: fields.name,
-            subject: fields.subject,
-            content: fields.content,
+            name: ctx.fields.name,
+            subject: ctx.fields.subject,
+            content: ctx.fields.content,
             lastBump: new Date(Date.now()),
         },
-        files
+        ctx.files
     );
     await functions.deleteOldestThread(ctx.state.board.url, ctx.state.board.maxThreads);
     ctx.body = `Created thread ${postId}${
