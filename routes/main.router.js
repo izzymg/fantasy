@@ -51,8 +51,7 @@ router.get("/boards/", boards.render);
 router.all("/boards/:board/*", middleware.getBoard);
 
 // Test route
-router.get("/boards/:board/authtest", 
-    middleware.requireModOrAdmin,
+router.get("/boards/:board/authtest",
     ctx => ctx.body = "You are an admin, or moderator of this board");
 
 // Get catalog and post thread
@@ -78,11 +77,17 @@ router.get("/login",  auth.render);
 router.get("/logout", auth.logout);
 
 router.get("/dashboard", 
-    dashboard.render);
+    dashboard.render
+);
 router.post("/dashboard/createUser", 
-    middleware.getForm, dashboard.createUser);
+    middleware.getForm, dashboard.createUser
+);
 router.post("/dashboard/changePassword", 
-    middleware.getForm, dashboard.changePassword);
+    middleware.getForm, dashboard.changePassword
+);
+router.post("/dashboard/addModerator",
+    middleware.getForm, dashboard.addModerator
+);
 
 // Fallthroughs
 router.get("*", async ctx => {

@@ -2,29 +2,51 @@ extends layout.pug
 block head
     link(rel="stylesheet" href="/css/dashboard.css")
     title Dashboard - #{webname}
+
+mixin addModerator(boards)
+    form.addModerator(action="/dashboard/addModerator" method="POST")
+        input.username(type="text" name="username" placeholder="Username")
+        select.board(name="board")
+            each board in boards
+                option(value=board.url) /#{board.url}/ #{board.title}
+        input.submit(type="submit" value="Add moderator")
+
+
 block content
     .title
         h1 Dashboard
         h3 #{session.role}
     if session.role === "administrator"
-        .block
-            .createUser
-                h3 Create new user
-                form(action="/dashboard/createUser" method="POST")
-                    input.username(type="text" name="username" placeholder="Username")
-                    select.role(name="role")
-                        option(value="moderator") moderator
-                        option(value="administrator") administrator
-                    input.submit(type="submit" value="Create user")
+        .block.createUser
+            h2 Create new user
+            form(action="/dashboard/createUser" method="POST")
+                input.username(type="text" name="username" placeholder="Username")
+                select.role(name="role")
+                    option(value="moderator") moderator
+                    option(value="administrator") administrator
+                input.submit(type="submit" value="Create user")
             .userlist
-                h3 Users
+                h2 Users
                 if users
                     each user in users
                         .user
                             a(title=`User created: ${new Date(user.createdAt).toLocaleString()}`).username #{user.username}
                             span  - 
                             span.role #{user.role}
-    .block
+                if boards
+                    +addModerator(boards)
+    if modOf
+        .block
+            h2 Boards you moderate:
+            each board in modOf
+                .board
+                    h3
+                        a(href=`/boards/${board.url}`) /#{board.url}/ - #{board.title}
+                span.sfw #{sfw ? "sfw" : "nsfw"}
+                if board.about
+                    span.about - #{board.about}
+            +addModerator(modOf)
+    .block.user
         h2 #{session.username}
         a(href="/logout") Logout
         form.changePassword(action="/dashboard/changePassword" method="POST")

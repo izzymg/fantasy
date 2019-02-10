@@ -6,8 +6,11 @@ exports.render = async ctx => {
         return ctx.throw(404);
     }
     if(ctx.state.session.role === "administrator") {
-        const users = await functions.getUsers();
-        return await ctx.render("dashboard", { users });
+        ctx.state.users = await functions.getUsers();
+        ctx.state.boards = await functions.getBoards();
+    }
+    if(ctx.state.session.role == "moderator") {
+        ctx.state.modOf = await functions.getModOf(ctx.state.session.username);
     }
     return await ctx.render("dashboard");
 };
@@ -58,6 +61,7 @@ exports.changePassword = async ctx => {
     if(ctx.fields.confirmation !== ctx.fields.newPassword) {
         return ctx.throw(400, "New password and confirmation do not match");
     }
+    // Ensure password
     const authenticated = await functions.comparePasswords(
         ctx.state.session.username, ctx.fields.currentPassword
     );
@@ -66,4 +70,39 @@ exports.changePassword = async ctx => {
     }
     await functions.updateUserPassword(ctx.state.session.username, ctx.fields.newPassword);
     return ctx.body = "Updated password";
+};
+
+exports.addModerator = async ctx => {
+    if(!ctx.state.session) {
+        return ctx.throw(404);
+    }
+    if(!ctx.fields.username || typeof ctx.fields.username !== "string") {
+        return ctx.throw(400, "Expected username");
+    }
+    if(!ctx.fields.board || typeof ctx.fields.board !== "string") {
+        return ctx.throw(400, "Expected board");
+    }
+    // User is admin or can moderate the board they're adding a moderator to
+    const authorized = await functions.canModOrAdmin(ctx.state.session.username, ctx.fields.board);
+    if(!authorized) {
+        return ctx.throw(403, "You don't have permission.");
+    }
+    try {
+        await functions.addMod(ctx.fields.username, ctx.fields.board);
+        return ctx.body = 
+            `Successfully added ${ctx.fields.username} as a moderator of ${ctx.fields.board}`;
+    } catch(error) {
+        if(error.errno === 1452) {
+            // Ugly fix, mariadb/mysql driver doesn't return which constraint failed
+            if(error.sqlMessage.includes("mod_username")) {
+                return ctx.throw(400, `User ${ctx.fields.username} does not exist`);
+            }
+            return ctx.throw(400, `Board ${ctx.fields.board} does not exist.`);
+        }
+        if(error.code === "ER_DUP_ENTRY") {
+            return ctx.throw(400, 
+                `Error: User ${ctx.fields.username} is already a moderator of ${ctx.fields.board}`);
+        }
+        return ctx.throw(500, error);
+    }
 };

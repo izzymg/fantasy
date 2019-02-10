@@ -283,6 +283,12 @@ exports.addMod = async (username, boardUrl) => {
     return username;
 };
 
+exports.getModOf = async username => await db.fetchAll(
+    `SELECT url, title, about, sfw FROM boardmods
+    INNER JOIN boards ON boards.url = boardmods.boardUrl
+    WHERE boardmods.username = ?`, username
+);
+
 exports.canModOrAdmin = async (username, boardUrl) => {
     const res = await db.fetch(
         `SELECT username FROM boardmods
