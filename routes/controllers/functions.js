@@ -258,6 +258,27 @@ exports.getUser = async username =>  await db.fetch(
     "SELECT role, createdAt FROM users WHERE username = ?", username
 );
 
+exports.addMod = async (username, boardUrl) => {
+    const res = await db.query("INSERT INTO boardmods SET ?", { username, boardUrl });
+    if(!res.affected) {
+        throw "Add moderator failed";
+    }
+    return username;
+};
+
+exports.canModOrAdmin = async (username, boardUrl) => {
+    const res = await db.fetch(
+        `SELECT username FROM boardmods
+        WHERE username = ? AND boardUrl = ?
+        UNION
+        SELECT username FROM users
+        WHERE username = ? AND role = "administrator"`,
+        [username, boardUrl, username]
+    );
+    if(res && res.username) return true;
+    return false;
+};
+
 exports.comparePasswords = async (username, comparison) =>  {
     const user = await db.fetch("SELECT password FROM users WHERE username = ?", username);
     if(!user) {

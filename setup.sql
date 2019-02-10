@@ -43,5 +43,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS boardmods (
     username varchar(100) NOT NULL,
-    boardUrl varchar(15) NOT NULL
+    boardUrl varchar(15) NOT NULL,
+    UNIQUE KEY mod_uid (username, boardUrl),
+    CONSTRAINT mod_username
+        FOREIGN KEY (username) REFERENCES users (username)
+        ON DELETE CASCADE,
+    CONSTRAINT mod_board
+        FOREIGN KEY (boardUrl) REFERENCES boards (url)
+        ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

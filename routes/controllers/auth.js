@@ -21,6 +21,18 @@ exports.checkCooldown = async (ctx, next) => {
     return next();
 };
 
+exports.requireModOrAdmin = async (ctx, next) => {
+    if(ctx.state.session) {
+        const authorized = await functions.canModOrAdmin(
+            ctx.state.session.username, ctx.state.board.url
+        );
+        if(authorized) {
+            return next();
+        }
+    }
+    return ctx.throw(403, "You don't have permission to do that");
+};
+
 exports.login = async ctx => {
     if (!ctx.fields.username) {
         return ctx.throw(400, "Expected username");

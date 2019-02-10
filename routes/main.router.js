@@ -6,7 +6,6 @@ const boards = require("./controllers/boards");
 const catalog = require("./controllers/catalog");
 const thread = require("./controllers/thread");
 const files = require("./controllers/files");
-const mod = require("./controllers/mod");
 const dashboard = require("./controllers/dashboard");
 const auth = require("./controllers/auth");
 
@@ -49,24 +48,25 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
 // Boards list
 router.get("/boards/", boards.render);
 
+// Set board state up on all board routes
 router.all("/boards/:board/*", boards.checkBoard);
 
-router.get("/boards/:board/", catalog.render);
+// Test route
+router.get("/boards/:board/authtest", auth.requireModOrAdmin, ctx => ctx.body = "You are an admin, or moderator of this board");
 
+// Get catalog and post thread
+router.get("/boards/:board/", catalog.render);
 router.post("/boards/:board/",
     auth.checkCooldown, middleware.getMultipart,
     catalog.post, auth.createCooldown
 );
 
-// Thread
+// Get thread and post reply
 router.get("/boards/:board/threads/:thread", thread.render);
-
 router.post("/boards/:board/threads/:thread",
     auth.checkCooldown, middleware.getMultipart,
     thread.post, auth.createCooldown
 );
-
-router.post("/boards/:board/delete/:post", mod.deletePost);
 
 // Serve files
 router.get("/files/:filename", files.render);
