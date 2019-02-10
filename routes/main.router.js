@@ -1,13 +1,13 @@
 const Router = require("koa-router");
 const router = new Router({ strict: true });
 const middleware = require("./middleware");
-const home = require("./controllers/home");
-const boards = require("./controllers/boards");
-const catalog = require("./controllers/catalog");
-const thread = require("./controllers/thread");
-const files = require("./controllers/files");
-const dashboard = require("./controllers/dashboard");
-const auth = require("./controllers/auth");
+const home = require("./endpoints//home");
+const boards = require("./endpoints/boards");
+const catalog = require("./endpoints/catalog");
+const thread = require("./endpoints/thread");
+const files = require("./endpoints/files");
+const dashboard = require("./endpoints/dashboard");
+const auth = require("./endpoints/auth");
 
 // Boards are cached to prevent excess DB queries
 async function setup() {
@@ -52,7 +52,9 @@ router.get("/boards/", boards.render);
 router.all("/boards/:board/*", boards.checkBoard);
 
 // Test route
-router.get("/boards/:board/authtest", auth.requireModOrAdmin, ctx => ctx.body = "You are an admin, or moderator of this board");
+router.get("/boards/:board/authtest", 
+    auth.requireModOrAdmin,
+    ctx => ctx.body = "You are an admin, or moderator of this board");
 
 // Get catalog and post thread
 router.get("/boards/:board/", catalog.render);
