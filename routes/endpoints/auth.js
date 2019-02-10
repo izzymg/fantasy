@@ -26,18 +26,16 @@ exports.login = async ctx => {
         await redis.hSet(ctx.ip, "attemptAge", Date.now());
     }
 
-    const authenticated = await functions.comparePasswords(
+    const authenticated = await functions.compareUserPassword(
         ctx.fields.username, ctx.fields.password
     );
     if (authenticated) {
         if(ctx.session) {
             await redis.del(ctx.state.session.id);
         }
-        const user = await functions.getUser(ctx.fields.username);
         const sessionId = uuid();
         await Promise.all([
             redis.hSet(sessionId, "username", ctx.fields.username),
-            redis.hSet(sessionId, "role", user.role),
             redis.expire(sessionId, 60 * 60),
         ]);
         ctx.set("set-cookie", `id=${sessionId}`);
@@ -53,8 +51,8 @@ exports.logout = async ctx => {
     if (ctx.cookies) {
         const sessionId = ctx.cookies.get("id");
         if (sessionId) {
-            await redis.del(sessionId);
-            return (ctx.body = "Logged out");
+            const del = await redis.del(sessionId);
+            if(del) return ctx.body = "Logged out";
         }
     }
     return ctx.body = "You weren't logged in";

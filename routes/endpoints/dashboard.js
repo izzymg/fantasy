@@ -5,17 +5,21 @@ exports.render = async ctx => {
     if(!ctx.state.session) {
         return ctx.throw(404);
     }
-    if(ctx.state.session.role === "administrator") {
+    const isAdmin = await functions.isAdmin(ctx.state.session.username);
+    if(isAdmin) {
+        ctx.state.admin = true;
         ctx.state.users = await functions.getUsers();
         ctx.state.boards = await functions.getBoards();
-    }
-    if(ctx.state.session.role == "moderator") {
+    } else {
         ctx.state.modOf = await functions.getModOf(ctx.state.session.username);
     }
     return await ctx.render("dashboard");
 };
 
 exports.createUser = async ctx => {
+    if(!ctx.session) {
+        return ctx.throw(404);
+    }
     if(!ctx.fields.username || typeof ctx.fields.username !== "string") {
         return ctx.throw(400, "Expected username");
     }
@@ -24,21 +28,23 @@ exports.createUser = async ctx => {
     ) {
         return ctx.throw(400, "Expected role: 'administrator' or 'moderator'");
     }
-    if (ctx.state.session && ctx.state.session.role && ctx.state.session.role == "administrator") {
-        const password = await crypto.randomBytes(4).toString("hex");
-        try {
-            await functions.createUser(ctx.fields.username, password, ctx.fields.role);
-            return ctx.body = `Created user ${
-                ctx.fields.username
-            }. Send them this password: ${
-                password
-            } and instruct them to change their password from their dashboard.`;
-        } catch(error) {
-            if(error.code === "ER_DUP_ENTRY") {
-                return ctx.throw(400, "A user with that name already exists.");
-            }
-            return ctx.throw(500, error);
+    const isAdmin = await functions.isAdmin(ctx.session.username);
+    if(!isAdmin) {
+        return ctx.throw(403, "You don't have permisson.");
+    }
+    const password = await crypto.randomBytes(4).toString("hex");
+    try {
+        await functions.createUser(ctx.fields.username, password, ctx.fields.role);
+        return ctx.body = `Created user ${
+            ctx.fields.username
+        }. Send them this password: ${
+            password
+        } and instruct them to change their password from their dashboard.`;
+    } catch(error) {
+        if(error.code === "ER_DUP_ENTRY") {
+            return ctx.throw(400, "A user with that name already exists.");
         }
+        return ctx.throw(500, error);
     }
 };
 
@@ -62,7 +68,7 @@ exports.changePassword = async ctx => {
         return ctx.throw(400, "New password and confirmation do not match");
     }
     // Ensure password
-    const authenticated = await functions.comparePasswords(
+    const authenticated = await functions.compareUserPassword(
         ctx.state.session.username, ctx.fields.currentPassword
     );
     if(!authenticated) {

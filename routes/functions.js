@@ -269,11 +269,7 @@ exports.createUser = async (username, password, role) =>  {
     return username;
 };
 
-exports.getUsers = async () =>  await db.fetchAll("SELECT username, role, createdAt FROM users");
-
-exports.getUser = async username =>  await db.fetch(
-    "SELECT role, createdAt FROM users WHERE username = ?", username
-);
+exports.getUsers = async () =>  await db.fetchAll("SELECT username, createdAt FROM users");
 
 exports.addMod = async (username, boardUrl) => {
     const res = await db.query("INSERT INTO boardmods SET ?", { username, boardUrl });
@@ -294,15 +290,26 @@ exports.canModOrAdmin = async (username, boardUrl) => {
         `SELECT username FROM boardmods
         WHERE username = ? AND boardUrl = ?
         UNION
-        SELECT username FROM users
-        WHERE username = ? AND role = "administrator"`,
+        SELECT administrators.username FROM users
+        INNER JOIN administrators
+        ON administrators.username = users.username
+        WHERE administrators.username = ?`,
         [username, boardUrl, username]
     );
     if(res && res.username) return true;
     return false;
 };
 
-exports.comparePasswords = async (username, comparison) =>  {
+exports.isAdmin = async username => {
+    const res = await db.fetch(
+        "SELECT username FROM administrators WHERE username = ?",
+        username
+    );
+    if(res && res.username) return true;
+    return false;
+};
+
+exports.compareUserPassword = async (username, comparison) =>  {
     const user = await db.fetch("SELECT password FROM users WHERE username = ?", username);
     if(!user) {
         return false;

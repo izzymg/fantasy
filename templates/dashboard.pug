@@ -16,7 +16,7 @@ block content
     .title
         h1 Dashboard
         h3 #{session.role}
-    if session.role === "administrator"
+    if admin
         .block.createUser
             h2 Create new user
             form(action="/dashboard/createUser" method="POST")
@@ -31,8 +31,6 @@ block content
                     each user in users
                         .user
                             a(title=`User created: ${new Date(user.createdAt).toLocaleString()}`).username #{user.username}
-                            span  - 
-                            span.role #{user.role}
                 if boards
                     +addModerator(boards)
     if modOf

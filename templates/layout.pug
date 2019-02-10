@@ -10,7 +10,7 @@ html
             a(href="/") Home
             a(href="/boards") Boards
             if session && session.username
-                span.right #{session.username} - #{session.role}
+                span.right #{session.username}
                 a.right(href="/dashboard") Dashboard
             else
                 a.right(href="/login") Login

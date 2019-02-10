@@ -19,12 +19,10 @@ exports.getSession = async (ctx, next) => {
         const sessionId = ctx.cookies.get("id");
         if (sessionId) {
             const username = await redis.hGet(sessionId, "username");
-            const role = await redis.hGet(sessionId, "role");
-            if (username && role) {
+            if (username) {
                 ctx.state.session = {
                     id: sessionId,
-                    username,
-                    role,
+                    username
                 };
                 return next();
             }
