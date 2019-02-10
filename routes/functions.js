@@ -1,8 +1,9 @@
-const db = require("../../database/database");
-const postsConfig = require("../../config/posts");
-const fileFunctions = require("../../libs/fileFunctions");
+const db = require("../database/database");
+const postsConfig = require("../config/posts");
+const fileFunctions = require("../libs/fileFunctions");
 const path = require("path");
 const bcrypt = require("bcrypt");
+var boardCache = [];
 
 exports.submitPost = async ({ boardUrl, parent, name, subject, content, lastBump }, files) =>  {
     const queries = [
@@ -140,11 +141,27 @@ exports.bumpPost = async (boardUrl, id, boardBumpLimit) =>  {
     return;
 };
 
-exports.getBoard = async url => await db.fetch(`SELECT url, title, about, bumpLimit, 
+exports.getBoard = async url => {
+    for (const board of boardCache) {
+        if (board.url === url) {
+            return board;
+        }
+    }
+    return await db.fetch(`SELECT url, title, about, bumpLimit, 
     maxThreads, cooldown, createdAt, sfw FROM boards WHERE url = ?`, url);
+};
 
-exports.getBoards = async () => await db.fetchAll(`SELECT url, title, about, bumpLimit, 
-maxThreads, cooldown, createdAt, sfw FROM boards`);
+exports.getBoards = async () => {
+    if(boardCache.length > 0) {
+        return boardCache;
+    }
+    return await db.fetchAll(`SELECT url, title, about, bumpLimit, 
+        maxThreads, cooldown, createdAt, sfw FROM boards`);
+};
+
+exports.cacheBoards = async () => boardCache = await db.fetchAll(
+    "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt, sfw FROM boards"
+);
 
 exports.getThreads = async board => {
     const data = await db.fetchAll(

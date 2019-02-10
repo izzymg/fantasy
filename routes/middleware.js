@@ -2,6 +2,68 @@ const multipart = require("../libs/multipart");
 const { trimEscapeHtml } = require("../libs/textFunctions");
 const parse = require("co-body");
 const postsConfig = require("../config/posts");
+const redis = require ("../database/redis");
+const functions = require("./functions");
+
+exports.getBoard = async (ctx, next) => {
+    const board = await functions.getBoard(ctx.params.board);
+    if (!board) {
+        return ctx.throw(404);
+    }
+    ctx.state.board = board;
+    return await next();
+};
+
+exports.getSession = async (ctx, next) => {
+    if (ctx.cookies) {
+        const sessionId = ctx.cookies.get("id");
+        if (sessionId) {
+            const username = await redis.hGet(sessionId, "username");
+            const role = await redis.hGet(sessionId, "role");
+            if (username && role) {
+                ctx.state.session = {
+                    id: sessionId,
+                    username,
+                    role,
+                };
+                return next();
+            }
+        }
+    }
+    return next();
+};
+
+exports.requireModOrAdmin = async (ctx, next) => {
+    if(ctx.state.session) {
+        const authorized = await functions.canModOrAdmin(
+            ctx.state.session.username, ctx.state.board.url
+        );
+        if(authorized) {
+            return next();
+        }
+    }
+    return ctx.throw(403, "You don't have permission to do that");
+};
+
+exports.createCooldown = async (ctx, next) => {
+    await redis.hSet(ctx.ip, "cooldown", Date.now() + ctx.state.board.cooldown * 1000);
+    await redis.expire(ctx.ip, 24 * 60 * 60);
+    return next();
+};
+
+exports.checkCooldown = async (ctx, next) => {
+    const cd = await redis.hGet(ctx.ip, "cooldown");
+    let now = Date.now();
+    if (cd && cd < now) {
+        await redis.hDel(ctx.ip, "cooldown");
+    } else if (cd) {
+        return (ctx.body = `You need to wait ${Math.floor(
+            (cd - now) / 1000
+        )} seconds before posting again`);
+    }
+    return next();
+};
+
 
 // Incomming JSON and urlencoded form data
 exports.getForm = async (ctx, next) =>  {

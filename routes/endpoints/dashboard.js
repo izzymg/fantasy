@@ -1,4 +1,4 @@
-const functions = require("./functions");
+const functions = require("../functions");
 const crypto = require("crypto");
 
 exports.render = async ctx => {

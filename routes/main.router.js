@@ -18,8 +18,7 @@ async function setup() {
     }
 }
 
-router.get("*", auth.checkSession);
-
+router.use(middleware.getSession);
 router.get("*", async (ctx, next) => {
     try {
         await next();
@@ -49,25 +48,25 @@ router.get("/boards/:board/threads/:thread/", async ctx => {
 router.get("/boards/", boards.render);
 
 // Set board state up on all board routes
-router.all("/boards/:board/*", boards.checkBoard);
+router.all("/boards/:board/*", middleware.getBoard);
 
 // Test route
 router.get("/boards/:board/authtest", 
-    auth.requireModOrAdmin,
+    middleware.requireModOrAdmin,
     ctx => ctx.body = "You are an admin, or moderator of this board");
 
 // Get catalog and post thread
 router.get("/boards/:board/", catalog.render);
 router.post("/boards/:board/",
-    auth.checkCooldown, middleware.getMultipart,
-    catalog.post, auth.createCooldown
+    middleware.checkCooldown, middleware.getMultipart,
+    catalog.post, middleware.createCooldown
 );
 
 // Get thread and post reply
 router.get("/boards/:board/threads/:thread", thread.render);
 router.post("/boards/:board/threads/:thread",
-    auth.checkCooldown, middleware.getMultipart,
-    thread.post, auth.createCooldown
+    middleware.checkCooldown, middleware.getMultipart,
+    thread.post, middleware.createCooldown
 );
 
 // Serve files

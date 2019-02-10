@@ -1,37 +1,6 @@
 const redis = require("../../database/redis");
 const uuid = require("uuid/v4");
-const functions = require("./functions");
-
-exports.createCooldown = async (ctx, next) => {
-    await redis.hSet(ctx.ip, "cooldown", Date.now() + ctx.state.board.cooldown * 1000);
-    await redis.expire(ctx.ip, 24 * 60 * 60);
-    return next();
-};
-
-exports.checkCooldown = async (ctx, next) => {
-    const cd = await redis.hGet(ctx.ip, "cooldown");
-    let now = Date.now();
-    if (cd && cd < now) {
-        await redis.hDel(ctx.ip, "cooldown");
-    } else if (cd) {
-        return (ctx.body = `You need to wait ${Math.floor(
-            (cd - now) / 1000
-        )} seconds before posting again`);
-    }
-    return next();
-};
-
-exports.requireModOrAdmin = async (ctx, next) => {
-    if(ctx.state.session) {
-        const authorized = await functions.canModOrAdmin(
-            ctx.state.session.username, ctx.state.board.url
-        );
-        if(authorized) {
-            return next();
-        }
-    }
-    return ctx.throw(403, "You don't have permission to do that");
-};
+const functions = require("../functions");
 
 exports.login = async ctx => {
     if (!ctx.fields.username) {
@@ -88,26 +57,7 @@ exports.logout = async ctx => {
             return (ctx.body = "Logged out");
         }
     }
-    return (ctx.body = "You weren't logged in");
-};
-
-exports.checkSession = async (ctx, next) => {
-    if (ctx.cookies) {
-        const sessionId = ctx.cookies.get("id");
-        if (sessionId) {
-            const username = await redis.hGet(sessionId, "username");
-            const role = await redis.hGet(sessionId, "role");
-            if (username && role) {
-                ctx.state.session = {
-                    id: sessionId,
-                    username,
-                    role,
-                };
-                return next();
-            }
-        }
-    }
-    return next();
+    return ctx.body = "You weren't logged in";
 };
 
 exports.render = async ctx => await ctx.render("login");
