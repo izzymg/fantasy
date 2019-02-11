@@ -12,12 +12,12 @@ const db = require("./database/database");
         const hash = await bcrypt.hash(adminPassword, 15);
         await db.query("INSERT INTO users SET ?", {
             username: adminUsername,
-            password: hash,
-            role: "admin",
+            password: hash
         });
         console.log(`Created user ${adminUsername}, closing db connection and exiting.`);
         return await db.close();
     } catch (e) {
-        return console.error("Admin generation failed:", e);
+        console.error("Admin generation failed:", e);
+        return await db.close();
     }
 })();

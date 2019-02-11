@@ -1,16 +1,21 @@
-// Sequelize is used for the SQL connection
-// It pools connections using node-pool, read on connection pooling here
-// https://en.wikipedia.org/wiki/Connection_pool
-// It's important to adjust these based on traffic and metrics
+/* 
+Connection pooling is used to handle database connections via mysqljs
+https://en.wikipedia.org/wiki/Connection_pool: read more
+It's important to adjust these based on traffic and metrics
+Increasing maximum connections will help bandwidth and latency issues, but affect server performance
+The acquire time is how long a request can sit waiting for a database connection
+    from the pool before being disconnected.
+Enable metrics to get a report after server shutdown of how many connections were acquired
+    and how long they had to wait.
+*/ 
 
 module.exports = {
-    // Maximum connections stored in the SQL connection pool
-    // Can have major consequences on speed, generally go higher if more threads/more traffic
     maxConnections: 5,
-    // Maximum time the database should try to get a connection in MS
     maxAcquireTime: 6000,
-    // Enable to stam stdout with every SQL query
+    // Spams stdout with SQL query info
     debug: false,
-    // Enable to get details on connection pooling
     metrics: true,
+    // Swaps all Redis operations to an in-memory store
+    // For development *only*, never use in production
+    memStore: true
 };

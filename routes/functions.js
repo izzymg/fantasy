@@ -152,7 +152,7 @@ exports.getBoard = async url => {
 };
 
 exports.getBoards = async () => {
-    if(boardCache.length > 0) {
+    if(boardCache && boardCache.length > 0) {
         return boardCache;
     }
     return await db.fetchAll(`SELECT url, title, about, bumpLimit, 
