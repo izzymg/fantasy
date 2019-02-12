@@ -1,8 +1,9 @@
 module.exports = {
     database: {
+        database: "zthree",
         host: "192.168.1.25",
         port: 3306,
-        username: "zchan",
+        user: "zchan",
         password: "password",
     },
     redis: {

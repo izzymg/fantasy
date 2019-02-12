@@ -1,10 +1,11 @@
 module.exports = {
     database: {
-        maxConnections: 1,
-        maxAcquireTime: 6000,
+        connectionLimit: 1,
+        connectionTimeout: 6000,
+        acquireTimeout: 10000,
         debug: false,
-        metrics: true,
-        memStore: true,
+        metrics: false,
+        memStore: false,
     },
 
     server: {
