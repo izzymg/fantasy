@@ -1,6 +1,6 @@
 const functions = require("../functions");
-const postsConfig = require("../../config/config").posts;
-const { lengthCheck } = require("../../libs/textFunctions");
+const postsConfig = require("../../../config/config").posts;
+const { lengthCheck } = require("../../../libs/textFunctions");
 
 exports.post = async (ctx, next) => {
     const isThread = await functions.postIsThread(ctx.state.board.url, ctx.params.thread);

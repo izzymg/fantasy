@@ -1,7 +1,13 @@
+const Koa = require("Koa");
 const Router = require("koa-router");
-const router = new Router({ strict: true });
+const koaStatic = require("koa-static");
+const koaViews = require("koa-views");
+const path = require("path");
+const logger = require("../../libs/logger");
+const serverConfig = require("../../config/config").server;
+
 const middleware = require("./middleware");
-const home = require("./endpoints//home");
+const home = require("./endpoints/home");
 const boards = require("./endpoints/boards");
 const catalog = require("./endpoints/catalog");
 const thread = require("./endpoints/thread");
@@ -9,14 +15,8 @@ const files = require("./endpoints/files");
 const dashboard = require("./endpoints/dashboard");
 const auth = require("./endpoints/auth");
 
-// Boards are cached to prevent excess DB queries
-async function setup() {
-    try {
-        await boards.genCache();
-    } catch (e) {
-        throw e;
-    }
-}
+
+const router = new Router({ strict: true });
 
 router.use(middleware.getSession);
 router.get("*", async (ctx, next) => {
@@ -94,4 +94,43 @@ router.get("*", async ctx => {
     await ctx.render("notfound");
 });
 
-module.exports = { setup, routes: router.routes() };
+const server = new Koa();
+
+// Views
+server.use(
+    koaViews(path.join(__dirname, "templates"), {
+        extension: "pug",
+        options: { cache: process.env.NODE_ENV === "production" },
+    })
+);
+
+// Server static files (JS/CSS/Media)
+server.use(koaStatic(path.join(__dirname, "static/dist")));
+
+// Securely handle and log 500 errors
+server.use(async (ctx, next) => {
+    ctx.state.webname = serverConfig.webname;
+    try {
+        await next();
+    } catch (error) {
+        ctx.status = error.status || 500;
+        if (ctx.status == 500) {
+            ctx.body = "Internal server error";
+            ctx.app.emit("error", error, ctx);
+        } else {
+            ctx.body = error.message;
+        }
+    }
+});
+
+server.on("error", error => {
+    if (serverConfig.consoleErrors) {
+        console.error(`ZThree: ${error}`);
+        console.trace(error);
+    }
+    logger.logOut(error, serverConfig.log);
+});
+
+
+server.use(router.routes());
+module.exports = server;
