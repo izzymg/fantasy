@@ -8,7 +8,7 @@ const https = require("https");
 const db = require("./database/database");
 const redis = require("./database/redis");
 
-const boardsService = require("./ends/boards/service");
+const apiService = require("./ends/api/service");
 const siteService = require("./ends/site/service");
 
 let servers = [];
@@ -24,29 +24,31 @@ function init() {
     // Site service
     servers.push(http.createServer(siteService.callback())
         .listen(serverConfig.port, serverConfig.host, () => {
-            console.log(`HTTP Listening ${serverConfig.host}:${serverConfig.port}`);
+            console.log(`Site listening ${serverConfig.host}:${serverConfig.port}`);
         })
     );
     if (serverConfig.https) {
         servers.push(https.createServer(siteService.callback())
             .listen(serverConfig.httpsPort, serverConfig.host, () => {
-                console.log(`HTTPS Listening ${serverConfig.host}:${serverConfig.httpsPort}`);
+                console.log(`Site HTTPS detected: listening ${
+                    serverConfig.host
+                }:${serverConfig.httpsPort}`);
             })
         );
     }
 
-    servers.push(http.createServer(boardsService.callback()).
+    servers.push(http.createServer(apiService.callback()).
         listen(serverConfig.boards.port, serverConfig.boards.host, () => {
-            console.log(`HTTP Listening ${serverConfig.boards.host}:${serverConfig.boards.port}`);
+            console.log(`API listening ${serverConfig.boards.host}:${serverConfig.boards.port}`);
         })
     );
 
     // Boards service
     
     if (serverConfig.boards.https) {
-        servers.push(https.createServer(boardsService.callback())
+        servers.push(https.createServer(apiService.callback())
             .listen(serverConfig.boards.httpsPort, serverConfig.boards.host, () => {
-                console.log(`HTTPS Listening ${
+                console.log(`API HTTPS detected: listening ${
                     serverConfig.boards.host
                 }:${serverConfig.boards.httpsPort}`);
             })
