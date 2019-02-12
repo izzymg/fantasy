@@ -1,7 +1,7 @@
 const redis = require("redis");
 const { promisify } = require("util");
-const secretsConfig = require("../config/secrets").redis;
-const databaseConfig = require("../config/database");
+const secretsConfig = require("../config/private").redis;
+const databaseConfig = require("../config/config").database;
 let client;
 if(databaseConfig.memStore) {
     client = {};

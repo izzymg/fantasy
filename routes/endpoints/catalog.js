@@ -1,4 +1,4 @@
-const postsConfig = require("../../config/posts");
+const postsConfig = require("../../config/config").posts;
 const functions = require("../functions");
 const { lengthCheck } = require("../../libs/textFunctions");
 

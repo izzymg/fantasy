@@ -1,6 +1,6 @@
 const mysql = require("mysql");
-const secretsConfig = require("../config/secrets").database;
-const databaseConfig = require("../config/database");
+const secretsConfig = require("../config/private").database;
+const databaseConfig = require("../config/config").database;
 var db;
 
 var settings = {

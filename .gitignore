@@ -1,8 +1,5 @@
 node_modules/
-config/database.js
-config/secrets.js
-config/server.js
-config/templates.js
-config/posts.js
+config/config.js
+config/private.js
 .vscode/
 static/dist

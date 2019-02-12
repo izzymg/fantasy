@@ -1,5 +1,5 @@
 const db = require("../database/database");
-const postsConfig = require("../config/posts");
+const postsConfig = require("../config/config").posts;
 const fileFunctions = require("../libs/fileFunctions");
 const path = require("path");
 const bcrypt = require("bcrypt");

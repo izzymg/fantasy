@@ -4,7 +4,7 @@ const Koa = require("koa");
 const koaStatic = require("koa-static");
 const koaViews = require("koa-views");
 const mainRouter = require("./routes/main.router");
-const serverConfig = require("./config/server");
+const serverConfig = require("./config/config").server;
 
 const path = require("path");
 const http = require("http");

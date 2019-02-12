@@ -1,5 +1,5 @@
 const path = require("path");
-const postsConfig = require("../../config/posts");
+const postsConfig = require("../../config/config").posts;
 const sendFile = require("koa-sendfile");
 
 exports.render = async ctx => {

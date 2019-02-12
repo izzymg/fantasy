@@ -1,5 +1,5 @@
 const functions = require("../functions");
-const postsConfig = require("../../config/posts");
+const postsConfig = require("../../config/config").posts;
 const { lengthCheck } = require("../../libs/textFunctions");
 
 exports.post = async (ctx, next) => {

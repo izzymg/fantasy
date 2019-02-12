@@ -1,7 +1,7 @@
 const multipart = require("../libs/multipart");
 const { trimEscapeHtml } = require("../libs/textFunctions");
 const parse = require("co-body");
-const postsConfig = require("../config/posts");
+const postsConfig = require("../config/config").posts;
 const redis = require ("../database/redis");
 const functions = require("./functions");
 
