@@ -152,7 +152,7 @@ exports.getBoard = async url => {
 };
 
 exports.getBoards = async () => {
-    if(boardCache && boardCache.length > 0) {
+    if(boardCache) {
         return boardCache;
     }
     return await db.fetchAll(`SELECT url, title, about, bumpLimit, 
@@ -161,7 +161,7 @@ exports.getBoards = async () => {
 
 exports.cacheBoards = async () => boardCache = await db.fetchAll(
     "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt, sfw FROM boards"
-);
+) || [];
 
 exports.getThreads = async board => {
     const data = await db.fetchAll(
