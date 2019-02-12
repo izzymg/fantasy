@@ -15,6 +15,8 @@ const db = require("./database/database");
 const redis = require("./database/redis");
 const server = new Koa();
 
+const boardsService = require("./ends/boards/service");
+
 db.open()
     .then(settings => {
         console.log(`Starting SQL connection on ${settings.host}:${settings.port}`);
@@ -71,6 +73,7 @@ function init() {
                 Check your database connectivity and credentials.`
             )
         );
+    
     server.use(mainRouter.routes);
 
     // Create server
@@ -91,6 +94,12 @@ function init() {
         redis.close();
         process.exit(0);
     }
+
+    boardsService.listen(serverConfig.boards.port, serverConfig.boards.host, () => {
+        console.log(`Boards service running ${
+            serverConfig.boards.host}:${serverConfig.boards.port}`
+        );
+    });
 
     process.on("SIGINT", onExit);
     process.on("SIGTERM", onExit);
