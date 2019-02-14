@@ -1,6 +1,6 @@
 console.log("ZThree starting, press CTRL-C/sigint/sigterm to exit");
 
-const serverConfig = require("./config/config").server;
+const config = require("./config/config");
 
 const http = require("http");
 const https = require("https");
@@ -21,36 +21,36 @@ db.open().then(settings => {
 });
 
 function init() {
+    
     // Site service
     servers.push(http.createServer(siteService.callback())
-        .listen(serverConfig.port, serverConfig.host, () => {
-            console.log(`Site listening ${serverConfig.host}:${serverConfig.port}`);
+        .listen(config.server.port, config.server.host, () => {
+            console.log(`Site listening ${config.server.host}:${config.server.port}`);
         })
     );
-    if (serverConfig.https) {
+    if (config.server.https) {
         servers.push(https.createServer(siteService.callback())
-            .listen(serverConfig.httpsPort, serverConfig.host, () => {
+            .listen(config.server.httpsPort, config.server.host, () => {
                 console.log(`Site HTTPS detected: listening ${
-                    serverConfig.host
-                }:${serverConfig.httpsPort}`);
+                    config.server.host
+                }:${config.server.httpsPort}`);
             })
         );
     }
 
+    // API service
     servers.push(http.createServer(apiService.callback()).
-        listen(serverConfig.boards.port, serverConfig.boards.host, () => {
-            console.log(`API listening ${serverConfig.boards.host}:${serverConfig.boards.port}`);
+        listen(config.api.port, config.api.host, () => {
+            console.log(`API listening ${config.api.host}:${config.api.port}`);
         })
     );
 
-    // Boards service
-    
-    if (serverConfig.boards.https) {
+    if (config.api.https) {
         servers.push(https.createServer(apiService.callback())
-            .listen(serverConfig.boards.httpsPort, serverConfig.boards.host, () => {
+            .listen(config.api.httpsPort, config.api.host, () => {
                 console.log(`API HTTPS detected: listening ${
-                    serverConfig.boards.host
-                }:${serverConfig.boards.httpsPort}`);
+                    config.api.host
+                }:${config.api.httpsPort}`);
             })
         );
     }

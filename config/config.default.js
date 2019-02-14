@@ -18,6 +18,13 @@ module.exports = {
         webname: "ZChan",
     },
 
+    api: {
+        port: 3002,
+        host: "localhost",
+        https: true,
+        httpsPort: 3003,
+    },
+
     posts: {
         maxNameLength: 16,
         maxSubjectLength: 60,
