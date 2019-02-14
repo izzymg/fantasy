@@ -36,7 +36,7 @@ function connectionFactory(pool) {
                 beginTransaction: promisify(connection.beginTransaction).bind(connection),
                 commit: promisify(connection.commit).bind(connection),
                 rollback: promisify(connection.rollback).bind(connection),
-                release: connection.release
+                release: () => { connection.release(); }
             });
         });
     });

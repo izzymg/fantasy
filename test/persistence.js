@@ -35,9 +35,9 @@ describe("Persistence functions", function () {
     });
     describe("#getThread()", function() {
         it("Should return the OP data of the thread submitted", async function() {
-            const thread = await persistence.getThread("/dev/", postId);
+            const thread = await persistence.getThread("dev", postId);
             assert(thread);
-            assert(thread.name === "Unit test");
+            assert(thread.name === "Unit Test");
         });
     });
 });
