@@ -11,7 +11,7 @@ block content
         h1
             a(href=`/boards/${board.url}/`) /#{board.url}/ - #{board.title}
         h3 !{op.subject}
-    +postForm("Submit reply")
+    +postForm(board.url, op.id)
     +boardInfo(replies ? replies.length : 0)
     .thread
         #op

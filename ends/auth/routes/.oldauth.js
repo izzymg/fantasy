@@ -1,6 +1,6 @@
 const redis = require("../../../database/redis");
 const uuid = require("uuid/v4");
-const functions = require("../functions");
+const functions = require("../../site/functions");
 
 exports.login = async ctx => {
     if (!ctx.fields.username) {

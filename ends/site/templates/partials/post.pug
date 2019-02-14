@@ -11,12 +11,10 @@ mixin post(post)
             .files
                 for file in post.files
                     .fileInfo
-                        a(href=`/files/${file.fileId}.${file.extension}`) #{file.originalName} 
+                        a(href=`${files}/${file.fileId}.${file.extension}`) #{file.originalName} 
                             span.extra (#{file.mimetype}) #{(file.size/ 1000).toFixed(1)}KB
-                    a(href=`/files/${file.fileId}.${file.extension}`).file
-                        if file.thumbSuffix               
-                            img(src=`/files/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
-                        else
-                            span #{file.originalName}
+                    if file.thumbSuffix               
+                        a(href=`${files}/${file.fileId}.${file.extension}`).file
+                            img(src=`${files}/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
         .content
             p !{post.content}

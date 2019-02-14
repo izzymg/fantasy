@@ -1,4 +1,5 @@
 const sql = require("../libs/sql");
+const redis = require("../libs/memstore");
 const config = require("../config/config");
 const secrets = require("../config/private");
 const database = sql.createPool(secrets.database, config.database);
@@ -17,7 +18,7 @@ exports.getBoard = async url => await database.getOne({
 
 exports.getThread = async (board, id) => {
     const data = await database.getAll({
-        sql: "SELECT postId AS id, createdAt, name, subject, content, sticky,\
+        sql: "SELECT postId AS id, createdAt, name, subject, content, sticky, lastBump, \
             fileId, extension, thumbSuffix, originalName, mimetype, size\
             FROM posts\
             LEFT JOIN files ON files.postUid = posts.uid\
@@ -36,9 +37,9 @@ exports.getThread = async (board, id) => {
 exports.getThreads = async board => {
     const data = await database.getAll({
         sql: "SELECT postId AS id, createdAt AS date,\
-            name, subject, content, sticky, fileId, extension, thumbSuffix\
-            FROM posts LEFT JOIN files ON posts.uid = files.postUid\
-            WHERE boardUrl = ? AND parent = 0\
+            name, subject, content, sticky, fileId, extension, thumbSuffix, lastBump \
+            FROM posts LEFT JOIN files ON posts.uid = files.postUid \
+            WHERE boardUrl = ? AND parent = 0 \
             ORDER BY lastBump DESC",
         values: board,
         nestTables: true,
@@ -100,7 +101,9 @@ exports.getReplies = async (board, id) => {
     return replies;
 };
 
-exports.submitPost = async ({ boardUrl, parent, name, subject, content, lastBump }) => {
+exports.submitPost = async ({ 
+    boardUrl, parent, name, subject, content,
+    lastBump = parent == 0 ? new Date(Date.now()) : null }) => {
 
     let postId;
     let postUid;
@@ -146,6 +149,37 @@ exports.submitPost = async ({ boardUrl, parent, name, subject, content, lastBump
     return { postId, postUid };
 };
 
+exports.deletePost = async (board, id) => {
+    const files = await database.getAll({
+        sql: "SELECT fileId, extension, thumbSuffix \
+            FROM files INNER JOIN posts ON files.postUid = posts.uid \
+            WHERE boardUrl = ? AND (postId = ? OR parent = ?)",
+        values: [board, id, id]}
+    );
+    let deletedFiles = 0;
+    if (files && files.length > 0) {
+        const fileDeletion = files.map(async file => {
+            await fs.unlink(
+                path.join(config.posts.filesDir, file.fileId + "." + file.extension)
+            );
+            if (file.thumbSuffix) {
+                await fs.unlink(
+                    path.join(config.posts.filesDir, file.fileId + file.thumbSuffix + ".jpg")
+                );
+            }
+            deletedFiles++;
+        });
+        await Promise.all(fileDeletion);
+    }
+    const { affectedRows: deletedRows } = await database.query({
+        sql: "DELETE posts, files FROM posts \
+            LEFT JOIN files ON files.postUid = posts.uid \
+        WHERE boardUrl = ? AND (postId = ? OR parent = ?)",
+        values: [board, id, id]
+    });
+    return { deletedPosts: deletedRows - deletedFiles, deletedFiles };
+};
+
 exports.saveFile = async (
     { postUid, id, extension, tempPath, mimetype, size, originalName, hash },
     createThumb = false, deleteTemp = true) => {
@@ -184,6 +218,47 @@ exports.saveFile = async (
     });
 };
 
+exports.getThreadCount = async board => {
+    const num = await database.getOne({
+        sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0",
+        values: [board]
+    });
+    if(!num) throw "Thread count failed";
+    return num.count;
+};
+
+exports.getReplyCount = async (board, id) => {
+    const numReplies = await database.getOne({
+        sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?",
+        values: [board, id]
+    });
+    if(!numReplies) return 0;
+    return numReplies.count;
+};
+
+exports.getOldestThreadId = async board =>  {
+    const oldest = await database.getOne({
+        sql: "SELECT postId as id FROM posts WHERE parent = 0 AND boardUrl = ? \
+            ORDER BY lastBump ASC LIMIT 1;",
+        values: [board]
+    });
+    if(!oldest) return null;
+    return oldest.id;
+};
+
+exports.bumpPost = async (board, id) =>  {
+    const now = new Date(Date.now());
+    const res = await database.query({
+        sql: "UPDATE posts SET lastBump = ? WHERE boardUrl = ? AND parent = 0 AND postId = ?",
+        values: [now, board, id]
+    });
+    if (!res || !res.affectedRows) {
+        throw "Bump failed";
+    }
+    return now;
+};
+
+
 exports.getUsers = async () =>  await database.getAll({
     sql: "SELECT username, createdAt FROM users"
 });
@@ -203,3 +278,22 @@ exports.getUserModeration = async username => await database.getAll({
     WHERE boardmods.username = ?`,
     values: username
 });
+
+exports.createCooldown = async (ip, seconds) => {
+    await redis.hSet(ip, "cooldown", Date.now() + seconds * 1000);
+    await redis.expire(ip, 24 * 60 * 60);
+};
+
+exports.getCooldown = async ip => {
+    const cd = Number(await redis.hGet(ip, "cooldown"));
+    let now = Date.now();
+    if (cd) {
+        if(cd < now) {
+            // Delete cooldown field if in the past
+            await redis.hDel(ip, "cooldown");
+            return null;
+        }
+        return Math.floor((cd - now) / 1000);
+    }
+    return null;
+};

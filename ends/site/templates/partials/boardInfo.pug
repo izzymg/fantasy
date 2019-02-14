@@ -1,4 +1,4 @@
-mixin boardInfo(replyCount)
+mixin boardInfo(threadsCount, replyCount)
     hr
     .boardInfo
         if board.sfw
@@ -11,5 +11,5 @@ mixin boardInfo(replyCount)
         span.item(title="After threads reach this many replies, further replies will no longer bump the thread.") Bump limit: #{board.bumpLimit}
         span.item(title="Time you must wait between posts") Cooldown: #{board.cooldown} seconds
         if replyCount
-            span.item(class = replyCount > board.bumpLimit ? "errored" : null) Replies: #{replyCount}
+            span.item(class= replyCount > board.bumpLimit ? "errored" : null) Replies: #{replyCount}
     hr

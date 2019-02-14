@@ -1,9 +1,9 @@
-mixin postForm(submit)
+mixin postForm(board, thread)
     .postFormBox
-        form.postForm(method="post" enctype="multipart/form-data")
+        form.postForm(method="post" enctype="multipart/form-data" action=`${api}/boards/${board}${thread ? `/${thread}` : ""}`)
             input.formName(type="text" name="name" placeholder="Name")
             input.formSubject(type="text" name="subject" placeholder="Subject")
             textarea.formContent(type="text" name="content" placeholder="Content")
             .formUpload
                 input.formFile(name="image" type="file" placeholder="Upload image")
-            input.formSubmit(type="submit" value=submit)
+            input.formSubmit(type="submit" value=thread ? "Submit reply" : "Create thread")

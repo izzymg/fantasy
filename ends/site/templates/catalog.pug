@@ -11,7 +11,7 @@ block content
         a(href=`/boards/${board.url}`)
             h1 /#{board.url}/ - #{board.title}
         h3 #{board.about}
-        +postForm("Create thread")
+        +postForm(board.url)
     +boardInfo
     .threads
         if threads

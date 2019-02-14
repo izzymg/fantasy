@@ -10,7 +10,7 @@ module.exports = {
 
     server: {
         port: 3000,
-        host: "localhost",
+        host: "zchan.net",
         https: true,
         httpsPort: 3001,
         log: "C:/db/z.log",
@@ -20,9 +20,17 @@ module.exports = {
 
     api: {
         port: 3002,
-        host: "localhost",
+        host: "api.zchan.net",
         https: true,
         httpsPort: 3003,
+    },
+
+    files: {
+        enabled: true,
+        host: "localhost",
+        port: 3100,
+        https: false,
+        httpsPort: 3180
     },
 
     posts: {

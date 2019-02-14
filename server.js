@@ -10,6 +10,7 @@ const redis = require("./database/redis");
 
 const apiService = require("./ends/api/service");
 const siteService = require("./ends/site/service");
+const fileService = require("./ends/files/service");
 
 let servers = [];
 
@@ -51,6 +52,24 @@ function init() {
                 console.log(`API HTTPS detected: listening ${
                     config.api.host
                 }:${config.api.httpsPort}`);
+            })
+        );
+    }
+
+    // File service
+    servers.push(http.createServer(fileService.callback())
+        .listen(config.files.port, config.files.host, () => {
+            console.log(`File server listening ${
+                config.files.host
+            }:${config.files.port}`);
+        })
+    );
+    if(config.files.https){
+        servers.push(https.createServer(fileService.callback())
+            .listen(config.files.httpsPort, config.files.host, () => {
+                console.log(`File server HTTPS detected: listening ${
+                    config.files.host
+                }:${config.files.httpsPort}`);
             })
         );
     }

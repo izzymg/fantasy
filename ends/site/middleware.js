@@ -31,26 +31,6 @@ exports.getSession = async (ctx, next) => {
     return next();
 };
 
-exports.createCooldown = async (ctx, next) => {
-    await redis.hSet(ctx.ip, "cooldown", Date.now() + ctx.state.board.cooldown * 1000);
-    await redis.expire(ctx.ip, 24 * 60 * 60);
-    return next();
-};
-
-exports.checkCooldown = async (ctx, next) => {
-    const cd = await redis.hGet(ctx.ip, "cooldown");
-    let now = Date.now();
-    if (cd && cd < now) {
-        await redis.hDel(ctx.ip, "cooldown");
-    } else if (cd) {
-        return (ctx.body = `You need to wait ${Math.floor(
-            (cd - now) / 1000
-        )} seconds before posting again`);
-    }
-    return next();
-};
-
-
 // Incomming JSON and urlencoded form data
 exports.getForm = async (ctx, next) =>  {
     if (!ctx.is("application/json") && !ctx.is("application/x-www-form-urlencoded")) {
