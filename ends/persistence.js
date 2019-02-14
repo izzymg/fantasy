@@ -100,7 +100,7 @@ exports.getReplies = async (board, id) => {
     return replies;
 };
 
-exports.submitPost = async ({ boardUrl, parent, name, subject, content, lastBump }, files) => {
+exports.submitPost = async ({ boardUrl, parent, name, subject, content, lastBump }) => {
 
     let postId;
     let postUid;
@@ -143,45 +143,45 @@ exports.submitPost = async ({ boardUrl, parent, name, subject, content, lastBump
         // Always release connection back into pool after use
         connection.release();
     }
+    return { postId, postUid };
+};
 
-    let processedFiles = 0;
-    if (files && files.length > 0) {
-        await Promise.all(
-            files.map(async file => {
-                const permaPath = path.join(
-                    config.posts.filesDir,
-                    `${file.fileId}.${file.extension}`
-                );
+exports.saveFile = async (
+    { postUid, id, extension, tempPath, mimetype, size, originalName, hash },
+    createThumb = false, deleteTemp = true) => {
 
-                // Move temp file into permanent store
-                try {
-                    await fs.rename(file.tempPath, permaPath);
-                } catch (error) {
-                    await fs.unlink(file.tempPath);
-                }
+    const permaPath = path.join(
+        config.posts.filesDir,
+        `${id}.${extension}`
+    );
 
-                // Create thumbnail if mimetype contains "image"
-                if (file.mimetype.indexOf("image") != -1) {
-                    await fs.createThumbnail(
-                        permaPath,
-                        path.join(
-                            config.posts.filesDir,
-                            `${file.fileId}${config.posts.thumbSuffix}.jpg`
-                        ),
-                        config.posts.thumbWidth
-                    );
-                    file.thumbSuffix = config.posts.thumbSuffix;
-                }
-
-                // Object is modified to fit database columns
-                delete file.tempPath;
-                file.postUid = postUid;
-                processedFiles++;
-                await database.query("INSERT INTO files SET ?", file);
-            })
-        );
+    // Move temp file into permanent store
+    await fs.copy(tempPath, permaPath);
+    if(deleteTemp) {
+        fs.unlink(tempPath);
     }
-    return { postId, processedFiles };
+
+    const post = {
+        fileId: id, postUid, extension, 
+        mimetype, size, originalName, hash
+    };
+
+    if(createThumb) {
+        await fs.createThumbnail(
+            permaPath,
+            path.join(
+                config.posts.filesDir,
+                `${id}${config.posts.thumbSuffix}.jpg`
+            ),
+            config.posts.thumbWidth
+        );
+        post.thumbSuffix = config.posts.thumbSuffix;
+    }
+
+    await database.query({
+        sql: "INSERT INTO files SET ?",
+        values: [post]
+    });
 };
 
 exports.getUsers = async () =>  await database.getAll({

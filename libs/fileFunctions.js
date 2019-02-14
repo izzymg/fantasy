@@ -23,9 +23,7 @@ exports.createThumbnail = async function(inFilename, outFilename, width) {
 exports.unlink = function(path) {
     return new Promise((resolve, reject) => {
         fs.unlink(path, error => {
-            if (error) {
-                reject(new Error(error));
-            }
+            if (error) return reject(new Error(error));
             resolve();
         });
     });
@@ -34,9 +32,16 @@ exports.unlink = function(path) {
 exports.rename = function(path, newPath) {
     return new Promise((resolve, reject) => {
         fs.rename(path, newPath, error => {
-            if (error) {
-                reject(new Error(error));
-            }
+            if (error)return reject(new Error(error));
+            resolve();
+        });
+    });
+};
+
+exports.copy = function(path, newPath) {
+    return new Promise((resolve, reject) => {
+        fs.copyFile(path, newPath, error => {
+            if(error) return reject(new Error(error));
             resolve();
         });
     });

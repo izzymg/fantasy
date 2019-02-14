@@ -2,8 +2,13 @@
 
 const persistence = require("../ends/persistence");
 const assert = require("assert");
+const crypto = require("crypto");
+const config = require("../config/config");
+const { statSync } = require("fs");
+const path = require("path");
 
 let postId;
+let postUid;
 
 describe("Persistence functions", function () {
     describe("#getBoards()", function() {
@@ -29,8 +34,24 @@ describe("Persistence functions", function () {
                 subject: "Unit testing",
                 content: "Post submitted by mocha test",
             });
-            assert(typeof submission.postId === "number");
+            assert(submission && typeof submission.postId === "number");
             postId = submission.postId;
+            postUid = submission.postUid;
+        });
+    });
+    describe("#saveFile()", function() {
+        it("Should save a file with the post ID of the test thread attached", async function () {
+            const id = crypto.randomBytes(4).toString("hex");
+            await persistence.saveFile({
+                postUid,
+                id,
+                extension: "png",
+                mimetype: "image/png",
+                size: 1330,
+                originalName: "testfile.png",
+                tempPath: __dirname + "/testfile.png"
+            }, true, true);
+            assert(statSync(path.join(config.posts.filesDir, id + ".png")));
         });
     });
     describe("#getThread()", function() {

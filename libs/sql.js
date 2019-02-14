@@ -50,7 +50,7 @@ exports.createPool = (
         connectTimeout, connectionLimit, acquireTimeout
     });
     const queries = queryFactory(pool);
-    console.log("SQL connection pool started on ", host, port);
+    console.log("SQL connection pool started on", host, port);
     pool.on("error", error => {
         console.log(error);
         throw error;
