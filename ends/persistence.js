@@ -1,8 +1,9 @@
 const sql = require("../libs/sql");
-const config = require("../config/config").database;
-const secrets = require("../config/private").database;
-
-const database = sql.createPool(secrets, config);
+const config = require("../config/config");
+const secrets = require("../config/private");
+const database = sql.createPool(secrets.database, config.database);
+const fs = require("../libs/fileFunctions");
+const path = require("path");
 
 exports.getBoards = async () => await database.getAll({
     sql: "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt, sfw FROM boards",
@@ -97,6 +98,90 @@ exports.getReplies = async (board, id) => {
         }
     });
     return replies;
+};
+
+exports.submitPost = async ({ boardUrl, parent, name, subject, content, lastBump }, files) => {
+
+    let postId;
+    let postUid;
+    let connection;
+    try {
+        // Manually obtain connection to start safe transaction
+        connection = await database.getConnection();
+        await connection.beginTransaction();
+        
+        const transaction = [];
+
+        // Get last post ID from board or 0, and increment by 1
+        transaction.push(connection.query({ 
+            sql: "SELECT @postId:=MAX(postId) FROM posts WHERE boardUrl = ?",
+            values: boardUrl
+        }));
+        transaction.push(connection.query({ sql: "SET @postId = COALESCE(@postId, 0)" }));
+        transaction.push(connection.query({ sql: "SET @postId = @postId + 1" }));
+
+        // Push post to database
+        transaction.push(connection.query({
+            sql: "INSERT INTO posts SET postId = @postId, ?",
+            values: { boardUrl, parent, name, subject, content, lastBump }, 
+        }));
+
+        transaction.push(connection.getOne({ sql: "SELECT @postId as postId" }));
+
+        // Wait for all queries in the transaction and pull post ID
+        const [,,, inserted, selectId] = await Promise.all(transaction);
+        if(!inserted.insertId) {
+            throw "Post insertion failed";
+        }
+        postId = selectId.postId;
+        postUid = inserted.insertId;
+        await connection.commit();
+    } catch(error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        // Always release connection back into pool after use
+        connection.release();
+    }
+
+    let processedFiles = 0;
+    if (files && files.length > 0) {
+        await Promise.all(
+            files.map(async file => {
+                const permaPath = path.join(
+                    config.posts.filesDir,
+                    `${file.fileId}.${file.extension}`
+                );
+
+                // Move temp file into permanent store
+                try {
+                    await fs.rename(file.tempPath, permaPath);
+                } catch (error) {
+                    await fs.unlink(file.tempPath);
+                }
+
+                // Create thumbnail if mimetype contains "image"
+                if (file.mimetype.indexOf("image") != -1) {
+                    await fs.createThumbnail(
+                        permaPath,
+                        path.join(
+                            config.posts.filesDir,
+                            `${file.fileId}${config.posts.thumbSuffix}.jpg`
+                        ),
+                        config.posts.thumbWidth
+                    );
+                    file.thumbSuffix = config.posts.thumbSuffix;
+                }
+
+                // Object is modified to fit database columns
+                delete file.tempPath;
+                file.postUid = postUid;
+                processedFiles++;
+                await database.query("INSERT INTO files SET ?", file);
+            })
+        );
+    }
+    return { postId, processedFiles };
 };
 
 exports.getUsers = async () =>  await database.getAll({

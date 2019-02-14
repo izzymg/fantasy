@@ -3,6 +3,7 @@ const Router = require("koa-router");
 const server = new Koa();
 
 const router = new Router();
+const middleware = require("./middleware");
 const persistence = require("../persistence");
 
 router.get("/", async ctx => {
@@ -34,6 +35,16 @@ router.get("/:board/:thread", async ctx => {
     ]);
     if(!thread) return ctx.throw(404);
     ctx.body = { thread, replies };
+});
+
+// Submit new thread to board
+router.post("/:board", middleware.getMultipart, async ctx => {
+    const board = await persistence.getBoard(ctx.params.board);
+    if(!board) {
+        return ctx.throw(404);
+    }
+
+    await persistence.submitPost();
 });
 
 server.use(router.routes());

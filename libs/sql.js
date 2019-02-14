@@ -27,12 +27,16 @@ function connectionFactory(pool) {
         pool.getConnection((error, connection) => {
             if(error) reject(error);
             const queries = queryFactory(connection);
+            connection.on("error", error => {
+                console.log(error);
+                throw error;
+            });
             resolve({
                 ...queries,
                 beginTransaction: promisify(connection.beginTransaction).bind(connection),
                 commit: promisify(connection.commit).bind(connection),
                 rollback: promisify(connection.rollback).bind(connection),
-                release: promisify(connection.release).bind(connection)
+                release: connection.release
             });
         });
     });
@@ -47,10 +51,14 @@ exports.createPool = (
     });
     const queries = queryFactory(pool);
     console.log("SQL connection pool started on ", host, port);
+    pool.on("error", error => {
+        console.log(error);
+        throw error;
+    });
     return {
         // Return promisifed pool methods
         ...queries,
-        getConnection: () => connectionFactory(pool),
+        getConnection: async () => await connectionFactory(pool),
         end: promisify(pool.end).bind(pool)
     };
 };
