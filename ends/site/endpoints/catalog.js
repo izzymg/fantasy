@@ -1,5 +1,6 @@
 const postsConfig = require("../../../config/config").posts;
 const functions = require("../functions");
+const persistence = require("../../persistence");
 const { lengthCheck } = require("../../../libs/textFunctions");
 
 exports.post = async (ctx, next) => {
@@ -54,7 +55,7 @@ exports.post = async (ctx, next) => {
 
 exports.render = async ctx => {
     try {
-        const threads = await functions.getThreads(ctx.state.board.url);
+        const threads = await persistence.getThreads(ctx.state.board.url);
         return await ctx.render("catalog", { threads });
     } catch (error) {
         return ctx.throw(500, error);

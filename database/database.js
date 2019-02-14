@@ -7,10 +7,10 @@ var settings = {
     database: "zthree",
     host: secretsConfig.host,
     port: secretsConfig.port,
-    user: secretsConfig.username,
+    user: secretsConfig.user,
     password: secretsConfig.password,
-    acquireTimeout: databaseConfig.maxAcquireTime,
-    connectionLimit: databaseConfig.maxConnections,
+    acquireTimeout: databaseConfig.acquireTimeout,
+    connectionLimit: databaseConfig.connectionLimit,
 };
 
 var metrics;

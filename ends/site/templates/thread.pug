@@ -12,7 +12,7 @@ block content
             a(href=`/boards/${board.url}/`) /#{board.url}/ - #{board.title}
         h3 !{op.subject}
     +postForm("Submit reply")
-    +boardInfo
+    +boardInfo(replies ? replies.length : 0)
     .thread
         #op
             +post(op)

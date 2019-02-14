@@ -1,0 +1,25 @@
+@import url("https://fonts.googleapis.com/css?family=PT+Serif|Assistant");
+.block {
+  float: left;
+  width: 45%;
+  margin: 20px 10px;
+  padding: 5px;
+  background: #f7f7f7;
+}
+
+.createUser form {
+  width: 100%;
+}
+.createUser .username {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 5px 0;
+  padding: 5px;
+  text-align: left;
+}
+
+.changePassword {
+  margin: 15px 0;
+}
+
+/*# sourceMappingURL=dashboard.css.map */

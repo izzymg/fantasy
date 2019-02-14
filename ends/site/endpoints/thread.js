@@ -1,4 +1,5 @@
 const functions = require("../functions");
+const persistence = require("../../persistence");
 const postsConfig = require("../../../config/config").posts;
 const { lengthCheck } = require("../../../libs/textFunctions");
 
@@ -46,13 +47,18 @@ exports.post = async (ctx, next) => {
 };
 
 exports.render = async ctx => {
-    const thread = await functions.getThread(
-        ctx.state.board.url, ctx.params.thread
-    );
+    const [ thread, replies ] = await Promise.all([
+        persistence.getThread(
+            ctx.state.board.url, ctx.params.thread
+        ),
+        persistence.getReplies(
+            ctx.state.board.url, ctx.params.thread
+        )
+    ]);
     if(!thread) {
         return ctx.throw(404);
     }
     return await ctx.render("thread", {
-        op: thread.op, replies: thread.replies, replyCount: thread.replyCount
+        op: thread, replies: replies
     });
 };

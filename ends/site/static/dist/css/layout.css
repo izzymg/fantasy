@@ -1,0 +1,61 @@
+@import url("https://fonts.googleapis.com/css?family=PT+Serif|Assistant");
+html {
+  font-family: "Assistant", sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: #3fca79;
+  text-decoration: none;
+}
+
+.thumbnail {
+  max-height: 200px;
+  overflow: auto;
+}
+
+hr {
+  color: #858585;
+}
+
+.boardInfo .item::after, hr .item::after {
+  content: " /";
+}
+.boardInfo span, hr span {
+  font-weight: normal;
+  font-size: 0.9em;
+  color: #474747;
+  margin: 0 2px;
+}
+.boardInfo .errored, hr .errored {
+  color: lightcoral;
+}
+
+.navbar {
+  border-bottom: 1px solid lightgrey;
+  padding: 20px;
+}
+.navbar a {
+  margin: 0 10px;
+}
+.navbar .right {
+  float: right;
+}
+
+.pagecontent {
+  margin: 10px 5px;
+}
+.pagecontent .title {
+  text-align: center;
+}
+
+h1, h2, h3, h4 {
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+}
+
+/*# sourceMappingURL=layout.css.map */

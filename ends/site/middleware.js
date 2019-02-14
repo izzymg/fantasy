@@ -3,10 +3,10 @@ const { trimEscapeHtml } = require("../../libs/textFunctions");
 const parse = require("co-body");
 const postsConfig = require("../../config/config").posts;
 const redis = require ("../../database/redis");
-const functions = require("./functions");
+const persistence = require("../persistence");
 
 exports.getBoard = async (ctx, next) => {
-    const board = await functions.getBoard(ctx.params.board);
+    const board = await persistence.getBoard(ctx.params.board);
     if (!board) {
         return ctx.throw(404);
     }
@@ -29,18 +29,6 @@ exports.getSession = async (ctx, next) => {
         }
     }
     return next();
-};
-
-exports.requireModOrAdmin = async (ctx, next) => {
-    if(ctx.state.session) {
-        const authorized = await functions.canModOrAdmin(
-            ctx.state.session.username, ctx.state.board.url
-        );
-        if(authorized) {
-            return next();
-        }
-    }
-    return ctx.throw(403, "You don't have permission to do that");
 };
 
 exports.createCooldown = async (ctx, next) => {

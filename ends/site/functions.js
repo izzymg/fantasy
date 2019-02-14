@@ -141,23 +141,11 @@ exports.bumpPost = async (boardUrl, id, boardBumpLimit) =>  {
     return;
 };
 
-exports.getBoard = async url => {
-    for (const board of boardCache) {
-        if (board.url === url) {
-            return board;
-        }
-    }
-    return await db.fetch(`SELECT url, title, about, bumpLimit, 
+exports.getBoard = async url => await db.fetch(`SELECT url, title, about, bumpLimit, 
     maxThreads, cooldown, createdAt, sfw FROM boards WHERE url = ?`, url);
-};
 
-exports.getBoards = async () => {
-    if(boardCache) {
-        return boardCache;
-    }
-    return await db.fetchAll(`SELECT url, title, about, bumpLimit, 
+exports.getBoards = async () => await db.fetchAll(`SELECT url, title, about, bumpLimit, 
         maxThreads, cooldown, createdAt, sfw FROM boards`);
-};
 
 exports.cacheBoards = async () => boardCache = await db.fetchAll(
     "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt, sfw FROM boards"

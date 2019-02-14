@@ -1,21 +1,21 @@
-const sql = require("../../libs/sql");
-const config = require("../../config/config").database;
-const secrets = require("../../config/private").database;
+const sql = require("../libs/sql");
+const config = require("../config/config").database;
+const secrets = require("../config/private").database;
 
-const pool = sql.createPool(secrets, config);
+const database = sql.createPool(secrets, config);
 
-exports.getBoards = async () => await pool.getAll({
+exports.getBoards = async () => await database.getAll({
     sql: "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt, sfw FROM boards",
 });
 
-exports.getBoard = async url => await pool.getOne({
+exports.getBoard = async url => await database.getOne({
     sql: "SELECT url, title, about, bumpLimit,\
     maxThreads, cooldown, createdAt, sfw FROM boards WHERE url = ?",
     values: url,
 });
 
 exports.getThread = async (board, id) => {
-    const data = await pool.getAll({
+    const data = await database.getAll({
         sql: "SELECT postId AS id, createdAt, name, subject, content, sticky,\
             fileId, extension, thumbSuffix, originalName, mimetype, size\
             FROM posts\
@@ -33,7 +33,7 @@ exports.getThread = async (board, id) => {
 };
 
 exports.getThreads = async board => {
-    const data = await pool.getAll({
+    const data = await database.getAll({
         sql: "SELECT postId AS id, createdAt AS date,\
             name, subject, content, sticky, fileId, extension, thumbSuffix\
             FROM posts LEFT JOIN files ON posts.uid = files.postUid\
@@ -65,7 +65,7 @@ exports.getThreads = async board => {
 };
 
 exports.getReplies = async (board, id) => {
-    const data = await pool.getAll({
+    const data = await database.getAll({
         sql: "SELECT postId AS id, createdAt, name, subject, content, sticky,\
             fileId, extension, thumbSuffix, originalName, mimetype, size\
             FROM posts\
@@ -96,5 +96,25 @@ exports.getReplies = async (board, id) => {
             replies.push(replyData.posts);
         }
     });
-    return { replies };
+    return replies;
 };
+
+exports.getUsers = async () =>  await database.getAll({
+    sql: "SELECT username, createdAt FROM users"
+});
+
+exports.isUserAdmin = async username => {
+    const res = await database.getOne({
+        sql: "SELECT username FROM administrators WHERE username = ?",
+        values: username
+    });
+    if(res && res.username) return true;
+    return false;
+};
+
+exports.getUserModeration = async username => await database.getAll({
+    sql: `SELECT url, title, about, sfw FROM boardmods
+    INNER JOIN boards ON boards.url = boardmods.boardUrl
+    WHERE boardmods.username = ?`,
+    values: username
+});

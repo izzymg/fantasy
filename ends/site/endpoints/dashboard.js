@@ -1,17 +1,18 @@
 const functions = require("../functions");
 const crypto = require("crypto");
+const persistence = require("../../persistence");
 
 exports.render = async ctx => {
     if(!ctx.state.session) {
         return ctx.throw(404);
     }
-    const isAdmin = await functions.isAdmin(ctx.state.session.username);
+    const isAdmin = await persistence.isUserAdmin(ctx.state.session.username);
     if(isAdmin) {
         ctx.state.admin = true;
-        ctx.state.users = await functions.getUsers();
-        ctx.state.boards = await functions.getBoards();
+        ctx.state.users = await persistence.getUsers();
+        ctx.state.boards = await persistence.getBoards();
     } else {
-        ctx.state.modOf = await functions.getModOf(ctx.state.session.username);
+        ctx.state.modOf = await persistence.getUserModeration(ctx.state.session.username);
     }
     return await ctx.render("dashboard");
 };

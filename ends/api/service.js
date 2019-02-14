@@ -3,10 +3,10 @@ const Router = require("koa-router");
 const server = new Koa();
 
 const router = new Router();
-const functions = require("./functions");
+const persistence = require("../persistence");
 
 router.get("/", async ctx => {
-    const boards = await functions.getBoards();
+    const boards = await persistence.getBoards();
     if(!boards) {
         return ctx.body = { };
     }
@@ -14,13 +14,13 @@ router.get("/", async ctx => {
 });
 
 router.get("/:board", async ctx => {
-    const board = await functions.getBoard(ctx.params.board);
+    const board = await persistence.getBoard(ctx.params.board);
     if(!board) return ctx.throw(404);
     ctx.body = { board };
 });
 
 router.get("/:board/threads", async ctx => {
-    const threads = await functions.getThreads(ctx.params.board);
+    const threads = await persistence.getThreads(ctx.params.board);
     if(!threads) {
         return ctx.body = { };
     }
@@ -29,8 +29,8 @@ router.get("/:board/threads", async ctx => {
 
 router.get("/:board/:thread", async ctx => {
     const [thread, replies] = await Promise.all([
-        functions.getThread(ctx.params.board, ctx.params.thread),
-        functions.getReplies(ctx.params.board, ctx.params.thread)
+        persistence.getThread(ctx.params.board, ctx.params.thread),
+        persistence.getReplies(ctx.params.board, ctx.params.thread)
     ]);
     if(!thread) return ctx.throw(404);
     ctx.body = { thread, replies };
