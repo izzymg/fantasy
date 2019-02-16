@@ -1,4 +1,4 @@
-const Koa = require("Koa");
+const Koa = require("koa");
 const koaStatic = require("koa-static");
 const koaViews = require("koa-views");
 const path = require("path");

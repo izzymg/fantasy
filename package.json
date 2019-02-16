@@ -7,8 +7,8 @@
         "lint": "eslint '**/*.js'",
         "fix-lint": "eslint '**/*.js' --fix",
         "start": "node server.js",
-        "build-css": "sass static/src/css:static/dist/css",
-        "watch-css": "sass --watch static/src/css:static/dist/css",
+        "build-css": "sass ends/site/static/src/css:ends/site/static/dist/css",
+        "watch-css": "sass --watch ends/site/static/src/css:ends/site/static/dist/css",
         "test": "mocha"
     },
     "author": "",
