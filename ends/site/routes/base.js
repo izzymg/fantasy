@@ -16,6 +16,7 @@ router.use(async (ctx, next) => {
     } else {
         ctx.state.files = `http://${config.files.url}:${config.files.urlPort}`;
     }
+    ctx.state.webname = config.server.webname;
     return await next();
 });
 
