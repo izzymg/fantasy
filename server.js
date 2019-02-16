@@ -14,6 +14,7 @@ const fileService = require("./ends/files/service");
 const persistence = require("./ends/persistence");
 
 let servers = [];
+process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
 // Securely handle and log 500 errors
 async function errorHandler (ctx, next) {
