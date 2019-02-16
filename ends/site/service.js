@@ -16,7 +16,7 @@ const baseRouter = require("./routes/base");
 server.use(
     koaViews(path.join(__dirname, "templates"), {
         extension: "pug",
-        options: { cache: process.env.NODE_ENV === "production" },
+        options: { cache: true },
     })
 );
 
