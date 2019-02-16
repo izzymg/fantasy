@@ -7,14 +7,14 @@ const persistence = require("../../persistence");
 
 router.use(async (ctx, next) => {
     if(config.api.https) {
-        ctx.state.api = `https://${config.api.host}:${config.api.httpsPort}`;
+        ctx.state.api = `https://${config.api.url}:${config.api.urlPort}`;
     } else {
-        ctx.state.api = `http://${config.api.host}:${config.api.port}`;
+        ctx.state.api = `http://${config.api.url}:${config.api.urlPort}`;
     }
     if(config.files.https) {
-        ctx.state.files = `https://${config.files.host}:${config.files.httpsPort}`;
+        ctx.state.files = `https://${config.files.url}:${config.files.urlPort}`;
     } else {
-        ctx.state.files = `http://${config.files.host}:${config.files.port}`;
+        ctx.state.files = `http://${config.files.url}:${config.files.urlPort}`;
     }
     return await next();
 });

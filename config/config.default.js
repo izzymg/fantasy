@@ -27,10 +27,14 @@ module.exports = {
 
     // Serves rendered templates, the front of your site
     server: {
-        port: 80,
-        host: "zchan.net",
+        port: 3000,
+        host: "localhost",
         https: true,
-        httpsPort: 8080,
+        httpsPort: 3043,
+        // Important for reverse proxies - used to link within page
+        // e.g. site hosted on localhost but links images at files.yoursite.net
+        url: "zchan.net",
+        urlPort: 80,
         // Log file, ensure permissions
         log: "/var/log/zchan.log",
         // Print errors (usually 500 internal server errors) to console (will still be logged)
@@ -41,18 +45,22 @@ module.exports = {
 
     // Serves JSON data, handles post submissions
     api: {
-        port: 80,
+        port: 3100,
         host: "api.zchan.net",
         https: true,
-        httpsPort: 8080,
+        httpsPort: 3143,
+        url: "api.zchan.net",
+        urlPort: 80,
     },
 
     // File server
     files: {
         host: "localhost",
-        port: 3100,
+        port: 3200,
         https: true,
-        httpsPort: 3180
+        httpsPort: 3243,
+        url: "files.zchan.net",
+        urlPort: 80,
     },
 
     // Configuration of posts
