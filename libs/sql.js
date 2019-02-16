@@ -1,6 +1,8 @@
 const mysql = require("mysql");
 const { promisify } = require("util");
 
+// Promise wrapper for MySQL
+
 function queryFactory(connection) {
     const query = promisify(connection.query).bind(connection);
     return {
@@ -50,7 +52,8 @@ exports.createPool = (
         connectTimeout, connectionLimit, acquireTimeout
     });
     const queries = queryFactory(pool);
-    console.log("SQL connection pool started on", host, port);
+    const close = promisify(pool.end).bind(pool);
+    console.log(`SQL connection pool started on ${host}:${port}`);
     pool.on("error", error => {
         console.log(error);
         throw error;
@@ -59,6 +62,9 @@ exports.createPool = (
         // Return promisifed pool methods
         ...queries,
         getConnection: async () => await connectionFactory(pool),
-        end: promisify(pool.end).bind(pool)
+        end: async () => {
+            console.log("Closing SQL connection");
+            return await close();
+        }
     };
 };

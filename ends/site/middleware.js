@@ -2,7 +2,7 @@ const multipart = require("../../libs/multipart");
 const { trimEscapeHtml } = require("../../libs/textFunctions");
 const parse = require("co-body");
 const postsConfig = require("../../config/config").posts;
-const redis = require ("../../database/redis");
+const redis = require ("../../libs/memstore");
 const persistence = require("../persistence");
 
 exports.getBoard = async (ctx, next) => {

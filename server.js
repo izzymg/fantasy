@@ -5,13 +5,13 @@ const config = require("./config/config");
 const http = require("http");
 const https = require("https");
 
-const db = require("./database/database");
-const redis = require("./database/redis");
 const logger = require("./libs/logger");
 
 const apiService = require("./ends/api/service");
 const siteService = require("./ends/site/service");
 const fileService = require("./ends/files/service");
+
+const persistence = require("./ends/persistence");
 
 let servers = [];
 
@@ -30,7 +30,8 @@ async function errorHandler (ctx, next) {
     }
 }
 
-async function onError(error) {
+async function onFatalError(error) {
+    if(error.status !== 500) return;
     if (config.server.consoleErrors) {
         console.error(`ZThree: ${error}`);
         console.trace(error);
@@ -38,18 +39,17 @@ async function onError(error) {
     logger.logOut(error, config.server.log);
 }
 
-db.open().then(settings => {
-    console.log(`Starting SQL connection on ${settings.host}:${settings.port}`);
+persistence.initialize().then(() => {
     init();
 }).catch(e => {
-    console.error("Error initialising db connection", e);
+    console.error("Error initialising persistence", e);
 });
 
 function init() {
     
     // Site service
     siteService.use(errorHandler);
-    siteService.on("error", onError);
+    siteService.on("error", onFatalError);
     servers.push(http.createServer(siteService.callback())
         .listen(config.server.port, config.server.host, () => {
             console.log(`Site listening ${config.server.host}:${config.server.port}`);
@@ -67,7 +67,7 @@ function init() {
 
     // API service
     apiService.use(errorHandler);
-    apiService.on("error", onError);
+    apiService.on("error", onFatalError);
     servers.push(http.createServer(apiService.callback()).
         listen(config.api.port, config.api.host, () => {
             console.log(`API listening ${config.api.host}:${config.api.port}`);
@@ -86,7 +86,7 @@ function init() {
 
     // File service
     fileService.use(errorHandler);
-    fileService.on("error", onError);
+    fileService.on("error", onFatalError);
     servers.push(http.createServer(fileService.callback())
         .listen(config.files.port, config.files.host, () => {
             console.log(`File server listening ${
@@ -104,11 +104,10 @@ function init() {
         );
     }
 
-    function onExit(sig) {
+    async function onExit(sig) {
         console.log(`Received ${sig}, exiting`);
         servers.forEach(server => server.close());
-        db.close();
-        redis.close();
+        await persistence.end();
         process.exit(0);
     }
 

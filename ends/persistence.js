@@ -1,10 +1,25 @@
+// Database and filesystem interactions
+
+const path = require("path");
+const fs = require("../libs/fileFunctions");
+const memstore = require("../libs/memstore");
 const sql = require("../libs/sql");
-const redis = require("../libs/memstore");
+const redis = require("../libs/redis");
 const config = require("../config/config");
 const secrets = require("../config/private");
-const database = sql.createPool(secrets.database, config.database);
-const fs = require("../libs/fileFunctions");
-const path = require("path");
+let database;
+let mem;
+
+exports.initialize = async () => {
+    database = sql.createPool(secrets.database, config.database);
+    if(config.database.memStore) {
+        mem = memstore.createClient();
+    } else {
+        mem = await redis.createClient(secrets.redis);
+    }
+};
+
+exports.end = async () => await Promise.all([database.end(), mem.close()]);
 
 exports.getBoards = async () => await database.getAll({
     sql: "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt, sfw FROM boards",
@@ -280,17 +295,17 @@ exports.getUserModeration = async username => await database.getAll({
 });
 
 exports.createCooldown = async (ip, seconds) => {
-    await redis.hSet(ip, "cooldown", Date.now() + seconds * 1000);
-    await redis.expire(ip, 24 * 60 * 60);
+    await mem.hSet(ip, "cooldown", Date.now() + seconds * 1000);
+    await mem.expire(ip, 24 * 60 * 60);
 };
 
 exports.getCooldown = async ip => {
-    const cd = Number(await redis.hGet(ip, "cooldown"));
+    const cd = Number(await mem.hGet(ip, "cooldown"));
     let now = Date.now();
     if (cd) {
         if(cd < now) {
             // Delete cooldown field if in the past
-            await redis.hDel(ip, "cooldown");
+            await mem.hDel(ip, "cooldown");
             return null;
         }
         return Math.floor((cd - now) / 1000);

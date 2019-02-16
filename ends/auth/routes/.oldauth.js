@@ -1,4 +1,4 @@
-const redis = require("../../../database/redis");
+/* const redis = require("../../../database/redis");
 const uuid = require("uuid/v4");
 const functions = require("../../site/functions");
 
@@ -59,3 +59,4 @@ exports.logout = async ctx => {
 };
 
 exports.render = async ctx => await ctx.render("login");
+*/
