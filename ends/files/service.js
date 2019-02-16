@@ -6,6 +6,11 @@ const server = new Koa();
 const Router = require("koa-router");
 const router = new Router();
 const sendFile = require("koa-sendfile");
+const gMiddleware = require("../gMiddleware");
+
+if(config.private) {
+    server.use(gMiddleware.requirePrivate(config.privateKey));
+}
 
 router.get("/:filename", async ctx => {
     const filesDir = path.normalize(config.posts.filesDir);

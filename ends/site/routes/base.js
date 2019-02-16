@@ -5,7 +5,6 @@ const config = require("../../../config/config");
 const router = new Router({ strict: true });
 const persistence = require("../../persistence");
 
-router.use(middleware.getSession);
 router.use(async (ctx, next) => {
     if(config.api.https) {
         ctx.state.api = `https://${config.api.host}:${config.api.httpsPort}`;

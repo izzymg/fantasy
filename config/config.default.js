@@ -17,6 +17,14 @@ module.exports = {
         memStore: false,
     },
 
+    // Protects the servers to require the privateKey in a cookie to serve any routes
+    // Users can generate a cookie by going to (api)/private and entering the password
+    apiPrivate: false,
+    sitePrivate: false,
+    filesPrivate: false,
+    privatePassword: "VerySecretPassword123",
+    privateKey: require("crypto").randomBytes(16).toString("hex"),
+
     // Serves rendered templates, the front of your site
     server: {
         port: 80,
@@ -43,7 +51,7 @@ module.exports = {
     files: {
         host: "localhost",
         port: 3100,
-        https: false,
+        https: true,
         httpsPort: 3180
     },
 

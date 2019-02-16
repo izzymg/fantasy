@@ -46,8 +46,7 @@ persistence.initialize().then(() => {
 });
 
 function init() {
-    
-    // Site service
+    // Site
     siteService.use(errorHandler);
     siteService.on("error", onFatalError);
     servers.push(http.createServer(siteService.callback())
@@ -65,7 +64,7 @@ function init() {
         );
     }
 
-    // API service
+    // API
     apiService.use(errorHandler);
     apiService.on("error", onFatalError);
     servers.push(http.createServer(apiService.callback()).
@@ -84,7 +83,7 @@ function init() {
         );
     }
 
-    // File service
+    // Files
     fileService.use(errorHandler);
     fileService.on("error", onFatalError);
     servers.push(http.createServer(fileService.callback())

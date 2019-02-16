@@ -2,8 +2,13 @@ const Koa = require("Koa");
 const koaStatic = require("koa-static");
 const koaViews = require("koa-views");
 const path = require("path");
-
+const config = require("../../config/config");
+const gMiddleware = require("../gMiddleware");
 const server = new Koa();
+
+if(config.private) {
+    server.use(gMiddleware.requirePrivate(config.privateKey));
+}
 
 const baseRouter = require("./routes/base");
 
