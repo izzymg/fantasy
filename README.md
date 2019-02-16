@@ -11,7 +11,7 @@ Node v8+ is required due to usage of ES6
 
 Run `npm install` once you've installed NodeJS and npm to automatically pull in these deps
 
-* koa
+* koa/sendfile/router/views/static
 * busboy
 * sharp
 * pug
@@ -19,12 +19,14 @@ Run `npm install` once you've installed NodeJS and npm to automatically pull in 
 * sass
 * uuid
 * node-redis
+* bcrypt
+* co-body
 
 #### Development
 
 Developed in VS Code and tested with Node v10, MariaDB, Firefox & Chrome
 
-ESLint included - Semicolons, unix style/LF line endings, double quotes, spaces.
+ESLint included
 
 `npm run lint` 
 
@@ -34,11 +36,13 @@ ESLint included - Semicolons, unix style/LF line endings, double quotes, spaces.
 
 ##### Configuration
 
-You must go to the ./config directory and change remove the .default from all filenames.
+Under /config:
 
-All configuration files are simple Javascript files that set module.exports to an object containing config options.
+Rename `config.default.js` to `config.js`
 
-Read through the configurations, many options may be unsafe for production.
+Rename `private.default.js` to `private.js`
+
+Read through the configurations, some options may be unsafe for production.
 
 ##### SQL
 
@@ -48,17 +52,17 @@ Then exit, and in your terminal run `mysql -h [yourdbhost] -u [username] -p zthr
 
 This will run a set of `CREATE TABLE IF NOT EXIST` commands to setup the board's tables in the database.
 
-Enter your database credentials in `secrets.js` configuration's "database" section.
+Enter your database credentials in `private.js` configuration's "database" section.
 
 ##### Redis
 
-Redis is used for storing session state and managing IP post-cooldowns. Support for SQLite (and in-memory for testing purposes only) is planned.
+Redis is used for storing session state and managing IP post-cooldowns. Support for SQLite is planned.
 
-Start a redis server, configure a password for it. Then enter the host, user and password into the `secrets.js` file's "Redis" section.
+Start a redis server, configure a password for it. Then enter the host, user and password into the `private.js` file's "Redis" section.
 
-##### Users
+For testing *only*, an in-memory implementation can be enabled in the config option under "database": memStore
 
-You can generate an administrator user by running `node ./generateAdmin.js [username] [password]`
+This just creates a Javascript object and is designed purely for testing on environments where Redis is unavailable, like Windows.
 
 ##### Starting the server
 
