@@ -1,4 +1,4 @@
-const functions = require("../../site/functions");
+/* const functions = require("../../site/functions");
 const crypto = require("crypto");
 const persistence = require("../../persistence");
 
@@ -112,4 +112,4 @@ exports.addModerator = async ctx => {
         }
         return ctx.throw(500, error);
     }
-};
+};*/

@@ -7,12 +7,36 @@ const https = require("https");
 
 const db = require("./database/database");
 const redis = require("./database/redis");
+const logger = require("./libs/logger");
 
 const apiService = require("./ends/api/service");
 const siteService = require("./ends/site/service");
 const fileService = require("./ends/files/service");
 
 let servers = [];
+
+// Securely handle and log 500 errors
+async function errorHandler (ctx, next) {
+    try {
+        await next();
+    } catch (error) {
+        ctx.status = error.status || 500;
+        if (ctx.status == 500) {
+            ctx.body = "Internal server error";
+            ctx.app.emit("error", error, ctx);
+        } else {
+            ctx.body = error.message;
+        }
+    }
+}
+
+async function onError(error) {
+    if (config.server.consoleErrors) {
+        console.error(`ZThree: ${error}`);
+        console.trace(error);
+    }
+    logger.logOut(error, config.server.log);
+}
 
 db.open().then(settings => {
     console.log(`Starting SQL connection on ${settings.host}:${settings.port}`);
@@ -24,6 +48,8 @@ db.open().then(settings => {
 function init() {
     
     // Site service
+    siteService.use(errorHandler);
+    siteService.on("error", onError);
     servers.push(http.createServer(siteService.callback())
         .listen(config.server.port, config.server.host, () => {
             console.log(`Site listening ${config.server.host}:${config.server.port}`);
@@ -40,6 +66,8 @@ function init() {
     }
 
     // API service
+    apiService.use(errorHandler);
+    apiService.on("error", onError);
     servers.push(http.createServer(apiService.callback()).
         listen(config.api.port, config.api.host, () => {
             console.log(`API listening ${config.api.host}:${config.api.port}`);
@@ -57,6 +85,8 @@ function init() {
     }
 
     // File service
+    fileService.use(errorHandler);
+    fileService.on("error", onError);
     servers.push(http.createServer(fileService.callback())
         .listen(config.files.port, config.files.host, () => {
             console.log(`File server listening ${
