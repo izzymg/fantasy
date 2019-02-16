@@ -9,6 +9,7 @@ module.exports = {
     redis: {
         host: "192.168.1.25",
         port: 6379,
+        // Set to null if no password
         password: "redispassword",
     }
 };

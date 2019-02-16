@@ -14,9 +14,8 @@ function waitConnect(client) {
 
 exports.createClient = async ({ host, port, password, }) => {
     console.log(`Starting redis connection on ${host}:${port}`);
-    const client = redis.createClient({
+    let opts = {
         host: host,
-        password: password,
         port: port,
         string_numbers: false,
         retry_strategy: function(retry) {
@@ -27,7 +26,11 @@ exports.createClient = async ({ host, port, password, }) => {
             console.log(`Disconnected for: ${retry.total_retry_time / 1000} seconds`);
             return 15 * 1000;
         }
-    });
+    };
+    if(password) {
+        opts.password = password;
+    }
+    const client = redis.createClient(opts);
     const close = promisify(client.quit).bind(client);
         
     client.on("error", error => {
