@@ -1,18 +1,20 @@
-// Zthree config
-// It is recommended in production you configure a reverse proxy to serve the routes
-// To do so, disable all https and set the "url" options to match your domains
-// including protocol, and port if necessary, e.g. api: { ... url: https://api.(mysite.com) }
-// This will be used to for linking files and requests to the API
-// Set the port to unexposed local ports and the host to localhost
-// Then configure your web server to serve them, e.g. api.(yoursite.com) -> localhost:3100
-
 module.exports = {
+    enableLogging: true,
+    // Remember, database timeouts are 500 internal server errors
+    // The following options will spam log writes and seriously impact performance should your database backlog with requests
+    // Consider these for debugging purposes
+    logInternalErrors: false,
+    consoleErrors: false,
+    // Used as the name of the website in templates
+    webname: "ZChan",
+
     // A connection pool is used for all SQL queries
     // Read up on connection pools to understand these sections
+
     database: {
         // The number of connections avaiable in the pool
         // Generally increase as you see more concurrent users
-        connectionLimit: 20,
+        connectionLimit: 5,
         // How long until a waiting connection should timeout (ms)
         connectionTimeout: 6000,
         // Timeout waiting to obtain a connection from the pool (ms)
@@ -25,47 +27,49 @@ module.exports = {
         memStore: false,
     },
 
-    // Protects the servers to require the privateKey in a cookie to serve any routes
+    // Protects the API and site to require the privateKey in a cookie to serve any routes
     // Users can generate a cookie by going to (api)/private and entering the password
-    apiPrivate: false,
-    sitePrivate: false,
-    filesPrivate: false,
+    private: true,
     privatePassword: "VerySecretPassword123",
-    privateKey: require("crypto").randomBytes(16).toString("hex"),
+    privateKey: require("crypto").randomBytes(10).toString("hex"),
+
+    /* SERVERS */
+    // The "url" section is configured so the frontend links to this url instead of your host/port
+    // e.g. if you are reverse proxying https traffic from api.mysite.com to localhost:3100
+    // enter "https://api.mysite.com" as the url in api and disable https
+
+    // All logs will open via append, so you can set them all to the same if you wish
+    // Ensure the log directory is created and the server has permissions to write out
+    // Refer to global log configuration at top of file
 
     // Serves rendered templates, the front of your site
-    server: {
-        port: 3000,
+    site: {
+        port: 80,
         host: "localhost",
         https: false,
-        httpsPort: 3043,
-        // Important for reverse proxies - used to link within page
-        // e.g. site hosted on localhost but links images at https://files.yoursite.net
-        url: "https://zchan.net",
-        // Log file, ensure permissions
-        log: "/var/log/zchan.log",
-        // Print errors (usually 500 internal server errors) to console (will still be logged)
-        consoleErrors: false,
-        // Used as the name of the website in templates
-        webname: "ZChan",
+        httpsPort: 8080,
+        url: "http://localhost",
+        log: "/var/log/zchan/site.log"
     },
 
     // Serves JSON data, handles post submissions
     api: {
-        port: 3100,
-        host: "https://api.zchan.net",
+        port: 3000,
+        host: "localhost",
         https: false,
-        httpsPort: 3143,
-        url: "api.zchan.net",
+        httpsPort: 3080,
+        url: "http://localhost:3080",
+        log: "/var/log/zchan/api.log"
     },
 
     // File server
     files: {
         host: "localhost",
-        port: 3200,
+        port: 3180,
         https: false,
-        httpsPort: 3243,
-        url: "https://files.zchan.net",
+        httpsPort: 3180,
+        url: "http://localhost:3180",
+        log: "/var/log/zchan/files.log"
     },
 
     // Configuration of posts
@@ -82,7 +86,7 @@ module.exports = {
         // Where to write temporary files
         tmpDir: "/tmp",
         // Where to store files
-        filesDir: "/var/www/zchan/files",
+        filesDir: "/var/www/files",
         // Appended on the end of thumbnails
         thumbSuffix: "_thumb",
         // Used to scale thumbnails if need be

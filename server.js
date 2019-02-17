@@ -5,8 +5,6 @@ const config = require("./config/config");
 const http = require("http");
 const https = require("https");
 
-const logger = require("./libs/logger");
-
 const apiService = require("./ends/api/service");
 const siteService = require("./ends/site/service");
 const fileService = require("./ends/files/service");
@@ -16,30 +14,6 @@ const persistence = require("./ends/persistence");
 let servers = [];
 process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
-// Securely handle and log 500 errors
-async function errorHandler (ctx, next) {
-    try {
-        await next();
-    } catch (error) {
-        ctx.status = error.status || 500;
-        if (ctx.status == 500) {
-            ctx.body = "Internal server error";
-            ctx.app.emit("error", error, ctx);
-        } else {
-            ctx.body = error.message;
-        }
-    }
-}
-
-async function onFatalError(error) {
-    if(error.status !== 500) return;
-    if (config.server.consoleErrors) {
-        console.error(`ZThree: ${error}`);
-        console.trace(error);
-    }
-    logger.logOut(error, config.server.log);
-}
-
 persistence.initialize().then(() => {
     init();
 }).catch(e => {
@@ -48,26 +22,22 @@ persistence.initialize().then(() => {
 
 function init() {
     // Site
-    siteService.use(errorHandler);
-    siteService.on("error", onFatalError);
     servers.push(http.createServer(siteService.callback())
-        .listen(config.server.port, config.server.host, () => {
-            console.log(`Site listening ${config.server.host}:${config.server.port}`);
+        .listen(config.site.port, config.site.host, () => {
+            console.log(`Site listening ${config.site.host}:${config.site.port}`);
         })
     );
-    if (config.server.https) {
+    if (config.site.https) {
         servers.push(https.createServer(siteService.callback())
-            .listen(config.server.httpsPort, config.server.host, () => {
+            .listen(config.site.httpsPort, config.site.host, () => {
                 console.log(`Site HTTPS detected: listening ${
-                    config.server.host
-                }:${config.server.httpsPort}`);
+                    config.site.host
+                }:${config.site.httpsPort}`);
             })
         );
     }
 
     // API
-    apiService.use(errorHandler);
-    apiService.on("error", onFatalError);
     servers.push(http.createServer(apiService.callback()).
         listen(config.api.port, config.api.host, () => {
             console.log(`API listening ${config.api.host}:${config.api.port}`);
@@ -85,8 +55,6 @@ function init() {
     }
 
     // Files
-    fileService.use(errorHandler);
-    fileService.on("error", onFatalError);
     servers.push(http.createServer(fileService.callback())
         .listen(config.files.port, config.files.host, () => {
             console.log(`File server listening ${

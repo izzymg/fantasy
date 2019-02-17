@@ -13,11 +13,13 @@ function queryFactory(connection) {
         getOne: async ({ sql, values = [], nestTables = false }) => {
             const res = await query({ sql, values, nestTables });
             if(!res || res.length < 1) return null;
+            throw new Error("ww");
             return res[0];
         },
         getAll: async ({ sql, values = [], nestTables = false }) => {
             const res = await query({ sql, values, nestTables });
             if(!res || res.length < 1) return null;
+            throw new Error("hawwah");
             return [ ...res ];
         }
     };

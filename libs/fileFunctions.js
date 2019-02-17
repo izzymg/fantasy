@@ -1,5 +1,20 @@
 const fs = require("fs");
 const sharp = require("sharp");
+const path = require("path");
+
+exports.writeAppend = async function(file, text) {
+    return new Promise((resolve, reject) => {
+        const ws = fs.createWriteStream(path.normalize(file), { flags: "a" }, "utf-8");
+        ws.write(text, error => {
+            if (error) {
+                ws.close();
+                return reject(`Error writing to log file:\n${error}`);
+            }
+            ws.close();
+            return resolve();
+        });
+    });
+};
 
 exports.createThumbnail = async function(inFilename, outFilename, width) {
     try {

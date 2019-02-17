@@ -6,11 +6,18 @@ const server = new Koa();
 const Router = require("koa-router");
 const router = new Router();
 const sendFile = require("koa-sendfile");
-const gMiddleware = require("../gMiddleware");
+const middles = require("../middles");
 
 if(config.private) {
-    server.use(gMiddleware.requirePrivate(config.privateKey));
+    server.use(middles.requirePrivate(config.privateKey));
 }
+
+server.use(
+    middles.handleErrors(`${new Date(Date.now())} Files server error: `,
+        config.enableLogging && config.logInternalErrors ? config.files.log : null,
+        config.consoleErrors ? true : false
+    )
+);
 
 router.get("/:filename", async ctx => {
     const filesDir = path.normalize(config.posts.filesDir);
