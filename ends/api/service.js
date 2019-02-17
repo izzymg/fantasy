@@ -9,6 +9,13 @@ if(config.private) {
     server.use(middles.requirePrivate(config.privateKey));
 }
 
+if(config.api.allowCors) {
+    server.use(async (ctx, next) => {
+        ctx.set("Access-Control-Allow-Origin", "*");
+        return await next();
+    });
+}
+
 server.use(
     middles.handleErrors(`${new Date(Date.now())} API server error `,
         config.enableLogging && config.logInternalErrors ? config.api.log : null,

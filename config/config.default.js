@@ -59,7 +59,9 @@ module.exports = {
         https: false,
         httpsPort: 3080,
         url: "http://localhost:3080",
-        log: "/var/log/zchan/api.log"
+        log: "/var/log/zchan/api.log",
+        // Allows cross-origin resource sharing
+        allowsCors: false,
     },
 
     // File server
