@@ -6,6 +6,15 @@ const persistence = require("../../persistence");
 const Router = require("koa-router");
 const router = new Router();
 
+router.use("/boards/:board/*", async (ctx, next) => {
+    const board = await persistence.getBoard(ctx.params.board);
+    if(!board) {
+        return ctx.throw(404, "No such board");
+    }
+    ctx.state.board = board;
+    return await next();
+});
+
 router.get("/boards", async ctx => {
     const boards = await persistence.getBoards();
     if(!boards) {
@@ -15,13 +24,13 @@ router.get("/boards", async ctx => {
 });
 
 router.get("/boards/:board", async ctx => {
-    const board = await persistence.getBoard(ctx.params.board);
+    const board = await persistence.getBoard(ctx.state.board.url);
     if(!board) return ctx.throw(404);
     ctx.body = { board };
 });
 
 router.get("/boards/:board/threads", async ctx => {
-    const threads = await persistence.getThreads(ctx.params.board);
+    const threads = await persistence.getThreads(ctx.state.board.url);
     if(!threads) {
         return ctx.body = { };
     }
@@ -30,8 +39,8 @@ router.get("/boards/:board/threads", async ctx => {
 
 router.get("/boards/:board/threads/:thread", async ctx => {
     const [thread, replies] = await Promise.all([
-        persistence.getThread(ctx.params.board, ctx.params.thread),
-        persistence.getReplies(ctx.params.board, ctx.params.thread)
+        persistence.getThread(ctx.state.board.url, ctx.params.thread),
+        persistence.getReplies(ctx.state.board.url, ctx.params.thread)
     ]);
     if(!thread) return ctx.throw(404);
     ctx.body = { thread, replies };
@@ -49,18 +58,13 @@ router.post("/boards/:board/:thread?",
     },
     // Validate and save board and optionally thread being posted to
     async (ctx, next) => {
-        const board = await persistence.getBoard(ctx.params.board);
-        if(!board) {
-            return ctx.throw(404);
-        }
         if(ctx.params.thread) {
-            const thread = await persistence.getThread(ctx.params.board, ctx.params.thread);
+            const thread = await persistence.getThread(ctx.state.board.url, ctx.params.thread);
             if(!thread) {
                 return ctx.throw(404);
             }
             ctx.state.thread = thread;
         }
-        ctx.state.board = board;
         return await next();
     },
     // Grab multipart data off request
