@@ -64,6 +64,20 @@ For testing *only*, an in-memory implementation can be enabled in the config opt
 
 This just creates a Javascript object and is designed purely for testing on environments where Redis is unavailable, like Windows.
 
+##### Production
+
+It's optimal you serve this application via a reverse proxy such as nginx.
+
+Start by setting all host and ports to unexposed, private options, for example the API might be `localhost:3000` and files at `localhost:4050`
+
+Set the `url` section in all server configurations to the actual front facing domain you use.
+
+This forces linked images and calls to the API to go through that domain, rather than the actual host and port used by the server.
+
+In other words, an `<img>` tag will link to `images.yoursite.com` rather than `localhost:4050`
+
+You should then setup your proxy to forward traffic from `images.yoursite.com` to `localhost:4050`
+
 ##### Starting the server
 
 Run this command to compile the sass files into css `npm run build-css`

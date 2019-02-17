@@ -6,16 +6,8 @@ const router = new Router({ strict: true });
 const persistence = require("../../persistence");
 
 router.use(async (ctx, next) => {
-    if(config.api.https) {
-        ctx.state.api = `https://${config.api.url}:${config.api.urlPort}`;
-    } else {
-        ctx.state.api = `http://${config.api.url}:${config.api.urlPort}`;
-    }
-    if(config.files.https) {
-        ctx.state.files = `https://${config.files.url}:${config.files.urlPort}`;
-    } else {
-        ctx.state.files = `http://${config.files.url}:${config.files.urlPort}`;
-    }
+    ctx.state.api = `${config.api.url}`;
+    ctx.state.files = `${config.files.url}`;
     ctx.state.webname = config.server.webname;
     return await next();
 });

@@ -1,3 +1,11 @@
+// Zthree config
+// It is recommended in production you configure a reverse proxy to serve the routes
+// To do so, disable all https and set the "url" options to match your domains
+// including protocol, and port if necessary, e.g. api: { ... url: https://api.(mysite.com) }
+// This will be used to for linking files and requests to the API
+// Set the port to unexposed local ports and the host to localhost
+// Then configure your web server to serve them, e.g. api.(yoursite.com) -> localhost:3100
+
 module.exports = {
     // A connection pool is used for all SQL queries
     // Read up on connection pools to understand these sections
@@ -29,12 +37,11 @@ module.exports = {
     server: {
         port: 3000,
         host: "localhost",
-        https: true,
+        https: false,
         httpsPort: 3043,
         // Important for reverse proxies - used to link within page
-        // e.g. site hosted on localhost but links images at files.yoursite.net
-        url: "zchan.net",
-        urlPort: 80,
+        // e.g. site hosted on localhost but links images at https://files.yoursite.net
+        url: "https://zchan.net",
         // Log file, ensure permissions
         log: "/var/log/zchan.log",
         // Print errors (usually 500 internal server errors) to console (will still be logged)
@@ -46,21 +53,19 @@ module.exports = {
     // Serves JSON data, handles post submissions
     api: {
         port: 3100,
-        host: "api.zchan.net",
-        https: true,
+        host: "https://api.zchan.net",
+        https: false,
         httpsPort: 3143,
         url: "api.zchan.net",
-        urlPort: 80,
     },
 
     // File server
     files: {
         host: "localhost",
         port: 3200,
-        https: true,
+        https: false,
         httpsPort: 3243,
-        url: "files.zchan.net",
-        urlPort: 80,
+        url: "https://files.zchan.net",
     },
 
     // Configuration of posts
