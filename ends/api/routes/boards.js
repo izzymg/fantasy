@@ -24,7 +24,7 @@ router.get("/boards", async ctx => {
 });
 
 router.get("/boards/:board", async ctx => {
-    const board = await persistence.getBoard(ctx.state.board.url);
+    const board = await persistence.getBoard(ctx.params.board);
     if(!board) return ctx.throw(404);
     ctx.body = { board };
 });
