@@ -58,6 +58,11 @@ router.post("/boards/:board/:thread?",
     },
     // Validate and save board and optionally thread being posted to
     async (ctx, next) => {
+        const board = await persistence.getBoard(ctx.params.board);
+        if(!board) {
+            return ctx.throw(404, "No such board");
+        }
+        ctx.state.board = board;
         if(ctx.params.thread) {
             const thread = await persistence.getThread(ctx.state.board.url, ctx.params.thread);
             if(!thread) {
@@ -65,6 +70,7 @@ router.post("/boards/:board/:thread?",
             }
             ctx.state.thread = thread;
         }
+        
         return await next();
     },
     // Grab multipart data off request
