@@ -12,6 +12,13 @@ if(config.private) {
     server.use(middles.requirePrivate(config.privateKey));
 }
 
+if(config.files.allowCors) {
+    server.use(async (ctx, next) => {
+        ctx.set("Access-Control-Allow-Origin", "*");
+        return await next();
+    });
+}
+
 server.use(
     middles.handleErrors(`${new Date(Date.now())} Files server error: `,
         config.enableLogging && config.logInternalErrors ? config.files.log : null,

@@ -71,7 +71,8 @@ module.exports = {
         https: false,
         httpsPort: 3180,
         url: "http://localhost:3180",
-        log: "/var/log/zchan/files.log"
+        log: "/var/log/zchan/files.log",
+        allowCors: false,
     },
 
     // Configuration of posts
