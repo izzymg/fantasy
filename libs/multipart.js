@@ -1,137 +1,70 @@
-// Async wrapper for writing busboy temp files
-
-const libMime = require("../libs/mime");
+// Promise based multipart request parsing
 const Busboy = require("busboy");
-const fs = require("fs");
-const uuid = require("uuid/v4");
-const path = require("path");
-const fileFunctions = require("./fileFunctions");
-const crypto = require("crypto");
 
-module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
-  // New busboy instance with request headers
-  const busboy = new Busboy({
-    headers: ctx.headers,
-    limits: {
-      fileSize: maxFileSize,
-      fields: 3,
-      files: maxFiles,
-    },
-  });
-
-  let files = [];
-  let fields = {};
-  let temps = [];
-
-  // Unlink all written temp files
-  async function cleanup() {
-    for (const t of temps) {
-      await fileFunctions.unlink(t);
-    }
-  }
-
+module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, fileHandler) {
   return new Promise((resolve, reject) => {
-    // Read incoming files
-    busboy.on("file", (fieldname, file, originalName) => {
-      // Create unique file ID and write stream to temp path
-      const fileId = uuid();
-      const tempPath = path.join(tmpDir, fileId);
-      temps.push(tempPath);
-      const ws = fs.createWriteStream(tempPath);
-      ws.on("error", (error) => reject(error));
 
-      let mimetype;
-      let extension;
-      let firstBytes;
-      let md5 = createHash ? crypto.createHash("md5") : null;
-
-      // Each incoming data
-      file.on("data", (data) => {
-        // Check mimetype from first 12 bytes
-        if (!firstBytes) {
-          firstBytes = data.slice(0, 12);
-          mimetype = libMime.getAcceptedMimetype(firstBytes);
-          if (!mimetype) {
-            return cleanup()
-              .then(() => reject("UNACCEPTED_MIMETYPE"))
-              .catch((e) => reject(e));
-          }
-          extension = libMime.extensions[mimetype];
-        }
-        // Update hash with each data
-        if (createHash) {
-          try {
-            md5.update(data);
-          } catch (error) {
-            return cleanup()
-              .then(() => reject(error))
-              .catch((e) => reject(e));
-          }
-        }
-      });
-
-      file.on("end", () => {
-        file.unpipe(ws);
-        ws.end();
-        if (!firstBytes) {
-          return;
-        }
-        const fileObj = {
-          fileId,
-          tempPath,
-          originalName,
-          mimetype,
-          extension,
-          size: ws.bytesWritten
-        };
-        if (createHash) {
-          fileObj.hash = md5.digest().toString("hex");
-        }
-        return files.push(fileObj);
-      });
-
-      file.on("limit", () =>
-        cleanup()
-          .then(() => reject("FILE_SIZE_LIMIT"))
-          .catch((e) => reject(e))
-      );
-      // Write to temp
-      file.pipe(ws);
+    // New busboy instance
+    const busboy = new Busboy({
+      headers: ctx.headers,
+      limits: {
+        files: maxFiles,
+        fileSize: maxFileSize,
+        fields: 10,
+      }
     });
 
-    // Read incoming text fields
+    let fields = {};
+
+    // "File" parameter is a readable stream
+    busboy.on("file", async function(field, file, originalName) {
+      try {
+        await fileHandler(file, originalName);
+      } catch(error) {
+        return reject(error);
+      }
+    });
+
+    // Form fields
     busboy.on("field", (name, value) => {
       fields[name] = value;
     });
 
-    // Resolve busboy
-    busboy.on("finish", function() {
+    busboy.on("fieldsLimit", function() {
       ctx.req.unpipe(busboy);
-      resolve({ files, fields });
+      return reject({ status: 400, message: "Too many fields" });
     });
 
-    busboy.on("error", (error) =>
-      cleanup()
-        .then(() => reject(error))
-        .catch((e) => reject(e))
-    );
-    busboy.on("filesLimit", () =>
-      cleanup()
-        .then(() => reject("FILES_LIMIT"))
-        .catch((e) => reject(e))
-    );
-    busboy.on("fieldsLimit", () =>
-      cleanup()
-        .then(() => reject("FIELDS_LIMIT"))
-        .catch((e) => reject(e))
-    );
-    busboy.on("partsLimit", () =>
-      cleanup()
-        .then(() => reject("PARTS_LIMIT"))
-        .catch((e) => reject(e))
-    );
+    busboy.on("filesLimit", function() {
+      ctx.req.unpipe(busboy);
+      return reject({
+        status: 400,
+        message: `Too many files, max ${maxFiles}`
+      });
+    });
 
-    // Pipe request object
+    busboy.on("limit", () => {
+      ctx.req.unpipe(busboy);
+      return reject({
+        status: 400,
+        message: `File too large, max ${maxFileSize}`
+      });
+    });
+
+    busboy.on("error", (error) => {
+      ctx.req.unpipe(busboy);
+      return reject({
+        status: 500,
+        message: error
+      });
+    });
+
+    busboy.on("finish", () => {
+      ctx.req.unpipe(busboy);
+      return resolve(fields);
+    });
+
+    // Pipe request into busboy after events established
     ctx.req.pipe(busboy);
   });
 };

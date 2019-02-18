@@ -74,7 +74,7 @@ router.post("/boards/:board/:thread?",
     return await next();
   },
   // Grab multipart data off request
-  middleware.getMultipart,
+  middleware.getMultipart(config.posts.maxFileSize, config.posts.maxFiles, config.posts.tmpDir),
   // Submit post and save files
   async(ctx) => {
     if(!ctx.fields) {

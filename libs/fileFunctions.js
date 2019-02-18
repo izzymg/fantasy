@@ -1,6 +1,61 @@
 const fs = require("fs");
 const sharp = require("sharp");
 const path = require("path");
+const uuid = require("uuid/v4");
+
+const fileSignatures = {
+  "89504E470D0A1A0A": "image/png",
+  // There are two potential accepted gif types
+  "474946383761": "image/gif",
+  "474946383961": "image/gif",
+  "FFD8": "image/jpeg",
+};
+
+const extensions = {
+  "image/png": "png",
+  "image/gif": "gif",
+  "image/jpeg": "jpg",
+};
+
+// Creates temporary file and returns mimetype and filesize
+exports.processFile = function(readStream, tempDir) {
+  return new Promise((resolve, reject) => {
+    const fileId = uuid();
+    const tempPath = path.join(tempDir, fileId);
+    const tempStream = fs.createWriteStream(tempPath);
+    let mimetype;
+    let extension;
+    function cleanup() {
+      tempStream.end();
+      readStream.unpipe(tempStream);
+    }
+    function readMime(chunk) {
+      // Remove listener once called once
+      readStream.removeListener("data", readMime);
+      const chunkString = chunk.toString("hex");
+      for (const sig in fileSignatures) {
+        if(sig === chunkString.slice(0, sig.length).toUpperCase()) {
+          // Signature found in data chunk
+          mimetype = fileSignatures[sig];
+          extension = extensions[mimetype];
+          return;          
+        }
+      }
+      cleanup();
+      return reject({ status: 400, message: "Invalid mimetype." });
+    }
+    readStream.pipe(tempStream);
+    readStream.on("data", readMime);
+    readStream.on("error", (error) => {
+      cleanup();
+      return reject(error);
+    });
+    readStream.on("end", () => {
+      cleanup();
+      return resolve({ fileId, mimetype, extension, size: tempStream.bytesWritten, tempPath });
+    });
+  });
+};
 
 exports.writeAppend = async function(file, text) {
   return new Promise((resolve, reject) => {
