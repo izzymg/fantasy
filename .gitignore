@@ -2,4 +2,4 @@ node_modules/
 config/config.js
 config/private.js
 .vscode/
-ends/site/static/dist
+ends/site/static/dist/
