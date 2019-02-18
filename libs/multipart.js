@@ -1,7 +1,7 @@
 // Promise based multipart request parsing
 const Busboy = require("busboy");
 
-module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, fileHandler) {
+module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, onFile, onField) {
   return new Promise((resolve, reject) => {
 
     // New busboy instance
@@ -14,20 +14,24 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, fileHandler)
       }
     });
 
-    let fields = {};
-
     // "File" parameter is a readable stream
-    busboy.on("file", async function(field, file, originalName) {
+    busboy.on("file", async(fieldname, stream, filename) => {
       try {
-        await fileHandler(file, originalName);
+        await onFile(stream, filename);
       } catch(error) {
+        ctx.req.unpipe(busboy);
         return reject(error);
       }
     });
 
     // Form fields
-    busboy.on("field", (name, value) => {
-      fields[name] = value;
+    busboy.on("field", async(name, value) => {
+      try {
+        await onField(name, value);
+      } catch(error) {
+        ctx.req.unpipe(busboy);
+        return reject(error);
+      }
     });
 
     busboy.on("fieldsLimit", function() {
@@ -61,7 +65,7 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, fileHandler)
 
     busboy.on("finish", () => {
       ctx.req.unpipe(busboy);
-      return resolve(fields);
+      return resolve();
     });
 
     // Pipe request into busboy after events established
