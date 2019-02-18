@@ -6,7 +6,7 @@ exports.createClient = () => {
         This is not safe for production environments and is intended for development only.`
   );
   return {
-    open: () => { return 1; },
+    open: () => client = { },
     close: () => client = null,
     del: (key) => {
       if(client[key]) {
