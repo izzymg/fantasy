@@ -10,8 +10,9 @@ module.exports = {
         sourceType: "module",
     },
     rules: {
-        "arrow-body-style": ["error", "as-needed"],
-        "arrow-parens": ["error", "as-needed"],
+        "arrow-body-style": ["warn", "as-needed"],
+        "arrow-parens": ["warn", "always"],
+        "space-before-function-paren": ["warn", "never"],
         "quote-props": ["error", "consistent"],
         "indent": ["error", 2, { "SwitchCase": 1 }],
         "linebreak-style": ["error", "unix"],

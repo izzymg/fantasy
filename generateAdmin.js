@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const db = require("./database/database");
-(async () => {
+(async() => {
   const adminUsername = process.argv[2];
   const adminPassword = process.argv[3];
   if (!adminUsername || !adminPassword) {

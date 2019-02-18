@@ -10,7 +10,7 @@ if(config.private) {
 }
 
 if(config.api.allowCors) {
-  server.use(async (ctx, next) => {
+  server.use(async(ctx, next) => {
     ctx.set("Access-Control-Allow-Origin", "*");
     return await next();
   });

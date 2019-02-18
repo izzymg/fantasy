@@ -5,7 +5,7 @@ const path = require("path");
 exports.writeAppend = async function(file, text) {
   return new Promise((resolve, reject) => {
     const ws = fs.createWriteStream(path.normalize(file), { flags: "a" }, "utf-8");
-    ws.write(text, error => {
+    ws.write(text, (error) => {
       if (error) {
         ws.close();
         return reject(`Error writing to log file:\n${error}`);
@@ -37,7 +37,7 @@ exports.createThumbnail = async function(inFilename, outFilename, width) {
 
 exports.unlink = function(path) {
   return new Promise((resolve, reject) => {
-    fs.unlink(path, error => {
+    fs.unlink(path, (error) => {
       if (error) return reject(new Error(error));
       resolve();
     });
@@ -46,7 +46,7 @@ exports.unlink = function(path) {
 
 exports.rename = function(path, newPath) {
   return new Promise((resolve, reject) => {
-    fs.rename(path, newPath, error => {
+    fs.rename(path, newPath, (error) => {
       if (error)return reject(new Error(error));
       resolve();
     });
@@ -55,7 +55,7 @@ exports.rename = function(path, newPath) {
 
 exports.copy = function(path, newPath) {
   return new Promise((resolve, reject) => {
-    fs.copyFile(path, newPath, error => {
+    fs.copyFile(path, newPath, (error) => {
       if(error) return reject(new Error(error));
       resolve();
     });

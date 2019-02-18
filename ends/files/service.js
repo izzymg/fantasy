@@ -13,7 +13,7 @@ if(config.private) {
 }
 
 if(config.files.allowCors) {
-  server.use(async (ctx, next) => {
+  server.use(async(ctx, next) => {
     ctx.set("Access-Control-Allow-Origin", "*");
     return await next();
   });
@@ -26,7 +26,7 @@ server.use(
   )
 );
 
-router.get("/:filename", async ctx => {
+router.get("/:filename", async(ctx) => {
   const filesDir = path.normalize(config.posts.filesDir);
   const fp = path.join(filesDir, ctx.params.filename);
   const pathStats = path.parse(fp);

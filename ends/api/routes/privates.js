@@ -3,7 +3,7 @@ const router = new Router();
 const middles = require("../../middles");
 const config = require("../../../config/config");
 
-router.get("/private", ctx => ctx.body = `
+router.get("/private", (ctx) => ctx.body = `
     <p> Authenticate </p>
     <form method="POST">
         <input placeholder="Password" name="password"></input>
@@ -11,7 +11,7 @@ router.get("/private", ctx => ctx.body = `
     </form>`
 );
 
-router.post("/private", middles.getFormData, async ctx => {
+router.post("/private", middles.getFormData, async(ctx) => {
   if(ctx.fields && ctx.fields.password && typeof ctx.fields.password === "string"
     && ctx.fields.password === config.privatePassword) {
     ctx.cookies.set("pk", config.privateKey);

@@ -8,7 +8,7 @@ exports.createClient = () => {
   return {
     open,
     close: () => client = null,
-    del: key => {
+    del: (key) => {
       if(client[key]) {
         client[key] = null;
         return 1;

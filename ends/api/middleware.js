@@ -4,7 +4,7 @@ const textFunctions = require("../../libs/textFunctions");
 const multipart = require("../../libs/multipart");
 
 // Strips files and fields off of multipart requests
-exports.getMultipart = async (ctx, next) =>  {
+exports.getMultipart = async(ctx, next) =>  {
   if (!ctx.is("multipart/form-data")) {
     return ctx.throw(400, "Expected multipart/form-data");
   }

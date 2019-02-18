@@ -38,7 +38,7 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
       const tempPath = path.join(tmpDir, fileId);
       temps.push(tempPath);
       const ws = fs.createWriteStream(tempPath);
-      ws.on("error", error => reject(error));
+      ws.on("error", (error) => reject(error));
 
       let mimetype;
       let extension;
@@ -46,7 +46,7 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
       let md5 = createHash ? crypto.createHash("md5") : null;
 
       // Each incoming data
-      file.on("data", data => {
+      file.on("data", (data) => {
         // Check mimetype from first 12 bytes
         if (!firstBytes) {
           firstBytes = data.slice(0, 12);
@@ -54,7 +54,7 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
           if (!mimetype) {
             return cleanup()
               .then(() => reject("UNACCEPTED_MIMETYPE"))
-              .catch(e => reject(e));
+              .catch((e) => reject(e));
           }
           extension = libMime.extensions[mimetype];
         }
@@ -65,7 +65,7 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
           } catch (error) {
             return cleanup()
               .then(() => reject(error))
-              .catch(e => reject(e));
+              .catch((e) => reject(e));
           }
         }
       });
@@ -93,7 +93,7 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
       file.on("limit", () =>
         cleanup()
           .then(() => reject("FILE_SIZE_LIMIT"))
-          .catch(e => reject(e))
+          .catch((e) => reject(e))
       );
       // Write to temp
       file.pipe(ws);
@@ -110,25 +110,25 @@ module.exports = function(ctx, maxFileSize, maxFiles, tmpDir, createHash) {
       resolve({ files, fields });
     });
 
-    busboy.on("error", error =>
+    busboy.on("error", (error) =>
       cleanup()
         .then(() => reject(error))
-        .catch(e => reject(e))
+        .catch((e) => reject(e))
     );
     busboy.on("filesLimit", () =>
       cleanup()
         .then(() => reject("FILES_LIMIT"))
-        .catch(e => reject(e))
+        .catch((e) => reject(e))
     );
     busboy.on("fieldsLimit", () =>
       cleanup()
         .then(() => reject("FIELDS_LIMIT"))
-        .catch(e => reject(e))
+        .catch((e) => reject(e))
     );
     busboy.on("partsLimit", () =>
       cleanup()
         .then(() => reject("PARTS_LIMIT"))
-        .catch(e => reject(e))
+        .catch((e) => reject(e))
     );
 
     // Pipe request object

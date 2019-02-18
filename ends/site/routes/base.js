@@ -5,7 +5,7 @@ const config = require("../../../config/config");
 const router = new Router({ strict: true });
 const persistence = require("../../persistence");
 
-router.use(async (ctx, next) => {
+router.use(async(ctx, next) => {
   ctx.state.api = `${config.api.url}`;
   ctx.state.files = `${config.files.url}`;
   ctx.state.webname = config.site.webname;
@@ -13,7 +13,7 @@ router.use(async (ctx, next) => {
 });
 
 // Try following middleware and catch 404s to render page
-router.get("*", async (ctx, next) => {
+router.get("*", async(ctx, next) => {
   try {
     await next();
   } catch (error) {
@@ -24,22 +24,22 @@ router.get("*", async (ctx, next) => {
   }
 });
 
-router.get("/",  async ctx => await ctx.render("home"));
+router.get("/",  async(ctx) => await ctx.render("home"));
 
 // Redirect to "folder" directories (trailing slash)
 // This is so relative HTML links work consistently
-router.get("/boards", async ctx => {
+router.get("/boards", async(ctx) => {
   await ctx.redirect("/boards/");
 });
-router.get("/boards/:board", async ctx => {
+router.get("/boards/:board", async(ctx) => {
   await ctx.redirect(`/boards/${ctx.params.board}/`);
 });
-router.get("/boards/:board/threads/:thread/", async ctx => {
+router.get("/boards/:board/threads/:thread/", async(ctx) => {
   await ctx.redirect(`/boards/${ctx.params.board}/threads/${ctx.params.thread}`);
 });
 
 // Boards list
-router.get("/boards/", async ctx => {
+router.get("/boards/", async(ctx) => {
   const boards = await persistence.getBoards();
   await ctx.render("boards", { boards });
 });
@@ -48,7 +48,7 @@ router.get("/boards/", async ctx => {
 router.all("/boards/:board/*", middleware.getBoard);
 
 // Get catalog and post thread
-router.get("/boards/:board/", async ctx => {
+router.get("/boards/:board/", async(ctx) => {
   try {
     const threads = await persistence.getThreads(ctx.state.board.url);
     return await ctx.render("catalog", { threads });
@@ -58,7 +58,7 @@ router.get("/boards/:board/", async ctx => {
 });
 
 // Get thread and post reply
-router.get("/boards/:board/threads/:thread", async ctx => {
+router.get("/boards/:board/threads/:thread", async(ctx) => {
   const [ thread, replies ] = await Promise.all([
     persistence.getThread(
       ctx.state.board.url, ctx.params.thread
@@ -75,10 +75,10 @@ router.get("/boards/:board/threads/:thread", async ctx => {
   });
 });
 
-router.get("/test500", async ctx => ctx.throw(500));
+router.get("/test500", async(ctx) => ctx.throw(500));
 
 // Fallthroughs
-router.get("*", async ctx => {
+router.get("*", async(ctx) => {
   await ctx.render("notfound");
 });
 

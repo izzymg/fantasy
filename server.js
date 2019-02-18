@@ -16,7 +16,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
 persistence.initialize().then(() => {
   init();
-}).catch(e => {
+}).catch((e) => {
   console.error("Error initialising persistence", e);
 });
 
@@ -74,7 +74,7 @@ function init() {
 
   async function onExit(sig) {
     console.log(`Received ${sig}, exiting`);
-    servers.forEach(server => server.close());
+    servers.forEach((server) => server.close());
     await persistence.end();
     process.exit(0);
   }

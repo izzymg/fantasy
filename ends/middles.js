@@ -3,7 +3,7 @@ const coBody = require("co-body");
 const fileFunctions = require("../libs/fileFunctions");
 
 exports.requirePrivate = function(key) {
-  return async (ctx, next) => {
+  return async(ctx, next) => {
     const pk = ctx.cookies.get("pk");
     if(pk === key) {
       return await next();
@@ -12,7 +12,7 @@ exports.requirePrivate = function(key) {
   };
 };
 
-exports.getFormData = async (ctx, next) =>  {
+exports.getFormData = async(ctx, next) =>  {
   if(!ctx.method === "POST") {
     return await next();
   }
@@ -31,7 +31,7 @@ exports.getFormData = async (ctx, next) =>  {
 };
 
 exports.handleErrors = function(prefix, logfile = null, logconsole = false) {
-  return async (ctx, next) => {
+  return async(ctx, next) => {
     try {
       await next();
     } catch(error) {

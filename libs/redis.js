@@ -12,7 +12,7 @@ function waitConnect(client) {
   }); 
 }
 
-exports.createClient = async ({ host, port, password, }) => {
+exports.createClient = async({ host, port, password, }) => {
   console.log(`Starting redis connection on ${host}:${port}`);
   let opts = {
     host: host,
@@ -33,7 +33,7 @@ exports.createClient = async ({ host, port, password, }) => {
   const client = redis.createClient(opts);
   const close = promisify(client.quit).bind(client);
         
-  client.on("error", error => {
+  client.on("error", (error) => {
     client.quit();
     throw "Redis failure", error;
   });
@@ -43,7 +43,7 @@ exports.createClient = async ({ host, port, password, }) => {
 
   await waitConnect(client);
   return {
-    close: async () => {
+    close: async() => {
       console.log("Closing redis connection");
       return await close();
     },

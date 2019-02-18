@@ -10,7 +10,7 @@ const secrets = require("../config/private");
 let database;
 let mem;
 
-exports.initialize = async () => {
+exports.initialize = async() => {
   database = sql.createPool(secrets.database, config.database);
   if(config.database.memStore) {
     mem = memstore.createClient();
@@ -19,19 +19,19 @@ exports.initialize = async () => {
   }
 };
 
-exports.end = async () => await Promise.all([database.end(), mem.close()]);
+exports.end = async() => await Promise.all([database.end(), mem.close()]);
 
-exports.getBoards = async () => await database.getAll({
+exports.getBoards = async() => await database.getAll({
   sql: "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt, sfw FROM boards",
 });
 
-exports.getBoard = async url => await database.getOne({
+exports.getBoard = async(url) => await database.getOne({
   sql: "SELECT url, title, about, bumpLimit,\
     maxThreads, cooldown, createdAt, sfw FROM boards WHERE url = ?",
   values: url,
 });
 
-exports.getThread = async (board, id) => {
+exports.getThread = async(board, id) => {
   const data = await database.getAll({
     sql: "SELECT postId AS id, createdAt, name, subject, content, sticky, lastBump, \
             fileId, extension, thumbSuffix, originalName, mimetype, size\
@@ -45,11 +45,11 @@ exports.getThread = async (board, id) => {
 
   // Remove duplicate post data from op
   const op = data[0].posts;
-  op.files = data.map(data => data.files);
+  op.files = data.map((data) => data.files);
   return op;
 };
 
-exports.getThreads = async board => {
+exports.getThreads = async(board) => {
   const data = await database.getAll({
     sql: "SELECT postId AS id, createdAt AS date,\
             name, subject, content, sticky, fileId, extension, thumbSuffix, lastBump \
@@ -62,9 +62,9 @@ exports.getThreads = async board => {
     // Remove duplicate post data from join and process into ordered array
   if(!data) return;
   const threads = [];
-  data.forEach(data => {
+  data.forEach((data) => {
     let found = false;
-    threads.forEach(thread => {
+    threads.forEach((thread) => {
       if (thread.id === data.posts.id) {
         thread.files.push(data.files);
         found = true;
@@ -81,7 +81,7 @@ exports.getThreads = async board => {
   return threads;
 };
 
-exports.getReplies = async (board, id) => {
+exports.getReplies = async(board, id) => {
   const data = await database.getAll({
     sql: "SELECT postId AS id, createdAt, name, subject, content, sticky,\
             fileId, extension, thumbSuffix, originalName, mimetype, size\
@@ -97,9 +97,9 @@ exports.getReplies = async (board, id) => {
   }
   // Remove duplicate post data from join and process into ordered array
   const replies = [];
-  data.forEach(replyData => {
+  data.forEach((replyData) => {
     let found = false;
-    replies.forEach(reply => {
+    replies.forEach((reply) => {
       if (reply.id === replyData.posts.id) {
         reply.files.push(replyData.files);
         found = true;
@@ -116,7 +116,7 @@ exports.getReplies = async (board, id) => {
   return replies;
 };
 
-exports.submitPost = async ({ 
+exports.submitPost = async({ 
   boardUrl, parent, name, subject, content,
   lastBump = parent == 0 ? new Date(Date.now()) : null }) => {
 
@@ -164,7 +164,7 @@ exports.submitPost = async ({
   return { postId, postUid };
 };
 
-exports.deletePost = async (board, id) => {
+exports.deletePost = async(board, id) => {
   const files = await database.getAll({
     sql: "SELECT fileId, extension, thumbSuffix \
             FROM files INNER JOIN posts ON files.postUid = posts.uid \
@@ -173,7 +173,7 @@ exports.deletePost = async (board, id) => {
   );
   let deletedFiles = 0;
   if (files && files.length > 0) {
-    const fileDeletion = files.map(async file => {
+    const fileDeletion = files.map(async(file) => {
       await fs.unlink(
         path.join(config.posts.filesDir, file.fileId + "." + file.extension)
       );
@@ -195,7 +195,7 @@ exports.deletePost = async (board, id) => {
   return { deletedPosts: deletedRows - deletedFiles, deletedFiles };
 };
 
-exports.saveFile = async (
+exports.saveFile = async(
   { postUid, id, extension, tempPath, mimetype, size, originalName, hash },
   createThumb = false, deleteTemp = true) => {
 
@@ -233,7 +233,7 @@ exports.saveFile = async (
   });
 };
 
-exports.getThreadCount = async board => {
+exports.getThreadCount = async(board) => {
   const num = await database.getOne({
     sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0",
     values: [board]
@@ -242,7 +242,7 @@ exports.getThreadCount = async board => {
   return num.count;
 };
 
-exports.getReplyCount = async (board, id) => {
+exports.getReplyCount = async(board, id) => {
   const numReplies = await database.getOne({
     sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?",
     values: [board, id]
@@ -251,7 +251,7 @@ exports.getReplyCount = async (board, id) => {
   return numReplies.count;
 };
 
-exports.getOldestThreadId = async board =>  {
+exports.getOldestThreadId = async(board) =>  {
   const oldest = await database.getOne({
     sql: "SELECT postId as id FROM posts WHERE parent = 0 AND boardUrl = ? \
             ORDER BY lastBump ASC LIMIT 1;",
@@ -261,7 +261,7 @@ exports.getOldestThreadId = async board =>  {
   return oldest.id;
 };
 
-exports.bumpPost = async (board, id) =>  {
+exports.bumpPost = async(board, id) =>  {
   const now = new Date(Date.now());
   const res = await database.query({
     sql: "UPDATE posts SET lastBump = ? WHERE boardUrl = ? AND parent = 0 AND postId = ?",
@@ -274,11 +274,11 @@ exports.bumpPost = async (board, id) =>  {
 };
 
 
-exports.getUsers = async () =>  await database.getAll({
+exports.getUsers = async() =>  await database.getAll({
   sql: "SELECT username, createdAt FROM users"
 });
 
-exports.isUserAdmin = async username => {
+exports.isUserAdmin = async(username) => {
   const res = await database.getOne({
     sql: "SELECT username FROM administrators WHERE username = ?",
     values: username
@@ -287,19 +287,19 @@ exports.isUserAdmin = async username => {
   return false;
 };
 
-exports.getUserModeration = async username => await database.getAll({
+exports.getUserModeration = async(username) => await database.getAll({
   sql: `SELECT url, title, about, sfw FROM boardmods
     INNER JOIN boards ON boards.url = boardmods.boardUrl
     WHERE boardmods.username = ?`,
   values: username
 });
 
-exports.createCooldown = async (ip, seconds) => {
+exports.createCooldown = async(ip, seconds) => {
   await mem.hSet(ip, "cooldown", Date.now() + seconds * 1000);
   await mem.expire(ip, 24 * 60 * 60);
 };
 
-exports.getCooldown = async ip => {
+exports.getCooldown = async(ip) => {
   const cd = Number(await mem.hGet(ip, "cooldown"));
   let now = Date.now();
   if (cd) {

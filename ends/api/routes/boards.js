@@ -6,7 +6,7 @@ const persistence = require("../../persistence");
 const Router = require("koa-router");
 const router = new Router();
 
-router.use("/boards/:board/*", async (ctx, next) => {
+router.use("/boards/:board/*", async(ctx, next) => {
   const board = await persistence.getBoard(ctx.params.board);
   if(!board) {
     return ctx.throw(404, "No such board");
@@ -15,7 +15,7 @@ router.use("/boards/:board/*", async (ctx, next) => {
   return await next();
 });
 
-router.get("/boards", async ctx => {
+router.get("/boards", async(ctx) => {
   const boards = await persistence.getBoards();
   if(!boards) {
     return ctx.body = { };
@@ -23,13 +23,13 @@ router.get("/boards", async ctx => {
   ctx.body = { boards };
 });
 
-router.get("/boards/:board", async ctx => {
+router.get("/boards/:board", async(ctx) => {
   const board = await persistence.getBoard(ctx.params.board);
   if(!board) return ctx.throw(404);
   ctx.body = { board };
 });
 
-router.get("/boards/:board/threads", async ctx => {
+router.get("/boards/:board/threads", async(ctx) => {
   const threads = await persistence.getThreads(ctx.state.board.url);
   if(!threads) {
     return ctx.body = { };
@@ -37,7 +37,7 @@ router.get("/boards/:board/threads", async ctx => {
   ctx.body = { threads };
 });
 
-router.get("/boards/:board/threads/:thread", async ctx => {
+router.get("/boards/:board/threads/:thread", async(ctx) => {
   const [thread, replies] = await Promise.all([
     persistence.getThread(ctx.state.board.url, ctx.params.thread),
     persistence.getReplies(ctx.state.board.url, ctx.params.thread)
@@ -49,7 +49,7 @@ router.get("/boards/:board/threads/:thread", async ctx => {
 // Submit new thread to board
 router.post("/boards/:board/:thread?", 
   // Check if IP is on cooldown
-  async (ctx, next) => {
+  async(ctx, next) => {
     const cd = await persistence.getCooldown(ctx.ip);
     if(!cd) {
       return await next();
@@ -57,7 +57,7 @@ router.post("/boards/:board/:thread?",
     return ctx.throw(400, `You must wait ${cd} seconds before posting again`);
   },
   // Validate and save board and optionally thread being posted to
-  async (ctx, next) => {
+  async(ctx, next) => {
     const board = await persistence.getBoard(ctx.params.board);
     if(!board) {
       return ctx.throw(404, "No such board");
@@ -76,7 +76,7 @@ router.post("/boards/:board/:thread?",
   // Grab multipart data off request
   middleware.getMultipart,
   // Submit post and save files
-  async ctx => {
+  async(ctx) => {
     if(!ctx.fields) {
       return ctx.throw(400, "Received no fields");
     }
@@ -117,7 +117,7 @@ router.post("/boards/:board/:thread?",
     });
     ctx.body = `Submitted post ${postId}.`;
     if(ctx.files && ctx.files.length > 0) {
-      const fileUploads = ctx.files.map(async file => {
+      const fileUploads = ctx.files.map(async(file) => {
         await persistence.saveFile({
           postUid,
           id: file.fileId,
