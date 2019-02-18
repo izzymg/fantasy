@@ -7,24 +7,24 @@ const middles = require("../middles");
 const server = new Koa();
 
 if(config.private) {
-    server.use(middles.requirePrivate(config.privateKey));
+  server.use(middles.requirePrivate(config.privateKey));
 }
 
 server.use(
-    middles.handleErrors(`${new Date(Date.now())} Site server error `,
-        config.enableLogging && config.logInternalErrors ? config.site.log : null,
-        config.consoleErrors ? true : false
-    )
+  middles.handleErrors(`${new Date(Date.now())} Site server error `,
+    config.enableLogging && config.logInternalErrors ? config.site.log : null,
+    config.consoleErrors ? true : false
+  )
 );
 
 const baseRouter = require("./routes/base");
 
 // Views
 server.use(
-    koaViews(path.join(__dirname, "templates"), {
-        extension: "pug",
-        options: { cache: true },
-    })
+  koaViews(path.join(__dirname, "templates"), {
+    extension: "pug",
+    options: { cache: true },
+  })
 );
 
 // Server static files (JS/CSS/Media)

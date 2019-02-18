@@ -12,12 +12,12 @@ router.get("/private", ctx => ctx.body = `
 );
 
 router.post("/private", middles.getFormData, async ctx => {
-    if(ctx.fields && ctx.fields.password && typeof ctx.fields.password === "string"
+  if(ctx.fields && ctx.fields.password && typeof ctx.fields.password === "string"
     && ctx.fields.password === config.privatePassword) {
-        ctx.cookies.set("pk", config.privateKey);
-        return ctx.body = "Success - cookie generated";
-    }
-    return ctx.throw(403, "Failed authentication");
+    ctx.cookies.set("pk", config.privateKey);
+    return ctx.body = "Success - cookie generated";
+  }
+  return ctx.throw(403, "Failed authentication");
 });
 
 module.exports = router;

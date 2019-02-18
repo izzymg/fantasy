@@ -5,47 +5,47 @@ const multipart = require("../../libs/multipart");
 
 // Strips files and fields off of multipart requests
 exports.getMultipart = async (ctx, next) =>  {
-    if (!ctx.is("multipart/form-data")) {
-        return ctx.throw(400, "Expected multipart/form-data");
+  if (!ctx.is("multipart/form-data")) {
+    return ctx.throw(400, "Expected multipart/form-data");
+  }
+  let data;
+  try {
+    data = await multipart(
+      ctx,
+      config.posts.maxFileSize,
+      config.posts.maxFiles,
+      config.posts.tmpDir,
+      config.posts.md5
+    );
+  } catch (error) {
+    switch (error) {
+      case "UNACCEPTED_MIMETYPE":
+        return ctx.throw (400, "Unsupported file format");
+      case "FILE_SIZE_LIMIT":
+        return ctx.throw(400, `Files must be under ${
+          Math.floor(config.posts.maxFileSize / 1000)
+        }kb`);
+      case "FILES_LIMIT":
+        return ctx.throw(400, `You may not send more than ${config.posts.maxFiles} files`);
+      case "FIELDS_LIMIT":
+        return ctx.throw(400, "Too many text fields");
+      default:
+        return ctx.throw(500, new Error(error));
     }
-    let data;
-    try {
-        data = await multipart(
-            ctx,
-            config.posts.maxFileSize,
-            config.posts.maxFiles,
-            config.posts.tmpDir,
-            config.posts.md5
-        );
-    } catch (error) {
-        switch (error) {
-            case "UNACCEPTED_MIMETYPE":
-                return ctx.throw (400, "Unsupported file format");
-            case "FILE_SIZE_LIMIT":
-                return ctx.throw(400, `Files must be under ${
-                    Math.floor(config.posts.maxFileSize / 1000)
-                }kb`);
-            case "FILES_LIMIT":
-                return ctx.throw(400, `You may not send more than ${config.posts.maxFiles} files`);
-            case "FIELDS_LIMIT":
-                return ctx.throw(400, "Too many text fields");
-            default:
-                return ctx.throw(500, new Error(error));
-        }
-    }
+  }
 
-    if (data.fields) {
-        for (const field in data.fields) {
-            data.fields[field] = textFunctions.trimEscapeHtml(data.fields[field]);
-        }
+  if (data.fields) {
+    for (const field in data.fields) {
+      data.fields[field] = textFunctions.trimEscapeHtml(data.fields[field]);
     }
+  }
 
-    if (data.files) {
-        for (const file of data.files) {
-            file.originalName = textFunctions.trimEscapeHtml(file.originalName);
-        }
+  if (data.files) {
+    for (const file of data.files) {
+      file.originalName = textFunctions.trimEscapeHtml(file.originalName);
     }
-    ctx.fields = data.fields;
-    ctx.files = data.files;
-    return await next();
+  }
+  ctx.fields = data.fields;
+  ctx.files = data.files;
+  return await next();
 };
