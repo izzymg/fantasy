@@ -13,6 +13,12 @@ let postId;
 let postUid;
 
 describe("Persistence functions", function () {
+  before(async function() {
+    await persistence.initialize();
+  });
+  after(async function() {
+    await persistence.end();
+  });
   describe("#getBoards()", function () {
     it("Should return the boards including /bump/ in an array", async function () {
       const boards = await persistence.getBoards();
