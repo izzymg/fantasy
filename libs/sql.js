@@ -29,10 +29,6 @@ function connectionFactory(pool) {
     pool.getConnection((error, connection) => {
       if(error) reject(error);
       const queries = queryFactory(connection);
-      connection.on("error", (error) => {
-        console.log(error);
-        throw error;
-      });
       resolve({
         ...queries,
         beginTransaction: promisify(connection.beginTransaction).bind(connection),

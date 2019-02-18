@@ -15,7 +15,12 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, onFile, onFi
     });
 
     // "File" parameter is a readable stream
-    busboy.on("file", async(fieldname, stream, filename) => {
+    busboy.on("file", async(fieldname, stream, filename, encoding, mimetype) => {
+      // Hack for file fields without a file attached
+      if(!filename) {
+        stream.resume();
+        return;
+      }
       try {
         await onFile(stream, filename);
       } catch(error) {

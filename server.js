@@ -1,5 +1,7 @@
 const config = require("./config/config");
 
+process.on("warning", (e) => console.warn(e.stack));
+
 if(config.env !== "production" && config.env !== "development") {
   config.env = "production";
   console.warn("Warning: ZThree defaulting to production mode. Set config.env correctly.");
