@@ -1,5 +1,7 @@
 const fs = require("fs");
 const sharp = require("sharp");
+// Prevent sharp from keeping a lock on the file
+sharp.cache(false);
 const path = require("path");
 const uuid = require("uuid/v4");
 
@@ -26,8 +28,8 @@ exports.processFile = function(readStream, tempDir) {
     let mimetype;
     let extension;
     function cleanup() {
-      tempStream.end();
       readStream.unpipe(tempStream);
+      tempStream.end();
     }
     function readMime(chunk) {
       // Remove listener once called once
@@ -84,7 +86,6 @@ exports.createThumbnail = async function(inFilename, outFilename, width) {
     } else {
       await image.toFormat("jpeg").toFile(outFilename);
     }
-    image.end();
   } catch (e) {
     throw new Error(e);
   }
@@ -93,6 +94,7 @@ exports.createThumbnail = async function(inFilename, outFilename, width) {
 exports.unlink = function(path) {
   return new Promise((resolve, reject) => {
     fs.unlink(path, (error) => {
+      console.log("Unlinking", path);
       if (error) return reject(new Error(error));
       resolve();
     });

@@ -207,7 +207,7 @@ exports.saveFile = async(
   // Move temp file into permanent store
   await fs.copy(tempPath, permaPath);
   if(deleteTemp) {
-    fs.unlink(tempPath);
+    await fs.unlink(tempPath);
   }
 
   const post = {
