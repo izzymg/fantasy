@@ -20,7 +20,18 @@ CREATE TABLE IF NOT EXISTS posts (
     subject text,
     content text,
     sticky boolean DEFAULT FALSE,
+    CONSTRAINT post_board
+        FOREIGN KEY (boardUrl) REFERENCES boards (url)
+        ON DELETE CASCADE,
     UNIQUE KEY board_uid (boardUrl, postId)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS boardids (
+    boardUrl varchar(15) NOT NULL,
+    id integer NOT NULL,
+    CONSTRAINT id_board
+        FOREIGN KEY (boardUrl) REFERENCES boards (url)
+        ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS files (
@@ -31,7 +42,10 @@ CREATE TABLE IF NOT EXISTS files (
     thumbSuffix tinytext DEFAULT NULL,
     originalName text,
     size integer,
-    hash text
+    hash text,
+    CONSTRAINT file_post
+        FOREIGN KEY (postUid) REFERENCES posts (uid)
+        ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS users (
