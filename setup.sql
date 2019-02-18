@@ -34,6 +34,11 @@ CREATE TABLE IF NOT EXISTS boardids (
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TRIGGER updateboardids
+    AFTER INSERT ON boards
+    FOR EACH ROW
+    INSERT INTO boardids SET boardUrl = new.url, id = 0;
+
 CREATE TABLE IF NOT EXISTS files (
     postUid integer NOT NULL,
     fileId varchar(36) PRIMARY KEY,

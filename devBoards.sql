@@ -16,14 +16,6 @@ INSERT INTO boards (
     20
 );
 
-INSERT INTO boardids (
-    boardUrl,
-    id)
-    VALUES (
-    "dev",
-    0
-);
-
 INSERT INTO boards (
     url,
     title,
@@ -39,13 +31,5 @@ INSERT INTO boards (
     false,
     5,
     3,
-    0
-);
-
-INSERT INTO boardids (
-    boardUrl,
-    id)
-    VALUES (
-    "bump",
     0
 );

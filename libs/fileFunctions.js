@@ -94,7 +94,6 @@ exports.createThumbnail = async function(inFilename, outFilename, width) {
 exports.unlink = function(path) {
   return new Promise((resolve, reject) => {
     fs.unlink(path, (error) => {
-      console.log("Unlinking", path);
       if (error) return reject(new Error(error));
       resolve();
     });

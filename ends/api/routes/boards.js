@@ -110,12 +110,12 @@ router.post("/boards/:board/:thread?",
     if(lengthError) return ctx.throw(400, lengthError);
 
     // Parent = 0 if no thread parameter: new thread
-    const { postUid, postId } = await persistence.submitPost({
+    const { postUid } = await persistence.submitPost({
       boardUrl: ctx.params.board,
       name, subject, content,
       parent,
     });
-    ctx.body = `Submitted post ${postId}.`;
+    ctx.body = "Submitted post.";
     if(ctx.files && ctx.files.length > 0) {
       const fileUploads = ctx.files.map(async(file) => {
         await persistence.saveFile({

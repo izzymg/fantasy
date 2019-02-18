@@ -120,38 +120,28 @@ exports.submitPost = async({
   boardUrl, parent, name, subject, content,
   lastBump = parent == 0 ? new Date(Date.now()) : null }) => {
 
-  let postId;
   let postUid;
   let connection;
   try {
     // Manually obtain connection to start safe transaction
     connection = await database.getConnection();
     await connection.beginTransaction();
-        
-    const transaction = [];
 
-    // Get last post ID from board or 0, and increment by 1
-    transaction.push(connection.query({ 
-      sql: "SELECT @postId:=MAX(postId) FROM posts WHERE boardUrl = ?",
-      values: boardUrl
-    }));
-    transaction.push(connection.query({ sql: "SET @postId = COALESCE(@postId, 0)" }));
-    transaction.push(connection.query({ sql: "SET @postId = @postId + 1" }));
+    const inserted = await connection.query({
+      sql: "INSERT INTO posts \
+       SET postId = (SELECT id FROM boardids WHERE boardUrl = ? FOR UPDATE), ?",
+      values: [boardUrl, { boardUrl, parent, name, subject, content, lastBump }], 
+    });
 
-    // Push post to database
-    transaction.push(connection.query({
-      sql: "INSERT INTO posts SET postId = @postId, ?",
-      values: { boardUrl, parent, name, subject, content, lastBump }, 
-    }));
-
-    transaction.push(connection.getOne({ sql: "SELECT @postId as postId" }));
+    await connection.query({
+      sql: "UPDATE boardids SET id = id + 1 WHERE boardUrl = ?",
+      values: [boardUrl]
+    });
 
     // Wait for all queries in the transaction and pull post ID
-    const [,,, inserted, selectId] = await Promise.all(transaction);
     if(!inserted.insertId) {
       throw "Post insertion failed";
     }
-    postId = selectId.postId;
     postUid = inserted.insertId;
     await connection.commit();
   } catch(error) {
@@ -161,7 +151,7 @@ exports.submitPost = async({
     // Always release connection back into pool after use
     connection.release();
   }
-  return { postId, postUid };
+  return { postUid };
 };
 
 exports.deletePost = async(board, id) => {
