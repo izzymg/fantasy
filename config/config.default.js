@@ -1,4 +1,13 @@
 module.exports = {
+
+  // Options: "production", "development"
+  // You could also set this to process.env.NODE_ENV
+  // then start the server as NODE_ENV=production node server.js
+  // Will default to production if null
+  // Always set to production when deploying (enables caching, etc)
+  env: process.env.NODE_ENV,
+
+
   enableLogging: true,
   // Remember, database timeouts are 500 internal server errors
   // The following options will spam log writes and seriously impact performance should your database backlog with requests
