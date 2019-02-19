@@ -9,6 +9,14 @@ CREATE TABLE IF NOT EXISTS boards (
     createdAt datetime DEFAULT CURRENT_TIMESTAMP
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+INSERT INTO boards (
+    url, title, about,
+    sfw, bumpLimit, maxThreads, cooldown
+    ) VALUES (
+    "new", "Setup board", "Welcome",
+    true, 300, 25, 30
+);
+
 CREATE TABLE IF NOT EXISTS posts (
     uid integer PRIMARY KEY AUTO_INCREMENT,
     boardUrl varchar(15) NOT NULL,
@@ -20,16 +28,19 @@ CREATE TABLE IF NOT EXISTS posts (
     subject text,
     content text,
     sticky boolean DEFAULT FALSE,
-    CONSTRAINT post_board
+    CONSTRAINT postboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)
         ON DELETE CASCADE,
-    UNIQUE KEY board_uid (boardUrl, postId)
+    UNIQUE KEY boarduid (boardUrl, postId)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX postUid ON posts (uid);
+CREATE INDEX postId ON posts (postId);
 
 CREATE TABLE IF NOT EXISTS boardids (
     boardUrl varchar(15) NOT NULL,
     id integer NOT NULL,
-    CONSTRAINT id_board
+    CONSTRAINT idboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -48,7 +59,7 @@ CREATE TABLE IF NOT EXISTS files (
     originalName text,
     size integer,
     hash text,
-    CONSTRAINT file_post
+    CONSTRAINT filepost
         FOREIGN KEY (postUid) REFERENCES posts (uid)
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -61,7 +72,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS administrators (
     username varchar(100) NOT NULL PRIMARY KEY,
-    CONSTRAINT admin_username
+    CONSTRAINT adminusername
         FOREIGN KEY (username) REFERENCES users (username)
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -70,10 +81,10 @@ CREATE TABLE IF NOT EXISTS boardmods (
     username varchar(100) NOT NULL,
     boardUrl varchar(15) NOT NULL,
     UNIQUE KEY mod_uid (username, boardUrl),
-    CONSTRAINT mod_username
+    CONSTRAINT modusername
         FOREIGN KEY (username) REFERENCES users (username)
         ON DELETE CASCADE,
-    CONSTRAINT mod_board
+    CONSTRAINT modboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
