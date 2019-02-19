@@ -8,6 +8,8 @@ const router = new Router();
 const sendFile = require("koa-sendfile");
 const middles = require("../middles");
 
+server.proxy = config.proxy;
+
 if(config.files.allowCors) {
   server.use(middles.cors());
 }

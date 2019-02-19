@@ -3,6 +3,8 @@ const server = new Koa();
 const config = require("../../config/config");
 const middles = require("../middles");
 
+server.proxy = config.proxy;
+
 if(config.api.allowCors) {
   server.use(middles.cors());
 }

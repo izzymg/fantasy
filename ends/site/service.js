@@ -6,6 +6,8 @@ const middles = require("../middles");
 const path = require("path");
 const server = new Koa();
 
+server.proxy = config.proxy;
+
 server.use(
   middles.logRequest(
     config.site.logLevel === null ? false : true, 

@@ -7,6 +7,10 @@ module.exports = {
   // Always set to production when deploying (enables caching, etc)
   env: process.env.NODE_ENV,
 
+
+  // Enable when behind a reverse proxy (which you should be)
+  proxy: true,
+
   enableLogging: true,
   // Remember, database timeouts are 500 internal server errors
   // The following options will spam log writes and seriously impact performance should your database backlog with requests
