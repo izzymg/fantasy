@@ -6,7 +6,7 @@ const persistence = require("../../persistence");
 router.use(async(ctx, next) => {
   ctx.state.api = `${config.api.url}`;
   ctx.state.files = `${config.files.url}`;
-  ctx.state.webname = config.site.webname;
+  ctx.state.webname = config.webname;
   return await next();
 });
 
