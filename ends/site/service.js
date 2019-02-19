@@ -6,10 +6,6 @@ const config = require("../../config/config");
 const middles = require("../middles");
 const server = new Koa();
 
-if(config.private) {
-  server.use(middles.requirePrivate(config.privateKey));
-}
-
 server.use(
   middles.handleErrors(`${new Date(Date.now())} Site server error `,
     config.enableLogging && config.logInternalErrors ? config.site.log : null,

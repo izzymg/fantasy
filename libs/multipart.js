@@ -55,7 +55,9 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
             tempPath,
             fileId,
             extension: type.extension,
-            mimetype: type.mimetype
+            mimetype: type.mimetype,
+            size: tempWriteStream.bytesWritten,
+            originalName: trimEscapeHtml(filename)
           });
         });
       }));
@@ -81,7 +83,7 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
 
     busboy.on("finish", () => {
       Promise.all(files)
-        .then((files) => resolve({ files, fields }))
+        .then((files) => resolve({ files: files.length > 0 ? files : null, fields }))
         .catch(reject);
     });
 

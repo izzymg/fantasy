@@ -36,12 +36,6 @@ module.exports = {
     memStore: false,
   },
 
-  // Protects the API and site to require the privateKey in a cookie to serve any routes
-  // Users can generate a cookie by going to (api)/private and entering the password
-  private: true,
-  privatePassword: "VerySecretPassword123",
-  privateKey: require("crypto").randomBytes(10).toString("hex"),
-
   /* SERVERS */
   // The "url" section is configured so the frontend links to this url instead of your host/port
   // e.g. if you are reverse proxying https traffic from api.mysite.com to localhost:3100

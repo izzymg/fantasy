@@ -1,5 +1,3 @@
-const middleware = require("../middleware");
-
 const Router = require("koa-router");
 const config = require("../../../config/config");
 const router = new Router({ strict: true });
@@ -12,7 +10,7 @@ router.use(async(ctx, next) => {
   return await next();
 });
 
-// Try following middleware and catch 404s to render page
+// Try following routes and catch 404s to render page
 router.get("*", async(ctx, next) => {
   try {
     await next();
@@ -45,7 +43,14 @@ router.get("/boards/", async(ctx) => {
 });
 
 // Set board state up on all board routes
-router.all("/boards/:board/*", middleware.getBoard);
+router.all("/boards/:board/*", async(ctx, next) => {
+  const board = await persistence.getBoard(ctx.params.board);
+  if (!board) {
+    return ctx.throw(404);
+  }
+  ctx.state.board = board;
+  return await next();
+});
 
 // Get catalog and post thread
 router.get("/boards/:board/", async(ctx) => {
@@ -74,8 +79,6 @@ router.get("/boards/:board/threads/:thread", async(ctx) => {
     op: thread, replies: replies
   });
 });
-
-router.get("/test500", async(ctx) => ctx.throw(500));
 
 // Fallthroughs
 router.get("*", async(ctx) => {

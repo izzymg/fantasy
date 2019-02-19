@@ -8,10 +8,6 @@ const router = new Router();
 const sendFile = require("koa-sendfile");
 const middles = require("../middles");
 
-if(config.private) {
-  server.use(middles.requirePrivate(config.privateKey));
-}
-
 if(config.files.allowCors) {
   server.use(async(ctx, next) => {
     ctx.set("Access-Control-Allow-Origin", "*");

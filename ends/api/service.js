@@ -3,12 +3,6 @@ const server = new Koa();
 const config = require("../../config/config");
 const middles = require("../middles");
 
-if(config.private) {
-  const privates = require("./routes/privates");
-  server.use(privates.routes());
-  server.use(middles.requirePrivate(config.privateKey));
-}
-
 if(config.api.allowCors) {
   server.use(async(ctx, next) => {
     ctx.set("Access-Control-Allow-Origin", "*");
