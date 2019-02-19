@@ -40,6 +40,12 @@ module.exports = {
   // Ensure the log directory is created and the server has permissions to write out
   // Refer to global log configuration at top of file
 
+  /* Possible log levels (500 errors are globally controlled by 'logInternalErrors'): 
+    "debug": log all traffic data and time taken
+    "timing": log all traffic time taken
+    null: No logging
+  */
+
   // Serves rendered templates, the front of your site
   site: {
     port: 80,
@@ -48,6 +54,7 @@ module.exports = {
     httpsPort: 8080,
     url: "http://localhost",
     log: "/var/log/zchan/site.log",
+    logLevel: null
   },
 
   // Serves JSON data, handles post submissions
@@ -60,6 +67,7 @@ module.exports = {
     log: "/var/log/zchan/api.log",
     // Allows cross-origin resource sharing
     allowsCors: false,
+    logLevel: "timing"
   },
 
   // File server
@@ -71,6 +79,7 @@ module.exports = {
     url: "http://localhost:3180",
     log: "/var/log/zchan/files.log",
     allowCors: false,
+    logLevel: "timing"
   },
 
   // Configuration of posts

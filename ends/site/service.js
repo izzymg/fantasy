@@ -7,6 +7,14 @@ const middles = require("../middles");
 const server = new Koa();
 
 server.use(
+  middles.logRequest(
+    config.site.logLevel === null ? false : true, 
+    config.site.logLevel === "debug" ? true : false, 
+    config.site.log
+  )
+);
+
+server.use(
   middles.handleErrors(`${new Date(Date.now())} Site server error `,
     config.enableLogging && config.logInternalErrors ? config.site.log : null,
     config.consoleErrors ? true : false

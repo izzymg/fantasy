@@ -9,11 +9,16 @@ const sendFile = require("koa-sendfile");
 const middles = require("../middles");
 
 if(config.files.allowCors) {
-  server.use(async(ctx, next) => {
-    ctx.set("Access-Control-Allow-Origin", "*");
-    return await next();
-  });
+  server.use(middles.cors());
 }
+
+server.use(
+  middles.logRequest(
+    config.files.logLevel === null ? false : true, 
+    config.files.logLevel === "debug" ? true : false, 
+    config.files.log
+  )
+);
 
 server.use(
   middles.handleErrors(`${new Date(Date.now())} Files server error: `,
