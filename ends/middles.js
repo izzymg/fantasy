@@ -30,7 +30,7 @@ exports.logRequest = function(logTime = true, logInfo = false, file) {
   return async(ctx, next) => {
     let writeOut = `${new Date(Date.now()).toLocaleString()}: `;
     if(logInfo) {
-      writeOut += `IP: ${ctx.ip}, Method: ${ctx.method}, Url: ${ctx.url}, Protocol: ${ctx.protocol}`;
+      writeOut += `IP: ${ctx.ip}, Method: ${ctx.method}, Url: ${ctx.url}, Protocol: ${ctx.protocol}, Secure: ${ctx.secure || false}`;
     }
     if(logTime) {
       const start = Date.now();
