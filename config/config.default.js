@@ -7,7 +7,6 @@ module.exports = {
   // Always set to production when deploying (enables caching, etc)
   env: process.env.NODE_ENV,
 
-
   enableLogging: true,
   // Remember, database timeouts are 500 internal server errors
   // The following options will spam log writes and seriously impact performance should your database backlog with requests
@@ -28,10 +27,6 @@ module.exports = {
     connectionTimeout: 6000,
     // Timeout waiting to obtain a connection from the pool (ms)
     acquireTimeout: 10000,
-    // Spams STDOUT with sql packets
-    debug: false,
-    // On db close, print and log information about the connection pool
-    metrics: false,
     // Use memory instead of redis - for development /only/
     memStore: false,
   },
@@ -52,7 +47,7 @@ module.exports = {
     https: false,
     httpsPort: 8080,
     url: "http://localhost",
-    log: "/var/log/zchan/site.log"
+    log: "/var/log/zchan/site.log",
   },
 
   // Serves JSON data, handles post submissions
