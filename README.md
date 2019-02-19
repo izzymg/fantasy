@@ -1,5 +1,4 @@
 # ZThree
-##### In need of rename
 
 Imageboard/BBS written in NodeJS with Koa, MySQLJS/MySQL and Redis
 
@@ -26,15 +25,11 @@ Run `npm install` once you've installed NodeJS and npm to automatically pull in 
 
 Developed in VS Code and tested with Node v10, MariaDB, Firefox & Chrome
 
-ESLint included
-
 `npm run lint` 
-
-`npm run watch-css`
 
 #### Getting started
 
-##### Configuration
+#### Configuration
 
 Under /config:
 
@@ -44,7 +39,19 @@ Rename `private.default.js` to `private.js`
 
 Read through the configurations, some options may be unsafe for production.
 
-##### SQL
+#### Static (Frontend)
+
+The static files have their own package.json and node_modules to keep things tidy. The entire imageboard works without Javascript enabled on the client OOTB, however the included js adds some convenience features.
+
+cd into `static/` and run `npm install` to pull in Webpack, TypeScript and [Sass](https://sass-lang.com/)
+
+`npm build`
+
+Don't rename/delete any templates as currently the site server is dependent on their existence. However you can edit them as much as you'd like. They are written in [Pug](https://pugjs.org/api/getting-started.html).
+
+*Important:* Anything placed in the /static/dist folder will be served to the user. You could for example place "banner.png" there, then edit a template to serve `img(src="/banner.png")`
+
+#### SQL
 
 Connect to your MySQL server (`mysql -h [yourdbhost] -u [username] -p`) and run `create database zthree`
 
@@ -54,7 +61,7 @@ This will run a set of `CREATE TABLE IF NOT EXIST` commands to setup the board's
 
 Enter your database credentials in `private.js` configuration's "database" section.
 
-##### Redis
+#### Redis
 
 Redis is used for storing session state and managing IP post-cooldowns. Support for SQLite is planned.
 
@@ -64,7 +71,7 @@ For testing *only*, an in-memory implementation can be enabled in the config opt
 
 This just creates a Javascript object and is designed purely for testing on environments where Redis is unavailable, like Windows.
 
-##### Production
+#### Production
 
 It's optimal you serve this application via a reverse proxy such as nginx.
 
@@ -78,8 +85,6 @@ In other words, an `<img>` tag will link to `images.yoursite.com` rather than `l
 
 You should then setup your proxy to forward traffic from `images.yoursite.com` to `localhost:4050`
 
-##### Starting the server
-
-Run this command to compile the sass files into css `npm run build-css`
+#### Starting the server
 
 `npm start` or `node ./server.js` to boot the server

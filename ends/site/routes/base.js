@@ -16,6 +16,7 @@ router.get("*", async(ctx, next) => {
     await next();
   } catch (error) {
     if (error.status === 404) {
+      ctx.status = 404;
       return ctx.render("notfound");
     }
     return ctx.throw(error);
@@ -82,6 +83,7 @@ router.get("/boards/:board/threads/:thread", async(ctx) => {
 
 // Fallthroughs
 router.get("*", async(ctx) => {
+  ctx.status = 404;
   await ctx.render("notfound");
 });
 

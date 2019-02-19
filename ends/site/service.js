@@ -1,9 +1,9 @@
 const Koa = require("koa");
 const koaStatic = require("koa-static");
 const koaViews = require("koa-views");
-const path = require("path");
 const config = require("../../config/config");
 const middles = require("../middles");
+const path = require("path");
 const server = new Koa();
 
 server.use(
@@ -25,14 +25,14 @@ const baseRouter = require("./routes/base");
 
 // Views
 server.use(
-  koaViews(path.join(__dirname, "templates"), {
+  koaViews(config.staticDir || path.join(__dirname, "../../static/templates"), {
     extension: "pug",
     options: { cache: config.env == "production" ? true: false },
   })
 );
 
 // Server static files (JS/CSS/Media)
-server.use(koaStatic(path.join(__dirname, "static/dist")));
+server.use(koaStatic(config.staticDir || path.join(__dirname, "../../static/dist")));
 
 // Router
 server.use(baseRouter.routes());

@@ -7,8 +7,6 @@
         "lint": "eslint \"**/*.js\"",
         "fix-lint": "eslint \"**/*.js\" --fix",
         "start": "node server.js",
-        "build-css": "sass ends/site/static/src/css:ends/site/static/dist/css",
-        "watch-css": "sass --watch ends/site/static/src/css:ends/site/static/dist/css",
         "test": "mocha"
     },
     "author": "",
@@ -31,7 +29,6 @@
     "devDependencies": {
         "eslint": "^5.12.1",
         "eslint-config-prettier": "^4.0.0",
-        "mocha": "^5.2.0",
-        "sass": "^1.16.1"
+        "mocha": "^5.2.0"
     }
 }
