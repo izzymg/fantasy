@@ -3,6 +3,7 @@ const path = require("path");
 module.exports = {
   entry: {
     postForm: path.join(__dirname, "ts/postForm.ts"),
+    statusbox: path.join(__dirname, "ts/statusbox.ts"),
   },
   module: {
     rules: [

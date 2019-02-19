@@ -60,6 +60,7 @@ exports.handleErrors = function(prefix, logfile = null, logconsole = false) {
         return ctx.body = "Internal server error";
       }
       // 400 bad requests take error.message
+      ctx.status = status;
       return ctx.body = error.message || "Unknown error";
     }
   };
