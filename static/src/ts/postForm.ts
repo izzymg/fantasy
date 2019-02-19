@@ -17,12 +17,16 @@ function initialisePostForm(onSuccess: Function, onError: Function) {
     // Stop actual form submission
     event.preventDefault();
     event.stopPropagation();
-    const res = await submitPost();
-    const text = await res.text();
-    if (!res.ok) {
-      return onError(text || `Sorry - unknown error, status ${res.status}`);
+    try {
+      const res = await submitPost();
+      const text = await res.text();
+      if (!res.ok) {
+        return onError(text || `Sorry - unknown error, status ${res.status}`);
+      }
+      return onSuccess(text);
+    } catch(error) {
+      return onError("Network error - server may be down");
     }
-    return onSuccess(text);
   });
 }
 
