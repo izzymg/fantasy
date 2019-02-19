@@ -1,6 +1,6 @@
 const { lengthCheck } = require("../../../libs/textFunctions");
 const config = require("../../../config/config");
-const middleware = require("../middleware");
+const multipart = require("../../../libs/multipart");
 const persistence = require("../../persistence");
 
 const Router = require("koa-router");
@@ -48,21 +48,18 @@ router.get("/boards/:board/threads/:thread", async(ctx) => {
 
 // Submit new thread to board
 router.post("/boards/:board/:thread?", 
-  // Check if IP is on cooldown
-  async(ctx, next) => {
+  async(ctx) => {
+
+    // IP cooldown
     const cd = await persistence.getCooldown(ctx.ip);
-    if(!cd) {
-      return await next();
-    }
-    return ctx.throw(400, `You must wait ${cd} seconds before posting again`);
-  },
-  // Validate and save board and optionally thread being posted to
-  async(ctx, next) => {
+    if(cd) return ctx.throw(400, `You must wait ${cd} seconds before posting again`);
+
+    // Does board exist?
     const board = await persistence.getBoard(ctx.params.board);
-    if(!board) {
-      return ctx.throw(404, "No such board");
-    }
+    if(!board) return ctx.throw(404, "No such board");
     ctx.state.board = board;
+
+    // Does thread exist if reply?
     if(ctx.params.thread) {
       const thread = await persistence.getThread(ctx.state.board.url, ctx.params.thread);
       if(!thread) {
@@ -70,23 +67,30 @@ router.post("/boards/:board/:thread?",
       }
       ctx.state.thread = thread;
     }
-        
-    return await next();
-  },
-  // Grab multipart data off request
-  middleware.getMultipart(config.posts.maxFileSize, config.posts.maxFiles, config.posts.tmpDir),
-  // Submit post and save files
-  async(ctx) => {
-    if(!ctx.fields) {
-      return ctx.throw(400, "Received no fields");
+
+    // Get the multipart data
+    let fields, files;
+    try {
+      ({ fields, files } = await multipart(ctx, config.posts.maxFiles, 
+        config.posts.maxFileSize, config.posts.tmpDir
+      ));
+    } catch(error) {
+      if(error.status == 400) {
+        return ctx.throw(400, error.message);
+      }
+      return ctx.throw(500, error);
     }
-    const name = ctx.fields.name || "Anonymous";
-    const subject = ctx.fields.subject || "";
-    const content = ctx.fields.content || "";
+
+    // Default fields
+    const name = fields.name || "Anonymous";
+    const subject = fields.subject || "";
+    const content = fields.content || "";
     const parent = ctx.state.thread ? ctx.state.thread.id : 0;
+
+    // Validate field existence
     if(parent) {
       if(config.posts.replies.requireContentOrFiles && 
-                (!ctx.files || ctx.files.length < 1) && !content) {
+                (!files || files.length < 1) && !content) {
         return ctx.throw(400, "Content or file required");
       }
     } else {
@@ -96,11 +100,12 @@ router.post("/boards/:board/:thread?",
       if(config.posts.threads.requireSubject && !subject) {
         return ctx.throw(400, "Subject required");
       }
-      if(config.posts.threads.requireFiles && (!ctx.files || ctx.files.length < 1)) {
+      if(config.posts.threads.requireFiles && (!files || files.length < 1)) {
         return ctx.throw(400, "File required");
       }
     }
 
+    // Length check fields
     let lengthError = lengthCheck(
       name, config.posts.maxNameLength, "Name");
     lengthError = lengthCheck(
@@ -109,25 +114,20 @@ router.post("/boards/:board/:thread?",
       content, config.posts.maxContentLength, "Post content") || lengthError;
     if(lengthError) return ctx.throw(400, lengthError);
 
-    // Parent = 0 if no thread parameter: new thread
+    // Submit post
     const { postUid } = await persistence.submitPost({
       boardUrl: ctx.params.board,
       name, subject, content,
       parent,
     });
     ctx.body = "Submitted post.";
-    if(ctx.files && ctx.files.length > 0) {
-      const fileUploads = ctx.files.map(async(file) => {
-        await persistence.saveFile({
-          postUid,
-          id: file.fileId,
-          tempPath: file.tempPath,
-          originalName: file.originalName,
-          mimetype: file.mimetype,
-          extension: file.extension,
-          size: file.size
-          // Save thumbnail if the mimetype is an image
-        }, Boolean(file.mimetype.indexOf("image") !== -1), true);
+
+    // Save files
+    if(files) {
+      const fileUploads = files.map(async(file) => {
+        file.postUid = postUid;
+        const createThumb = file.mimetype.indexOf("image") > -1 ? true : false;
+        await persistence.saveFile(file, createThumb);
       });
       await Promise.all(fileUploads);
       ctx.body += ` Uploaded ${fileUploads.length} ${
@@ -135,6 +135,7 @@ router.post("/boards/:board/:thread?",
       }`;
     }
 
+    // Handle post bumping and pruning
     if(parent == 0) {
       // Delete oldest thread if max threads has been reached
       const threadCount = await persistence.getThreadCount(ctx.state.board.url);
@@ -153,6 +154,8 @@ router.post("/boards/:board/:thread?",
         }
       }
     }
+
+    // Create a new cooldown
     await persistence.createCooldown(ctx.ip, ctx.state.board.cooldown);
   }
 );

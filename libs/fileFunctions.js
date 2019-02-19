@@ -3,7 +3,6 @@ const sharp = require("sharp");
 // Prevent sharp from keeping a lock on the file
 sharp.cache(false);
 const path = require("path");
-const uuid = require("uuid/v4");
 
 const fileSignatures = {
   "89504E470D0A1A0A": "image/png",
@@ -19,44 +18,17 @@ const extensions = {
   "image/jpeg": "jpg",
 };
 
-// Creates temporary file and returns mimetype and filesize
-exports.processFile = function(readStream, tempDir) {
-  return new Promise((resolve, reject) => {
-    const fileId = uuid();
-    const tempPath = path.join(tempDir, fileId);
-    const tempStream = fs.createWriteStream(tempPath);
-    let mimetype;
-    let extension;
-    function cleanup() {
-      readStream.unpipe(tempStream);
-      tempStream.end();
+exports.getAcceptedMimetype = function(buffer) {
+  // Remove listener once called once
+  const chunkString = buffer.toString("hex");
+  for (const sig in fileSignatures) {
+    if(sig === chunkString.slice(0, sig.length).toUpperCase()) {
+      // Signature found in data chunk
+      let mimetype = fileSignatures[sig];
+      return { mimetype, extension: extensions[mimetype] };
     }
-    function readMime(chunk) {
-      // Remove listener once called once
-      readStream.removeListener("data", readMime);
-      const chunkString = chunk.toString("hex");
-      for (const sig in fileSignatures) {
-        if(sig === chunkString.slice(0, sig.length).toUpperCase()) {
-          // Signature found in data chunk
-          mimetype = fileSignatures[sig];
-          extension = extensions[mimetype];
-          return;          
-        }
-      }
-      cleanup();
-      return reject({ status: 400, message: "Invalid mimetype." });
-    }
-    readStream.pipe(tempStream);
-    readStream.on("data", readMime);
-    readStream.on("error", (error) => {
-      cleanup();
-      return reject(error);
-    });
-    readStream.on("end", () => {
-      cleanup();
-      return resolve({ fileId, mimetype, extension, size: tempStream.bytesWritten, tempPath });
-    });
-  });
+  }
+  return null;
 };
 
 exports.writeAppend = async function(file, text) {

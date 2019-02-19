@@ -19,6 +19,7 @@ module.exports = {
         "quotes": ["error", "double"],
         "semi": ["error", "always"],
         "no-console": "off",
-        "max-len": ["error", {"code": 100}]
+        "max-len": ["error", {"code": 100}],
+        "no-unused-vars": ["warn"]
     },
 };

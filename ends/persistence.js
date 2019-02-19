@@ -186,12 +186,12 @@ exports.deletePost = async(board, id) => {
 };
 
 exports.saveFile = async(
-  { postUid, id, extension, tempPath, mimetype, size, originalName, hash },
+  { postUid, fileId, extension, tempPath, mimetype, size, originalName, hash },
   createThumb = false, deleteTemp = true) => {
 
   const permaPath = path.join(
     config.posts.filesDir,
-    `${id}.${extension}`
+    `${fileId}.${extension}`
   );
 
   // Move temp file into permanent store
@@ -201,7 +201,7 @@ exports.saveFile = async(
   }
 
   const post = {
-    fileId: id, postUid, extension, 
+    fileId, postUid, extension, 
     mimetype, size, originalName, hash
   };
 
@@ -210,7 +210,7 @@ exports.saveFile = async(
       permaPath,
       path.join(
         config.posts.filesDir,
-        `${id}${config.posts.thumbSuffix}.jpg`
+        `${fileId}${config.posts.thumbSuffix}.jpg`
       ),
       config.posts.thumbWidth
     );
