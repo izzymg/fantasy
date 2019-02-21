@@ -64,27 +64,3 @@ CREATE TABLE IF NOT EXISTS files (
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS users (
-    username varchar(100) PRIMARY KEY,
-    password text NOT NULL,
-    createdAt datetime DEFAULT CURRENT_TIMESTAMP
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS administrators (
-    username varchar(100) NOT NULL PRIMARY KEY,
-    CONSTRAINT adminusername
-        FOREIGN KEY (username) REFERENCES users (username)
-        ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS boardmods (
-    username varchar(100) NOT NULL,
-    boardUrl varchar(15) NOT NULL,
-    UNIQUE KEY mod_uid (username, boardUrl),
-    CONSTRAINT modusername
-        FOREIGN KEY (username) REFERENCES users (username)
-        ON DELETE CASCADE,
-    CONSTRAINT modboard
-        FOREIGN KEY (boardUrl) REFERENCES boards (url)
-        ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
