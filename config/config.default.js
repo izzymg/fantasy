@@ -1,4 +1,4 @@
-wsmodule.exports = {
+module.exports = {
 
   // Options: "production", "development"
   // You could also set this to process.env.NODE_ENV
