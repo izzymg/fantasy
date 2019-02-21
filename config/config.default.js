@@ -59,8 +59,6 @@ wsmodule.exports = {
   site: {
     port: 80,
     host: "localhost",
-    https: false,
-    httpsPort: 8080,
     url: "http://localhost",
     log: "/var/log/zchan/site.log",
     logLevel: null
@@ -70,8 +68,6 @@ wsmodule.exports = {
   api: {
     port: 3000,
     host: "localhost",
-    https: false,
-    httpsPort: 3080,
     url: "http://localhost:3080",
     log: "/var/log/zchan/api.log",
     // Allows cross-origin resource sharing
@@ -79,12 +75,19 @@ wsmodule.exports = {
     logLevel: "timing"
   },
 
+  // Handles user authentication, CRUD admin/mod operations
+  auth: {
+    port: 3100,
+    host: "localhost",
+    url: "http://localhost:3100",
+    log: "/var/log/zchan/auth.log",
+    logLevel: null
+  },
+
   // File server
   files: {
     host: "localhost",
-    port: 3180,
-    https: false,
-    httpsPort: 3180,
+    port: 3200,
     url: "http://localhost:3180",
     log: "/var/log/zchan/files.log",
     allowCors: false,
