@@ -1,7 +1,21 @@
 const Router = require("koa-router");
-const config = require("../../../config/config");
+const config = require("../../config/config");
 const router = new Router({ strict: true });
-const persistence = require("../../persistence");
+const persistence = require("../persistence");
+const koaViews = require("koa-views");
+const koaStatic = require("koa-static");
+const path = require("path");
+
+// Views
+router.use(
+  koaViews(config.staticDir || path.join(__dirname, "../../static/templates"), {
+    extension: "pug",
+    options: { cache: config.env == "production" ? true: false },
+  })
+);
+
+// Server static files (JS/CSS/Media)
+router.use(koaStatic(config.staticDir || path.join(__dirname, "../../static/dist")));
 
 router.use(async(ctx, next) => {
   ctx.state.api = `${config.api.url}`;
@@ -53,7 +67,7 @@ router.all("/boards/:board/*", async(ctx, next) => {
   return await next();
 });
 
-// Get catalog and post thread
+// Get catalog
 router.get("/boards/:board/", async(ctx) => {
   try {
     const threads = await persistence.getThreads(ctx.state.board.url);
@@ -63,7 +77,7 @@ router.get("/boards/:board/", async(ctx) => {
   }
 });
 
-// Get thread and post reply
+// Get thread
 router.get("/boards/:board/threads/:thread", async(ctx) => {
   const [ thread, replies ] = await Promise.all([
     persistence.getThread(

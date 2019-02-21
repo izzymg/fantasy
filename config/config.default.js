@@ -70,8 +70,10 @@ wsmodule.exports = {
     host: "localhost",
     url: "http://localhost:3080",
     log: "/var/log/zchan/api.log",
-    // Allows cross-origin resource sharing
-    allowsCors: false,
+    // Important: This sets the Access-Control-Allow-Origin header, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+    // Javascript post submissions will not work without CORS enabled so set this to the URL of the site server
+    // Null for no header set
+    allowCors: "https://localhost",
     logLevel: "timing"
   },
 
@@ -90,7 +92,7 @@ wsmodule.exports = {
     port: 3200,
     url: "http://localhost:3180",
     log: "/var/log/zchan/files.log",
-    allowCors: false,
+    allowCors: null,
     logLevel: "timing"
   },
 

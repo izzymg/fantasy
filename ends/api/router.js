@@ -1,7 +1,7 @@
-const { lengthCheck } = require("../../../libs/textFunctions");
-const config = require("../../../config/config");
-const multipart = require("../../../libs/multipart");
-const persistence = require("../../persistence");
+const { lengthCheck } = require("../../libs/textFunctions");
+const config = require("../../config/config");
+const multipart = require("../../libs/multipart");
+const persistence = require("../persistence");
 
 const Router = require("koa-router");
 const router = new Router();
@@ -49,7 +49,6 @@ router.get("/boards/:board/threads/:thread", async(ctx) => {
 // Submit new thread to board
 router.post("/boards/:board/:thread?", 
   async(ctx) => {
-
     // IP cooldown
     const cd = await persistence.getCooldown(ctx.ip);
     if(cd) return ctx.throw(400, `You must wait ${cd} seconds before posting again`);

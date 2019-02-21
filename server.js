@@ -27,43 +27,21 @@ persistence.initialize().then(() => {
   console.error("Error initialising persistence", e);
 });
 
-function init() {
+async function init() {
   
-  // Site
-  servers.push(http.createServer(siteService.callback())
-    .listen(config.site.port, config.site.host, () => {
-      console.log(`Site listening ${config.site.host}:${config.site.port}`);
-    })
-  );
-
-  // Auth
-  servers.push(http.createServer(authService.callback())
-    .listen(config.auth.port, config.auth.host, () => {
-      console.log(`Auth listening ${config.auth.host}:${config.auth.port}`);
-    })
-  );
-
-  // API
-  servers.push(http.createServer(apiService.callback()).
-    listen(config.api.port, config.api.host, () => {
-      console.log(`API listening ${config.api.host}:${config.api.port}`);
-    })
-  );
-
-  // Files
-  servers.push(http.createServer(fileService.callback())
-    .listen(config.files.port, config.files.host, () => {
-      console.log(`File server listening ${
-        config.files.host
-      }:${config.files.port}`);
-    })
-  );
+  try {
+    await siteService();
+    await fileService();
+    await authService();
+    await apiService();
+  } catch(error) {
+    return console.error("Failed to start server", error);
+  }
 
   servers.forEach((server) => server.env = config.env);
 
   async function onExit(sig) {
     console.log(`Received ${sig}, exiting`);
-    servers.forEach((server) => server.close());
     await persistence.end();
     process.exit(0);
   }
