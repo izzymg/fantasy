@@ -1,4 +1,4 @@
-module.exports = {
+wsmodule.exports = {
 
   // Options: "production", "development"
   // You could also set this to process.env.NODE_ENV
@@ -6,7 +6,6 @@ module.exports = {
   // Will default to production if null
   // Always set to production when deploying (enables caching, etc)
   env: process.env.NODE_ENV,
-
 
   // Enable when behind a reverse proxy (which you should be)
   proxy: true,
@@ -27,6 +26,9 @@ module.exports = {
   // Read up on connection pools to understand these sections
 
   database: {
+    // WARNING: this will print all SQL packets to stdout
+    // never enable on a site with any traffic
+    debug: false,
     // The number of connections avaiable in the pool
     // Generally increase as you see more concurrent users
     connectionLimit: 5,

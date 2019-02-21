@@ -42,13 +42,15 @@ function connectionFactory(pool) {
 
 exports.createPool = (
   { user, password, host, port, database },
-  { connectionLimit = 5, acquireTimeout = 30000, connectTimeout = 30000 }) => {
+  { connectionLimit = 5, acquireTimeout = 30000, connectTimeout = 30000, debug = false }) => {
   const pool = mysql.createPool({
     user, password, host, port, database,
-    connectTimeout, connectionLimit, acquireTimeout
+    connectTimeout, connectionLimit, acquireTimeout,
+    debug, trace: false
   });
   const queries = queryFactory(pool);
   const close = promisify(pool.end).bind(pool);
+  if(debug) console.log("WARNING: SQL debugging enabled. This will spam stdout");
   console.log(`SQL connection pool started on ${host}:${port}`);
   pool.on("error", (error) => {
     console.log(error);
