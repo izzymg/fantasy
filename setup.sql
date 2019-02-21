@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS boardids (
 CREATE TRIGGER updateboardids
     AFTER INSERT ON boards
     FOR EACH ROW
-    INSERT INTO boardids SET boardUrl = new.url, id = 0;
+    INSERT INTO boardids SET boardUrl = new.url, id = 1;
 
 CREATE TABLE IF NOT EXISTS files (
     postUid integer NOT NULL,
