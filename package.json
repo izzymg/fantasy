@@ -12,6 +12,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "@koa/cors": "^2.2.3",
         "bcrypt": "^3.0.4",
         "busboy": "^0.3.0",
         "co-body": "^6.0.0",

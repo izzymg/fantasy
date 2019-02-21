@@ -2,6 +2,7 @@
 const Koa = require("koa");
 const config = require("../config/config");
 const fileFunctions = require("../libs/fileFunctions");
+const cors = require("@koa/cors");
 
 // Wait on listen callback
 function listen(server, host, port) {
@@ -27,10 +28,7 @@ module.exports = async function(router, {
   server.proxy = config.proxy;
 
   if (allowCors) {
-    server.use(async(ctx, next) => {
-      ctx.set("Access-Control-Allow-Origin", allowCors);
-      return await next();
-    });
+    server.use(cors({ origin: allowCors }));
   }
 
   if (logLevel) {
