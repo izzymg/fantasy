@@ -83,7 +83,8 @@ module.exports = {
     host: "localhost",
     url: "http://localhost:3100",
     log: "/var/log/zchan/auth.log",
-    logLevel: null
+    logLevel: null,
+    allowCors: "https://localhost"
   },
 
   // File server

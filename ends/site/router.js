@@ -27,6 +27,13 @@ router.use(async(ctx, next) => {
 
 // Try following routes and catch 404s to render page
 router.get("*", async(ctx, next) => {
+  const id = ctx.cookies.get("id");
+  if(id) {
+    const session = await persistence.getSession(id);
+    if(session && session.username) {
+      ctx.state.session = session;
+    }
+  }
   try {
     await next();
   } catch (error) {
@@ -65,16 +72,10 @@ router.all("/boards/:board/*", async(ctx, next) => {
   if (!board) {
     return ctx.throw(404);
   }
-  ctx.state.board = board;
-
-  const id = ctx.cookies.get("id");
-  if(id) {
-    const session = await persistence.getSession(id);
-    if(session && session.username) {
-      ctx.state.isModOrAdmin = await persistence.isModOrAdmin(session.username, board.url);
-      ctx.state.session = session;
-    }
+  if(ctx.state.session) {
+    ctx.state.isModOrAdmin = await persistence.isModOrAdmin(ctx.state.session.username, board.url);
   }
+  ctx.state.board = board;
   return await next();
 });
 
