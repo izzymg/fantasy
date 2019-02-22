@@ -9,17 +9,14 @@ exports.cors = function(allowed = "*") {
   };
 };
 exports.getFormData = async function(ctx, next) {
-  if(!ctx.method === "POST") {
-    return await next();
-  }
   if (!ctx.is("application/json") && !ctx.is("application/x-www-form-urlencoded")) {
-    return ctx.throw(400, "NOT_JSON_OR_URLENCODED");
+    return ctx.throw(400, "Expected JSON or x-www-form-urlencoded data");
   }
   try {
     ctx.fields = await coBody(ctx, { limit: "12kb" });
   } catch (error) {
     if (error.status === 400) {
-      return ctx.throw(400, "INVALID_DATA");
+      return ctx.throw(400, error.message || "Bad request");
     }
     return ctx.throw(500, new Error(error));
   }
