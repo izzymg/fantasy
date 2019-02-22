@@ -49,6 +49,28 @@ router.get("/logout", async function(ctx) {
   return ctx.body = "Logged out";
 });
 
+router.post("/delete", middles.getFormData, async function(ctx) {
+  const session = await persistence.getSession(ctx.cookies.get("id"));
+  ctx.assert((session && session.username), 403, "You don't have persmission");
+
+  ctx.assert(ctx.fields.post, 400, "Expected post to delete");
+  ctx.assert(ctx.fields.board, 400, "Expected url of board");
+
+  const [isAdmin, isModerator] = await Promise.all([
+    persistence.isUserAdministrator(session.username),
+    persistence.isUserModerator(session.username, ctx.fields.board)
+  ]);
+  ctx.assert((isAdmin === true || isModerator === true), 403, "You don't have persmission");
+  const { deletedPosts, deletedFiles } = await persistence.deletePost(
+    ctx.fields.board, ctx.fields.post
+  );
+  ctx.body = `Deleted ${deletedPosts} posts and ${deletedFiles} files.`;
+  if(!deletedPosts) {
+    ctx.body += " Post may already be deleted or board may not exist.";
+  }
+  return;
+});
+
 module.exports = async function() {
   const { host, port } = await server(router, config.auth);
   console.log(`Auth listening on ${host}:${port}`);

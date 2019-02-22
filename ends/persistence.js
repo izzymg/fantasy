@@ -272,6 +272,22 @@ exports.getUser = async(username) =>  await database.getOne({
   values: [username]
 });
 
+exports.isUserAdministrator = async(username) => {
+  const admin = await database.getOne({
+    sql: "SELECT createdAt FROM administrators WHERE username = ?",
+    values: [username]
+  });
+  return Boolean(admin && admin.createdAt);
+};
+
+exports.isUserModerator = async(username, boardUrl) => {
+  const mod = await database.getOne({
+    sql: "SELECT createdAt FROM moderators WHERE boardUrl = ? AND username = ?",
+    values: [boardUrl, username]
+  });
+  return Boolean(mod && mod.createdAt);
+};
+
 exports.createSession = async(id, username) => {
   await mem.hSet(id, "username", username);
   await mem.expire(id, 48 * 60 * 60);
