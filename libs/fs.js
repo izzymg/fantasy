@@ -4,33 +4,6 @@ const sharp = require("sharp");
 sharp.cache(false);
 const path = require("path");
 
-const fileSignatures = {
-  "89504E470D0A1A0A": "image/png",
-  // There are two potential accepted gif types
-  "474946383761": "image/gif",
-  "474946383961": "image/gif",
-  "FFD8": "image/jpeg",
-};
-
-const extensions = {
-  "image/png": "png",
-  "image/gif": "gif",
-  "image/jpeg": "jpg",
-};
-
-exports.getAcceptedMimetype = function(buffer) {
-  // Remove listener once called once
-  const chunkString = buffer.toString("hex");
-  for (const sig in fileSignatures) {
-    if(sig === chunkString.slice(0, sig.length).toUpperCase()) {
-      // Signature found in data chunk
-      let mimetype = fileSignatures[sig];
-      return { mimetype, extension: extensions[mimetype] };
-    }
-  }
-  return null;
-};
-
 exports.writeAppend = async function(file, text) {
   return new Promise((resolve, reject) => {
     const ws = fs.createWriteStream(path.normalize(file), { flags: "a" }, "utf-8");

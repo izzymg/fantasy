@@ -1,6 +1,6 @@
 // General middleware
 const coBody = require("co-body");
-const fileFunctions = require("../libs/fileFunctions");
+const fileFunctions = require("../libs/fs");
 
 exports.cors = function(allowed = "*") {
   return async(ctx, next) => {

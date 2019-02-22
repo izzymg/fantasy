@@ -1,10 +1,22 @@
-const { lengthCheck } = require("../../libs/textFunctions");
 const config = require("../../config/config");
 const multipart = require("../../libs/multipart");
 const persistence = require("../persistence");
 
 const Router = require("koa-router");
 const router = new Router();
+
+const lengthCheck = function(str, max, name) {
+  if (!str) {
+    return null;
+  }
+  if (typeof str !== "string") {
+    return `${name}: expected string.`;
+  }
+  if (str.length > max) {
+    return `${name} must be under ${max} characters.`;
+  }
+  return null;
+};
 
 router.use("/boards/:board/*", async(ctx, next) => {
   const board = await persistence.getBoard(ctx.params.board);

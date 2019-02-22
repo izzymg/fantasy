@@ -1,7 +1,7 @@
 // HTTP server factory
 const Koa = require("koa");
 const config = require("../config/config");
-const fileFunctions = require("../libs/fileFunctions");
+const fileFunctions = require("../libs/fs");
 const cors = require("@koa/cors");
 
 // Wait on listen callback

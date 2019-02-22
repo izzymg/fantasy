@@ -1,7 +1,7 @@
 // Database and filesystem interactions
 
 const path = require("path");
-const fs = require("../libs/fileFunctions");
+const fs = require("../libs/fs");
 const memstore = require("../libs/memstore");
 const sql = require("../libs/sql");
 const redis = require("../libs/redis");
