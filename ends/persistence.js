@@ -277,6 +277,16 @@ exports.createSession = async(id, username) => {
   await mem.expire(id, 48 * 60 * 60);
 };
 
+exports.deleteSession = async(id) => {
+  await mem.del(id);
+};
+
+exports.getSession = async(id) => {
+  const username = await mem.hGet(id || "", "username");
+  if(!username) return null;
+  return { username };
+};
+
 exports.setLoginAttempts = async(ip, attempts, lastAttempt) => {
   await Promise.all([
     mem.hSet(ip, "attempts", attempts), mem.hSet(ip, "lastAttempt", lastAttempt)
@@ -285,8 +295,8 @@ exports.setLoginAttempts = async(ip, attempts, lastAttempt) => {
 };
 
 exports.getLoginAttempts = async(ip) => {
-  let [attempts, lastAttempt] = await Promise.all([
-    mem.hGet(ip, "attempts"), mem.hGet(ip, "lastAttempt")
+  const [attempts, lastAttempt] = await Promise.all([
+    mem.hGet(ip || "", "attempts"), mem.hGet(ip || "", "lastAttempt")
   ]);
   return { attempts: parseInt(attempts), lastAttempt: parseInt(lastAttempt) };
 };

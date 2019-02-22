@@ -17,7 +17,7 @@ router.post("/login", middles.getFormData, async function(ctx) {
   );
 
   let { attempts, lastAttempt } = await persistence.getLoginAttempts(ctx.ip);
-  if(lastAttempt && lastAttempt + (60 * 1000) < Date.now()) {
+  if(lastAttempt && lastAttempt + (12 * 60 * 60 * 1000) < Date.now()) {
     attempts = 0;
   } else if(attempts > 5) {
     return ctx.throw(403, "Too many login attempts, try again later");
@@ -37,6 +37,16 @@ router.post("/login", middles.getFormData, async function(ctx) {
     }
   }
   return ctx.throw(403, "Invalid username or password");
+});
+
+router.get("/logout", async function(ctx) {
+  const sessionId = ctx.cookies.get("id");
+  if(!sessionId) {
+    return ctx.body = "You weren't logged in";
+  }
+  await persistence.deleteSession(sessionId);
+  ctx.cookies.set("id");
+  return ctx.body = "Logged out";
 });
 
 module.exports = async function() {
