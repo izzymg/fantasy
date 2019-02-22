@@ -268,9 +268,28 @@ exports.getUsers = async() =>  await database.getAll({
 });
 
 exports.getUser = async(username) =>  await database.getOne({
-  sql: "SELECT password, createdAt FROM users WHERE username = ?",
+  sql: "SELECT username, password, createdAt FROM users WHERE username = ?",
   values: [username]
 });
+
+exports.createSession = async(id, username) => {
+  await mem.hSet(id, "username", username);
+  await mem.expire(id, 48 * 60 * 60);
+};
+
+exports.setLoginAttempts = async(ip, attempts, lastAttempt) => {
+  await Promise.all([
+    mem.hSet(ip, "attempts", attempts), mem.hSet(ip, "lastAttempt", lastAttempt)
+  ]);
+  await mem.expire(ip, 24 * 60 * 60);
+};
+
+exports.getLoginAttempts = async(ip) => {
+  let [attempts, lastAttempt] = await Promise.all([
+    mem.hGet(ip, "attempts"), mem.hGet(ip, "lastAttempt")
+  ]);
+  return { attempts: parseInt(attempts), lastAttempt: parseInt(lastAttempt) };
+};
 
 exports.createCooldown = async(ip, seconds) => {
   await mem.hSet(ip, "cooldown", Date.now() + seconds * 1000);
