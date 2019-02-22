@@ -1,6 +1,6 @@
 INSERT INTO users(username, password) VALUES (
     "admin", 
-    "$2y$12$Hs44cH8Xh/5JuzLf.E25fuBby4XjA7wZNBg0X34hHMuXD6awEUz6u"
+    "$2b$15$Cd1aAqg9UEBj7u6Kzh8AIeadd9RNKZ2ilC6p9GTCEorSXtAO4qBZu"
 );
 
 INSERT INTO administrators(username) VALUES ("admin");

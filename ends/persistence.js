@@ -263,25 +263,13 @@ exports.bumpPost = async(board, id) =>  {
   return now;
 };
 
-
 exports.getUsers = async() =>  await database.getAll({
   sql: "SELECT username, createdAt FROM users"
 });
 
-exports.isUserAdmin = async(username) => {
-  const res = await database.getOne({
-    sql: "SELECT username FROM administrators WHERE username = ?",
-    values: username
-  });
-  if(res && res.username) return true;
-  return false;
-};
-
-exports.getUserModeration = async(username) => await database.getAll({
-  sql: `SELECT url, title, about, sfw FROM boardmods
-    INNER JOIN boards ON boards.url = boardmods.boardUrl
-    WHERE boardmods.username = ?`,
-  values: username
+exports.getUser = async(username) =>  await database.getOne({
+  sql: "SELECT password, createdAt FROM users WHERE username = ?",
+  values: [username]
 });
 
 exports.createCooldown = async(ip, seconds) => {
