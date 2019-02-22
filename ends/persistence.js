@@ -176,13 +176,13 @@ exports.deletePost = async(board, id) => {
     });
     await Promise.all(fileDeletion);
   }
-  const { affectedRows: deletedRows } = await database.query({
+  const { affectedRows } = await database.query({
     sql: "DELETE posts, files FROM posts \
             LEFT JOIN files ON files.postUid = posts.uid \
         WHERE boardUrl = ? AND (postId = ? OR parent = ?)",
     values: [board, id, id]
   });
-  return { deletedPosts: deletedRows - deletedFiles, deletedFiles };
+  return { deletedPosts: affectedRows, deletedFiles };
 };
 
 exports.saveFile = async(
