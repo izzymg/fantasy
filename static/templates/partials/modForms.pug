@@ -1,0 +1,6 @@
+mixin modForms(boardUrl)
+  form.deletePost(action=`${auth}/delete` method="POST")
+    input.post(name="post" placeholder="Post number" type="number")
+    input.board(name="board" placeholder="Board Url" type="hidden" value=boardUrl)
+    input.submit(type="submit" value="Delete post")
+  

@@ -1,7 +1,9 @@
 extends layout.pug
 include partials/boardInfo.pug
 include partials/post.pug
+include partials/modForms.pug
 include partials/postForm.pug
+
 block head
     link(rel="stylesheet" href="/css/postForm.css")
     link(rel="stylesheet" href="/css/thread.css")
@@ -13,6 +15,8 @@ block content
             a(href=`/boards/${board.url}/`) /#{board.url}/ - #{board.title}
         h3 !{op.subject}
     +postForm(board.url, op.id)
+    if isModOrAdmin
+        +modForms(board.url)
     +boardInfo(replies ? replies.length : 0)
     .thread
         #op

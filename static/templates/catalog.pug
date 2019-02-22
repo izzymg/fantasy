@@ -2,6 +2,8 @@ extends layout.pug
 include partials/threadPreview.pug
 include partials/boardInfo.pug
 include partials/postForm.pug
+include partials/modForms.pug
+
 block head
     link(rel="stylesheet" href="/css/catalog.css")
     link(rel="stylesheet" href="/css/postForm.css")
@@ -12,7 +14,9 @@ block content
         a(href=`/boards/${board.url}`)
             h1 /#{board.url}/ - #{board.title}
         h3 #{board.about}
-        +postForm(board.url)
+    +postForm(board.url)
+    if isModOrAdmin
+        +modForms(board.url)
     +boardInfo
     .threads
         if threads

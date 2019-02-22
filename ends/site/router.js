@@ -20,6 +20,7 @@ router.use(koaStatic(config.staticDir || path.join(__dirname, "../../static/dist
 router.use(async(ctx, next) => {
   ctx.state.api = `${config.api.url}`;
   ctx.state.files = `${config.files.url}`;
+  ctx.state.auth = `${config.auth.url}`;
   ctx.state.webname = config.webname;
   return await next();
 });
@@ -57,13 +58,22 @@ router.get("/boards/", async(ctx) => {
   await ctx.render("boards", { boards });
 });
 
-// Set board state up on all board routes
+// Set state up on all board routes
 router.all("/boards/:board/*", async(ctx, next) => {
   const board = await persistence.getBoard(ctx.params.board);
   if (!board) {
     return ctx.throw(404);
   }
   ctx.state.board = board;
+
+  const id = ctx.cookies.get("id");
+  if(id) {
+    const session = await persistence.getSession(id);
+    if(session && session.username) {
+      ctx.state.isModOrAdmin = await persistence.isModOrAdmin(session.username, board.url);
+      ctx.state.session = session;
+    }
+  }
   return await next();
 });
 

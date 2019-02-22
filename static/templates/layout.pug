@@ -10,8 +10,9 @@ html
             a(href="/") Home
             a(href="/boards") Boards
             if session && session.username
-                span.right #{session.username}
-                a.right(href="/dashboard") Dashboard
+                a.right(href=`${auth}/logout`) Logout - #{session.username}
+            if isModOrAdmin
+                a.right You moderate this board
             else
                 a.right(href="/login") Login
         .statusbox

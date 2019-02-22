@@ -288,6 +288,15 @@ exports.isUserModerator = async(username, boardUrl) => {
   return Boolean(mod && mod.createdAt);
 };
 
+exports.isModOrAdmin = async(username, boardUrl) => {
+  const res = await database.getOne({
+    sql: "SELECT createdAt FROM administrators WHERE username = ? \
+    UNION SELECT createdAt FROM moderators WHERE boardUrl = ? AND username = ?",
+    values: [username, boardUrl, username]
+  });
+  return Boolean(res && res.createdAt);
+};
+
 exports.createSession = async(id, username) => {
   await mem.hSet(id, "username", username);
   await mem.expire(id, 48 * 60 * 60);
