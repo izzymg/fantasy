@@ -323,7 +323,7 @@ exports.getLoginAttempts = async(ip) => {
   const [attempts, lastAttempt] = await Promise.all([
     mem.hGet(ip || "", "attempts"), mem.hGet(ip || "", "lastAttempt")
   ]);
-  return { attempts: parseInt(attempts), lastAttempt: parseInt(lastAttempt) };
+  return { attempts: parseInt(attempts) || 0, lastAttempt: parseInt(lastAttempt) || 0 };
 };
 
 exports.createCooldown = async(ip, seconds) => {
