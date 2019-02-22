@@ -11,10 +11,11 @@ html
             a(href="/boards") Boards
             if session && session.username
                 a.right(href=`${auth}/logout`) Logout - #{session.username}
-            if isModOrAdmin
-                a.right You moderate this board
             else
                 a.right(href="/login") Login
+            if isModOrAdmin
+                a.right You moderate this board
+            
         .statusbox
             span.text awd
             span.close X

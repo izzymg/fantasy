@@ -39,6 +39,7 @@ router.get("*", async(ctx, next) => {
 });
 
 router.get("/",  async(ctx) => await ctx.render("home"));
+router.get("/login",  async(ctx) => await ctx.render("login"));
 
 // Redirect to "folder" directories (trailing slash)
 // This is so relative HTML links work consistently

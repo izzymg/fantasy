@@ -5,7 +5,7 @@ block head
 block content
     .title
         h2 Login
-    form(method="POST" action="/login")
+    form(method="POST" action=`${auth}/login`)
         input.username(type="text" name="username" placeholder="Username")
         input.password(type="password" name="password" placeholder="Password")
         input.submit(type="submit" value="Login")
