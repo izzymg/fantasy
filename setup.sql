@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS boards (
-    url tinytext PRIMARY KEY,
+    url varchar(20) PRIMARY KEY,
     title tinytext NOT NULL,
     about text,
     sfw boolean DEFAULT true,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS boards (
 
 CREATE TABLE IF NOT EXISTS posts (
     uid integer PRIMARY KEY AUTO_INCREMENT,
-    boardUrl tinytext NOT NULL,
+    boardUrl varchar(20) NOT NULL,
     postId integer NOT NULL,
     parent integer NOT NULL DEFAULT 0,
     createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS posts (
     name text,
     subject text,
     content text,
-    sticky boolean DEFAULT FALSE,
+    sticky boolean DEFAULT false,
+    ip varchar(39) NOT NULL,
     CONSTRAINT postboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)
         ON DELETE CASCADE,
@@ -30,7 +31,7 @@ CREATE INDEX IF NOT EXISTS postUid ON posts (uid);
 CREATE INDEX IF NOT EXISTS postId ON posts (postId);
 
 CREATE TABLE IF NOT EXISTS boardids (
-    boardUrl tinytext NOT NULL,
+    boardUrl varchar(20) NOT NULL,
     id integer NOT NULL,
     CONSTRAINT idboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)
@@ -72,7 +73,7 @@ CREATE TABLE IF NOT EXISTS administrators (
 
 CREATE TABLE IF NOT EXISTS moderators (
     username tinytext NOT NULL,
-    boardUrl tinytext NOT NULL,
+    boardUrl varchar(20) NOT NULL,
     createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT moduser
         FOREIGN KEY (username) REFERENCES users (username)
@@ -82,10 +83,12 @@ CREATE TABLE IF NOT EXISTS moderators (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS bans (
-    ip tinytext NOT NULL,
-    boardUrl tinytext DEFAULT NULL,
+    uid integer PRIMARY KEY AUTO_INCREMENT,
+    ip varchar(39) NOT NULL,
+    boardUrl varchar(20) NOT NULL,
+    allBoards boolean DEFAULT FALSE,
     expires datetime NOT NULL,
-    reason text,    
+    reason text,
     constraint banboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

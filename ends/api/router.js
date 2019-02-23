@@ -61,6 +61,7 @@ router.get("/boards/:board/threads/:thread", async(ctx) => {
 // Submit new thread to board
 router.post("/boards/:board/:thread?", 
   async(ctx) => {
+    ctx.body = "";
     // IP cooldown
     const cd = await persistence.getCooldown(ctx.ip);
     if(cd) return ctx.throw(400, `You must wait ${cd} seconds before posting again`);
@@ -69,6 +70,15 @@ router.post("/boards/:board/:thread?",
     const board = await persistence.getBoard(ctx.params.board);
     if(!board) return ctx.throw(404, "No such board");
     ctx.state.board = board;
+
+    // Is user banned from this board/all boards?
+    const ban = await persistence.getBan(ctx.ip, board.url);
+    if(ban && ban.expires < new Date(Date.now())) {
+      await persistence.deleteBan(ban.uid);
+      ctx.body += "You were just unbanned. ";
+    } else if(ban) {
+      ctx.throw(403, "You are banned");
+    }
 
     // Does thread exist if reply?
     if(ctx.params.thread) {
@@ -130,8 +140,9 @@ router.post("/boards/:board/:thread?",
       boardUrl: ctx.params.board,
       name, subject, content,
       parent,
+      ip: ctx.ip
     });
-    ctx.body = "Submitted post.";
+    ctx.body += "Submitted post.";
 
     // Save files
     if(files) {

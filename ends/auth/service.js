@@ -7,8 +7,21 @@ const persistence = require("../persistence");
 const middles = require("../middles");
 const uuid = require("uuid/v4");
 
-router.post("/login", middles.getFormData, async function(ctx) {
+const requireBoardMod =  async function(ctx, next) {
+  ctx.assert(ctx.fields.board, 400, "Expected board");
+  const session = await persistence.getSession(ctx.cookies.get("id"));
+  ctx.assert((session && session.username), 403, "You don't have permission");
 
+  const [isAdmin, isModerator] = await Promise.all([
+    persistence.isUserAdministrator(session.username),
+    persistence.isUserModerator(session.username, ctx.fields.board)
+  ]);
+  ctx.assert((isAdmin === true || isModerator === true), 403, "You don't have permission");
+  return await next();
+};
+
+
+router.post("/login", middles.getFormData, async function(ctx) {
   ctx.assert(ctx.fields.username && typeof ctx.fields.username == "string", 
     400, "Expected username"
   );
@@ -49,18 +62,8 @@ router.get("/logout", async function(ctx) {
   return ctx.body = "Logged out";
 });
 
-router.post("/delete", middles.getFormData, async function(ctx) {
-  const session = await persistence.getSession(ctx.cookies.get("id"));
-  ctx.assert((session && session.username), 403, "You don't have persmission");
-
-  ctx.assert(ctx.fields.post, 400, "Expected post to delete");
-  ctx.assert(ctx.fields.board, 400, "Expected url of board");
-
-  const [isAdmin, isModerator] = await Promise.all([
-    persistence.isUserAdministrator(session.username),
-    persistence.isUserModerator(session.username, ctx.fields.board)
-  ]);
-  ctx.assert((isAdmin === true || isModerator === true), 403, "You don't have persmission");
+router.post("/delete", middles.getFormData, requireBoardMod, async function(ctx) {
+  ctx.assert(ctx.fields.post, 400, "Expected post.");
   const { deletedPosts, deletedFiles } = await persistence.deletePost(
     ctx.fields.board, ctx.fields.post
   );
@@ -69,6 +72,28 @@ router.post("/delete", middles.getFormData, async function(ctx) {
     ctx.body += " Post may already be deleted or board may not exist.";
   }
   return;
+});
+
+router.post("/ban", middles.getFormData, requireBoardMod, async function(ctx) {
+  ctx.assert(ctx.fields.post, 400, "Expected post");
+  ctx.assert(ctx.fields.reason, 400, "Expected reason");
+  ctx.assert(ctx.fields.days || ctx.fields.hours, 400, "Expected days/hours");
+
+  const expires = new Date(Date.now()
+  + ((ctx.fields.days || 0) * 24 * 60 * 60 * 1000)
+  + ((ctx.fields.hours || 0) * 60 * 60 * 1000
+  ));
+
+  const post = await persistence.getPost(ctx.fields.board, ctx.fields.post);
+  ctx.assert(post, 400, "No such post - it may have been deleted");
+  await persistence.createBan({
+    ip: post.ip,
+    boardUrl: post.boardUrl,
+    allBoards: Boolean(ctx.fields.allBoards),
+    reason: ctx.reason,
+    expires
+  });
+  ctx.body = `Banned user ${ctx.fields.allBoards ? "permanently." : `until ${new Date(expires)}`}`;
 });
 
 module.exports = async function() {

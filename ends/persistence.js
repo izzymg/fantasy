@@ -116,9 +116,16 @@ exports.getReplies = async(board, id) => {
   return replies;
 };
 
+
+exports.getPost = async(board, id) => await database.getOne({
+  sql: "SELECT boardUrl, postId AS id, ip, createdAt, name, subject, content, sticky \
+    FROM posts WHERE boardUrl = ? AND postId = ?",
+  values: [board, id]
+});
+
 exports.submitPost = async({ 
   boardUrl, parent, name, subject, content,
-  lastBump = parent == 0 ? new Date(Date.now()) : null }) => {
+  lastBump = parent == 0 ? new Date(Date.now()) : null, ip }) => {
 
   let postUid;
   let connection;
@@ -130,7 +137,7 @@ exports.submitPost = async({
     const inserted = await connection.query({
       sql: "INSERT INTO posts \
        SET postId = (SELECT id FROM boardids WHERE boardUrl = ? FOR UPDATE), ?",
-      values: [boardUrl, { boardUrl, parent, name, subject, content, lastBump }], 
+      values: [boardUrl, { boardUrl, parent, name, subject, content, lastBump, ip }], 
     });
 
     await connection.query({
@@ -261,6 +268,28 @@ exports.bumpPost = async(board, id) =>  {
     throw "Bump failed";
   }
   return now;
+};
+
+exports.getBans = async(ip) => await database.getAll({
+  sql: "SELECT boardUrl, expires, reason FROM WHERE bans ip = ?",
+  values: [ip]
+});
+
+exports.getBan = async(ip, board) => await database.getOne({
+  sql: "SELECT uid, expires, reason FROM bans WHERE ip = ? AND (boardUrl = ? OR allBoards = true)",
+  values: [ip, board]
+});
+
+exports.deleteBan = async(uid) => await database.query({
+  sql: "DELETE FROM bans WHERE uid = ?",
+  values: [uid]
+});
+
+exports.createBan = async({ ip, boardUrl, expires, reason, allBoards = false }) => {
+  await database.query({
+    sql: "INSERT INTO bans SET ?",
+    values: { ip, boardUrl, expires, reason, allBoards }
+  });
 };
 
 exports.getUsers = async() =>  await database.getAll({
