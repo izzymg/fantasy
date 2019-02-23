@@ -20,7 +20,8 @@ function listen(server, host, port) {
 module.exports = async function(router, {
   host,
   port,
-  allowCors = false,
+  allowCors = null,
+  allowCorsCredentials = null,
   logLevel = null,
   log
 }) {
@@ -28,7 +29,7 @@ module.exports = async function(router, {
   server.proxy = config.proxy;
 
   if (allowCors) {
-    server.use(cors({ origin: allowCors }));
+    server.use(cors({ origin: allowCors, credentials:  allowCorsCredentials}));
   }
 
   if (logLevel) {

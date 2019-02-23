@@ -76,8 +76,10 @@ module.exports = {
     log: "/var/log/zchan/api.log",
     // Important: This sets the Access-Control-Allow-Origin header, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     // Javascript post submissions will not work without CORS enabled so set this to the URL of the site server
-    // Null for no header set
+    // Null for no header set, otherwise any value will be directly set into the header
     allowCors: "https://localhost",
+    // This needs to be enabled for AJAX logins to work (Access-Control-Allow-Credentials)
+    allowCorsCredentials: true,
     logLevel: "timing"
   },
 

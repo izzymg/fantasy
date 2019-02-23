@@ -7,7 +7,6 @@ include partials/modForms.pug
 block head
     link(rel="stylesheet" href="/css/catalog.css")
     link(rel="stylesheet" href="/css/postForm.css")
-    script(src="/js/postForm.js")
     title /#{board.url}/ - #{board.title} - #{webname}
 block content
     .title
@@ -17,7 +16,7 @@ block content
     +postForm(board.url)
     if isModOrAdmin
         +modForms(board.url)
-    +boardInfo
+    +boardInfo(threads ? threads.length : 0, null)
     .threads
         if threads
             each thread in threads

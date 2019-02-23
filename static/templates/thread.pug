@@ -7,7 +7,6 @@ include partials/postForm.pug
 block head
     link(rel="stylesheet" href="/css/postForm.css")
     link(rel="stylesheet" href="/css/thread.css")
-    script(src="/js/postForm.js")
     title /#{board.url}/ - #{op.subject || ""} - #{webname}
 block content
     .title
@@ -17,7 +16,7 @@ block content
     +postForm(board.url, op.id)
     if isModOrAdmin
         +modForms(board.url)
-    +boardInfo(replies ? replies.length : 0)
+    +boardInfo(null, replies ? replies.length : 0)
     .thread
         #op
             +post(op)

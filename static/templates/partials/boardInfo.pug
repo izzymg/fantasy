@@ -10,6 +10,9 @@ mixin boardInfo(threadsCount, replyCount)
         span.item(title="Threads after this limit will knock the oldest bumped thread off the board.") Max threads: #{board.maxThreads}
         span.item(title="After threads reach this many replies, further replies will no longer bump the thread.") Bump limit: #{board.bumpLimit}
         span.item(title="Time you must wait between posts") Cooldown: #{board.cooldown} seconds
-        if replyCount
-            span.item(class= replyCount > board.bumpLimit ? "errored" : null) Replies: #{replyCount}
+        if replies
+            span.item(class= replies.length > board.bumpLimit ? "errored" : null) Replies: #{replies.length}
+        else if threads
+            span.item(class= threads.length > board.maxThreads ? "errored" : null) Threads: #{threads.length}
+        span.refresh Refresh thread
     hr
