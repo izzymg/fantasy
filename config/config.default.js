@@ -8,6 +8,10 @@ module.exports = {
   env: process.env.NODE_ENV,
 
   // Enable when behind a reverse proxy (which you should be)
+  // Be sure to configure X-FORWARDED-FOR properly in your web server
+  // If unset, all IPs will appear as "127.0.0.1", and banning users, cooldowns and rate limits won't work
+  // You can test this by setting the log level to "debug" on a particular API while behind a reverse proxy
+  // and ensuring the IP prints the correct address
   proxy: true,
 
   enableLogging: true,
