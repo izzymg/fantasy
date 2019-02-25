@@ -58,13 +58,13 @@ CREATE TABLE IF NOT EXISTS files (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS users (
-    username tinytext PRIMARY KEY,
+    username varchar(100) PRIMARY KEY,
     password text,
     createdAt datetime DEFAULT CURRENT_TIMESTAMP
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS administrators (
-    username tinytext UNIQUE,
+    username varchar(100) UNIQUE,
     createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT adminuser
         FOREIGN KEY (username) REFERENCES users (username)
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS administrators (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS moderators (
-    username tinytext NOT NULL,
+    username varchar(100) NOT NULL,
     boardUrl varchar(20) NOT NULL,
     createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT moduser
