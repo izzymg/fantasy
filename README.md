@@ -41,9 +41,11 @@ Read through the configurations, some options may be unsafe for production.
 
 #### Static (Frontend)
 
-The static files have their own package.json and node_modules to keep things tidy. The entire imageboard works without Javascript enabled on the client OOTB, however the included js adds some convenience features.
+The static files have their own package.json and node_modules to keep things tidy.
 
-cd into `static/` and run `npm install` to pull in Webpack, TypeScript and [Sass](https://sass-lang.com/)
+Currently the imageboard's frontend is extremely simple with zero Javascript, a Vue frontend is in planning.
+
+cd into `static/` and run `npm install` to pull in [Sass](https://sass-lang.com/)
 
 `npm build`
 
@@ -56,6 +58,8 @@ Don't rename/delete any templates as currently the site server is dependent on t
 Connect to your MySQL server (`mysql -h [yourdbhost] -u [username] -p`) and run `create database zthree`
 
 Then exit, and in your terminal run `mysql -h [yourdbhost] -u [username] -p zthree < ./setup.sql`
+
+That will execute all the commands inside "setup.sql" to create the tables. This will not overwrite already existing tables.
 
 This will run a set of `CREATE TABLE IF NOT EXIST` commands to setup the board's tables in the database.
 
