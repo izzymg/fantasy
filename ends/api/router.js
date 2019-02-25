@@ -103,10 +103,10 @@ router.post("/boards/:board/:thread?",
     }
 
     // Default fields
-    const name = fields.name || "Anonymous";
-    const subject = fields.subject || "";
-    const content = fields.content || "";
     const parent = ctx.state.thread ? ctx.state.thread.id : 0;
+    const name = fields.name || "Anonymous";
+    const subject = parent == 0 ? fields.subject || "" : "";
+    const content = fields.content || "";
 
     // Validate field existence
     if(parent) {

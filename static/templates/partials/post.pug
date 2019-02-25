@@ -3,9 +3,9 @@ mixin post(post)
         .postInfo
             a.postId(name=post.id href="#" + post.id)
                 span.id no.#{post.id}
-            span.name !{post.name}
             if post.subject
                 span.subject !{post.subject}
+            span.name !{post.name}
             span(title=post.date).date #{new Date(post.createdAt).toLocaleString()}
         if post.files.length > 0
             .files

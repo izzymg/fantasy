@@ -14,5 +14,4 @@ mixin boardInfo(threadsCount, replyCount)
             span.item(class= replies.length > board.bumpLimit ? "errored" : null) Replies: #{replies.length}
         else if threads
             span.item(class= threads.length > board.maxThreads ? "errored" : null) Threads: #{threads.length}
-        span.refresh Refresh thread
     hr

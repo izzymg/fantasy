@@ -30,11 +30,12 @@
         }
         .subject {
             color: $subject;
-            float: left;
+            margin-right: 5px;
+            font-weight: bold;
+            display: block;
         }
         .name {
             color: $name;
-            margin-right: 5px;
         }
         .date {
             font-size: 0.9em;
