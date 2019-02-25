@@ -3,15 +3,10 @@
   "version": "1.0.0",
   "description": "Frontend",
   "scripts": {
-    "build": "sass --no-source-map src/css:dist/css && webpack --mode=production --config src/webpack.config.js",
-    "watch-ts": "webpack --watch --mode=development --config src/webpack.config.js",
-    "watch-css": "sass --no-source-map --watch src/css:dist/css"
+    "build": "sass --style compressed --no-source-map src/css:dist/css",
+    "watch": "sass --watch src/css:dist/css"
   },
   "dependencies": {
-    "sass": "^1.16.1",
-    "ts-loader": "^5.3.3",
-    "typescript": "^3.3.3",
-    "webpack": "^4.29.5",
-    "webpack-cli": "^3.2.3"
+    "sass": "^1.16.1"
   }
 }
