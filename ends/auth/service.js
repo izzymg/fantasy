@@ -7,6 +7,9 @@ const persistence = require("../persistence");
 const middles = require("../middles");
 const uuid = require("uuid/v4");
 
+const accounts = require("./accounts");
+router.use("/accounts", accounts.routes());
+
 const requireBoardMod =  async function(ctx, next) {
   ctx.assert(ctx.fields.board, 400, "Expected board");
   const session = await persistence.getSession(ctx.cookies.get("id"));
@@ -21,7 +24,7 @@ const requireBoardMod =  async function(ctx, next) {
 };
 
 
-router.post("/login", middles.getFormData, async function(ctx) {
+router.post("/login", middles.getFormData(), async function(ctx) {
   ctx.assert(ctx.fields.username && typeof ctx.fields.username == "string", 
     400, "Expected username"
   );
@@ -62,7 +65,7 @@ router.get("/logout", async function(ctx) {
   return ctx.body = "Logged out";
 });
 
-router.post("/delete", middles.getFormData, requireBoardMod, async function(ctx) {
+router.post("/delete", middles.getFormData(), requireBoardMod, async function(ctx) {
   ctx.assert(ctx.fields.post, 400, "Expected post.");
   const { deletedPosts, deletedFiles } = await persistence.deletePost(
     ctx.fields.board, ctx.fields.post
@@ -74,7 +77,7 @@ router.post("/delete", middles.getFormData, requireBoardMod, async function(ctx)
   return;
 });
 
-router.post("/ban", middles.getFormData, requireBoardMod, async function(ctx) {
+router.post("/ban", middles.getFormData(), requireBoardMod, async function(ctx) {
   ctx.assert(ctx.fields.post, 400, "Expected post");
   ctx.assert(ctx.fields.reason, 400, "Expected reason");
   ctx.assert(ctx.fields.days || ctx.fields.hours, 400, "Expected days/hours");

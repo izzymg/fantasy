@@ -292,6 +292,11 @@ exports.createBan = async({ ip, boardUrl, expires, reason, allBoards = false }) 
   });
 };
 
+exports.updateUserPassword = async(username, newPassHash) => await database.query({
+  sql: "UPDATE users SET password = ? WHERE username = ?",
+  values: [newPassHash, username]
+});
+
 exports.getUsers = async() =>  await database.getAll({
   sql: "SELECT username, createdAt FROM users"
 });

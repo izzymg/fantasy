@@ -8,28 +8,48 @@ exports.cors = function(allowed = "*") {
     return await next();
   };
 };
-exports.getFormData = async function(ctx, next) {
-  if (!ctx.is("application/json") && !ctx.is("application/x-www-form-urlencoded")) {
-    return ctx.throw(400, "Expected JSON or x-www-form-urlencoded data");
-  }
-  try {
-    ctx.fields = await coBody(ctx, { limit: "12kb" });
-  } catch (error) {
-    if (error.status === 400) {
-      return ctx.throw(400, error.message || "Bad request");
+
+exports.getJson = function() {
+  return async function(ctx, next) {
+    ctx.assert(ctx.is("application/json"), 400, "Bad content type");
+    try {
+      ctx.fields = await coBody(ctx, {
+        limit: "3kb"
+      });
+    } catch(error) {
+      if (error.status === 400) {
+        return ctx.throw(400, error.message || "Bad request");
+      }
+      return ctx.throw(500, new Error(error));
     }
-    return ctx.throw(500, new Error(error));
-  }
-  return next();
+    return await next();
+  };
+};
+
+exports.getFormData = function() {
+  return async function(ctx, next) {
+    ctx.assert(ctx.is("application/x-www-form-urlencoded"), 400, "Bad content type");
+    try {
+      ctx.fields = await coBody(ctx, {
+        limit: "12kb", 
+      });
+    } catch (error) {
+      if (error.status === 400) {
+        return ctx.throw(400, error.message || "Bad request");
+      }
+      return ctx.throw(500, new Error(error));
+    }
+    return await next();
+  };
 };
 
 exports.logRequest = function(logTime = true, logInfo = false, file) {
   return async(ctx, next) => {
     let writeOut = `${new Date(Date.now()).toLocaleString()}: `;
-    if(logInfo) {
+    if (logInfo) {
       writeOut += `IP: ${ctx.ip}, Method: ${ctx.method}, Url: ${ctx.url}, Protocol: ${ctx.protocol}, Secure: ${ctx.secure || false}`;
     }
-    if(logTime) {
+    if (logTime) {
       const start = Date.now();
       await next();
       const timeTaken = Date.now() - start;
@@ -43,14 +63,14 @@ exports.handleErrors = function(prefix, logfile = null, logconsole = false) {
   return async(ctx, next) => {
     try {
       await next();
-    } catch(error) {
+    } catch (error) {
       const status = error.statusCode || error.status || 500;
-      if(status === 500) {
-        if(logconsole) {
+      if (status === 500) {
+        if (logconsole) {
           console.error(error);
           console.trace(error);
         }
-        if(logfile) {
+        if (logfile) {
           await fileFunctions.writeAppend(logfile, `${prefix}${error}\n`);
         }
         ctx.status = 500;
