@@ -63,7 +63,11 @@ module.exports = {
   site: {
     port: 80,
     host: "localhost",
-    url: "http://localhost",
+    // URLs used by the site to serve files and submit posts 
+    apiUrl: "http://localhost:3000",
+    filesUrl: "http://localhost:3200",
+    // Used in title element and home page
+    webname: "Test",
     log: "/var/log/zchan/site.log",
     logLevel: null
   },
@@ -72,14 +76,11 @@ module.exports = {
   api: {
     port: 3000,
     host: "localhost",
-    url: "http://localhost:3080",
     log: "/var/log/zchan/api.log",
     // Important: This sets the Access-Control-Allow-Origin header, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     // Javascript post submissions will not work without CORS enabled so set this to the URL of the site server
     // Null for no header set, otherwise any value will be directly set into the header
     allowCors: "https://localhost",
-    // This needs to be enabled for AJAX logins to work (Access-Control-Allow-Credentials)
-    allowCorsCredentials: true,
     logLevel: "timing"
   },
 
@@ -87,17 +88,16 @@ module.exports = {
   auth: {
     port: 3100,
     host: "localhost",
-    url: "http://localhost:3100",
     log: "/var/log/zchan/auth.log",
     logLevel: null,
-    allowCors: "https://localhost"
+    allowCors: "https://localhost",
+    allowCorsCredentials: true,
   },
 
   // File server
   files: {
     host: "localhost",
     port: 3200,
-    url: "http://localhost:3180",
     log: "/var/log/zchan/files.log",
     allowCors: null,
     logLevel: "timing"
