@@ -51,7 +51,7 @@ exports.getThread = async(board, id) => {
 
 exports.getThreads = async(board) => {
   const data = await database.getAll({
-    sql: "SELECT postId AS id, createdAt AS date,\
+    sql: "SELECT postId AS id, createdAt,\
             name, subject, content, sticky, fileId, extension, thumbSuffix, lastBump \
             FROM posts LEFT JOIN files ON posts.uid = files.postUid \
             WHERE boardUrl = ? AND parent = 0 \

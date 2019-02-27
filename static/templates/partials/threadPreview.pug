@@ -1,6 +1,6 @@
 mixin threadPreview(post)
     .threadPreview
-        a(href="threads/" + post.id title=new Date(post.date).toLocaleString())
+        a(href="threads/" + post.id title=new Date(post.createdAt).toLocaleString())
             if post.files && post.files[0]
                 - let file = post.files[0]
                     if file.thumbSuffix               
