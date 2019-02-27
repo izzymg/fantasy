@@ -18,22 +18,14 @@ router.use(
 router.use(koaStatic(config.staticDir || path.join(__dirname, "../../static/dist")));
 
 router.use(async(ctx, next) => {
-  ctx.state.api = `${config.api.url}`;
-  ctx.state.files = `${config.files.url}`;
-  ctx.state.auth = `${config.auth.url}`;
-  ctx.state.webname = config.webname;
+  ctx.state.api = `${config.site.apiUrl}`;
+  ctx.state.files = `${config.site.filesUrl}`;
+  ctx.state.webname = config.site.webname;
   return await next();
 });
 
 // Try following routes and catch 404s to render page
 router.get("*", async(ctx, next) => {
-  const id = ctx.cookies.get("id");
-  if(id) {
-    const session = await persistence.getSession(id);
-    if(session && session.username) {
-      ctx.state.session = session;
-    }
-  }
   try {
     await next();
   } catch (error) {
@@ -46,7 +38,6 @@ router.get("*", async(ctx, next) => {
 });
 
 router.get("/",  async(ctx) => await ctx.render("home"));
-router.get("/login",  async(ctx) => await ctx.render("login"));
 
 // Redirect to "folder" directories (trailing slash)
 // This is so relative HTML links work consistently

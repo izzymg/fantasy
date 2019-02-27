@@ -9,12 +9,6 @@ html
         .navbar
             a(href="/") Home
             a(href="/boards") Boards
-            if session && session.username
-                a.right(href=`${auth}/logout`) Logout - #{session.username}
-            else
-                a.right(href="/login") Login
-            if isModOrAdmin
-                a.right You moderate this board
             
         .statusbox
             span.text awd
