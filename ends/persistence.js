@@ -55,7 +55,7 @@ exports.getThreads = async(board) => {
             name, subject, content, sticky, fileId, extension, thumbSuffix, lastBump \
             FROM posts LEFT JOIN files ON posts.uid = files.postUid \
             WHERE boardUrl = ? AND parent = 0 \
-            ORDER BY lastBump DESC",
+            ORDER BY sticky DESC, lastBump DESC",
     values: board,
     nestTables: true,
   });
@@ -250,7 +250,7 @@ exports.getReplyCount = async(board, id) => {
 
 exports.getOldestThreadId = async(board) =>  {
   const oldest = await database.getOne({
-    sql: "SELECT postId as id FROM posts WHERE parent = 0 AND boardUrl = ? \
+    sql: "SELECT postId as id FROM posts WHERE parent = 0 AND boardUrl = ? AND sticky = false \
             ORDER BY lastBump ASC LIMIT 1;",
     values: [board]
   });
