@@ -44,7 +44,8 @@ exports.getPost = async(board, id) => {
   if(!data) return null;
 
   const post = data[0].posts;
-  post.files = data.map((data) => data.files);
+  if(post.files)
+    post.files = data.map((data) => data.files);
   return post;
 };
 
