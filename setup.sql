@@ -45,10 +45,9 @@ CREATE TRIGGER IF NOT EXISTS updateboardids
 
 CREATE TABLE IF NOT EXISTS files (
     postUid integer NOT NULL,
-    fileId varchar(36) PRIMARY KEY,
-    extension tinytext NOT NULL,
+    filename varchar(100) PRIMARY KEY,
+    thumbFilename varchar(100) DEFAULT NULL,
     mimetype tinytext,
-    thumbSuffix tinytext DEFAULT NULL,
     originalName text,
     size integer,
     hash text,

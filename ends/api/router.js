@@ -160,9 +160,16 @@ router.post("/boards/:board/:thread?",
     // Save files
     if(files) {
       const fileUploads = files.map(async(file) => {
-        file.postUid = postUid;
-        const createThumb = file.mimetype.indexOf("image") > -1 ? true : false;
-        await persistence.saveFile(file, createThumb);
+        await persistence.saveFile({
+          postUid,
+          filename: file.id + "." + file.extension,
+          thumbFilename: file.mimetype.indexOf("image") !== -1 ? file.id + 
+            config.posts.thumbSuffix + ".jpg" : null,
+          tempPath: file.tempPath,
+          mimetype: file.mimetype,
+          size: file.size,
+          originalName: file.originalName,
+        });
       });
       await Promise.all(fileUploads);
       ctx.body += ` Uploaded ${fileUploads.length} ${

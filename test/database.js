@@ -31,7 +31,7 @@ describe("Constraints", function () {
         await database.query({
           sql: "INSERT INTO files SET ?",
           values: [{
-            fileId: "a-fake-test-file",
+            id: "a-fake-test-file",
             extension: "png",
             postUid: 123
           }]

@@ -91,8 +91,8 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
       );
 
       files.push(new Promise((res, rej) => {
-        let fileId = uuid();
-        let tempPath = path.join(tmp, fileId);
+        let id = uuid();
+        let tempPath = path.join(tmp, id);
         let tempWriteStream = fs.createWriteStream(tempPath);
         incoming.pipe(tempWriteStream);
         tempWriteStream.on("error", rej);
@@ -100,7 +100,7 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
           if(!type) return resolve();
           res({
             tempPath,
-            fileId,
+            id,
             extension: type.extension,
             mimetype: type.mimetype,
             size: tempWriteStream.bytesWritten,

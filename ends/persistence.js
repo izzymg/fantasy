@@ -34,7 +34,7 @@ exports.getBoard = async(url) => await database.getOne({
 exports.getThread = async(board, id) => {
   const data = await database.getAll({
     sql: "SELECT postId AS id, createdAt, name, subject, content, sticky, lastBump, \
-            fileId, extension, thumbSuffix, originalName, mimetype, size\
+            filename, thumbFilename, originalName, mimetype, size\
             FROM posts\
             LEFT JOIN files ON files.postUid = posts.uid\
             WHERE parent = 0 AND boardUrl = ? AND postId = ?",
@@ -52,7 +52,7 @@ exports.getThread = async(board, id) => {
 exports.getThreads = async(board) => {
   const data = await database.getAll({
     sql: "SELECT postId AS id, createdAt,\
-            name, subject, content, sticky, fileId, extension, thumbSuffix, lastBump \
+            name, subject, content, sticky, filename, thumbFilename, lastBump \
             FROM posts LEFT JOIN files ON posts.uid = files.postUid \
             WHERE boardUrl = ? AND parent = 0 \
             ORDER BY sticky DESC, lastBump DESC",
@@ -72,7 +72,7 @@ exports.getThreads = async(board) => {
     });
     if (!found) {
       data.posts.files = [];
-      if (data.files.fileId) {
+      if (data.files.filename) {
         data.posts.files.push(data.files);
       }
       threads.push(data.posts);
@@ -84,7 +84,7 @@ exports.getThreads = async(board) => {
 exports.getReplies = async(board, id) => {
   const data = await database.getAll({
     sql: "SELECT postId AS id, createdAt, name, subject, content, sticky,\
-            fileId, extension, thumbSuffix, originalName, mimetype, size\
+            filename, thumbFilename, originalName, mimetype, size\
             FROM posts\
             LEFT JOIN files ON files.postUid = posts.uid\
             WHERE boardUrl = ? AND parent = ?\
@@ -107,7 +107,7 @@ exports.getReplies = async(board, id) => {
     });
     if (!found) {
       replyData.posts.files = [];
-      if (replyData.files.fileId) {
+      if (replyData.files.filename) {
         replyData.posts.files.push(replyData.files);
       }
       replies.push(replyData.posts);
@@ -163,7 +163,7 @@ exports.submitPost = async({
 
 exports.deletePost = async(board, id) => {
   const files = await database.getAll({
-    sql: "SELECT fileId, extension, thumbSuffix \
+    sql: "SELECT filename \
             FROM files INNER JOIN posts ON files.postUid = posts.uid \
             WHERE boardUrl = ? AND (postId = ? OR parent = ?)",
     values: [board, id, id]}
@@ -172,11 +172,11 @@ exports.deletePost = async(board, id) => {
   if (files && files.length > 0) {
     const fileDeletion = files.map(async(file) => {
       await fs.unlink(
-        path.join(config.posts.filesDir, file.fileId + "." + file.extension)
+        path.join(config.posts.filesDir, file.filename)
       );
-      if (file.thumbSuffix) {
+      if (file.thumbFilename) {
         await fs.unlink(
-          path.join(config.posts.filesDir, file.fileId + file.thumbSuffix + ".jpg")
+          path.join(config.posts.filesDir, file.thumbFilename)
         );
       }
       deletedFiles++;
@@ -193,13 +193,10 @@ exports.deletePost = async(board, id) => {
 };
 
 exports.saveFile = async(
-  { postUid, fileId, extension, tempPath, mimetype, size, originalName, hash },
-  createThumb = false, deleteTemp = true) => {
+  { postUid, filename, thumbFilename = null, tempPath, mimetype, size, originalName, hash },
+  deleteTemp = false) => {
 
-  const permaPath = path.join(
-    config.posts.filesDir,
-    `${fileId}.${extension}`
-  );
+  const permaPath = path.join(config.posts.filesDir, filename);
 
   // Move temp file into permanent store
   await fs.copy(tempPath, permaPath);
@@ -207,26 +204,20 @@ exports.saveFile = async(
     await fs.unlink(tempPath);
   }
 
-  const post = {
-    fileId, postUid, extension, 
-    mimetype, size, originalName, hash
-  };
-
-  if(createThumb) {
+  if(thumbFilename) {
     await fs.createThumbnail(
       permaPath,
       path.join(
         config.posts.filesDir,
-        `${fileId}${config.posts.thumbSuffix}.jpg`
+        thumbFilename
       ),
       config.posts.thumbWidth
     );
-    post.thumbSuffix = config.posts.thumbSuffix;
   }
 
   await database.query({
     sql: "INSERT INTO files SET ?",
-    values: [post]
+    values: [{ postUid, filename, thumbFilename, mimetype, size, originalName, hash }]
   });
 };
 

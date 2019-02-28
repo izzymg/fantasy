@@ -1,20 +1,20 @@
 mixin post(post)
-    .post
-        .postInfo
-            a.postId(name=post.id href="#" + post.id)
-                span.id no.#{post.id}
-            if post.subject
-                span.subject !{post.subject}
-            span.name !{post.name}
-            span(title=post.createdAt).date #{new Date(post.createdAt).toLocaleString()}
-        if post.files.length > 0
-            .files
-                for file in post.files
-                    .fileInfo
-                        a(href=`${files}/${file.fileId}.${file.extension}`) #{file.originalName} 
-                            span.extra (#{file.mimetype}) #{(file.size/ 1000).toFixed(1)}KB
-                    if file.thumbSuffix               
-                        a(href=`${files}/${file.fileId}.${file.extension}`).file
-                            img(src=`${files}/${file.fileId}${file.thumbSuffix}.jpg`).thumbnail
-        .content
-            p !{post.content}
+  .post
+    .postInfo
+      a.postId(name=post.id href="#" + post.id)
+        span.id no.#{post.id}
+      if post.subject
+        span.subject !{post.subject}
+      span.name !{post.name}
+      span(title=post.createdAt).date #{new Date(post.createdAt).toLocaleString()}
+    if post.files.length > 0
+      .files
+        for file in post.files
+          .fileInfo
+            a(href=`${files}/${file.filename}`) #{file.originalName} 
+              span.extra (#{file.mimetype}) #{(file.size/ 1000).toFixed(1)}KB
+          if file.thumbFilename               
+            a(href=`${files}/${file.filename}`).file
+              img(src=`${files}/${file.thumbFilename}`).thumbnail
+    .content
+      p !{post.content}
