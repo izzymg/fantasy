@@ -87,11 +87,11 @@ router.post("/ban", middles.getFormData(), requireBoardMod, async function(ctx) 
   + ((ctx.fields.hours || 0) * 60 * 60 * 1000
   ));
 
-  const post = await persistence.getPost(ctx.fields.board, ctx.fields.post);
+  const post = await persistence.getPostIp(ctx.fields.board, ctx.fields.post);
   ctx.assert(post, 400, "No such post - it may have been deleted");
   await persistence.createBan({
     ip: post.ip,
-    boardUrl: post.boardUrl,
+    boardUrl: ctx.fields.board,
     allBoards: Boolean(ctx.fields.allBoards),
     reason: ctx.reason,
     expires

@@ -54,6 +54,12 @@ router.get("/boards/:board", async(ctx) => {
   ctx.body = { board };
 });
 
+router.get("/boards/:board/:post", async(ctx) => {
+  const post = await persistence.getPost(ctx.params.board, ctx.params.post);
+  if(!post) return ctx.throw(404);
+  ctx.body = { post };
+});
+
 router.get("/boards/:board/threads", async(ctx) => {
   const threads = await persistence.getThreads(ctx.state.board.url);
   if(!threads) {

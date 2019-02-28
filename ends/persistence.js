@@ -31,6 +31,23 @@ exports.getBoard = async(url) => await database.getOne({
   values: url,
 });
 
+exports.getPost = async(board, id) => {
+  const data = await database.getAll({
+    sql: "SELECT postId AS id, createdAt, name, subject, content, sticky, parent \
+            filename, thumbFilename, originalName, mimetype, size\
+            FROM posts\
+            LEFT JOIN files ON files.postUid = posts.uid\
+            WHERE boardUrl = ? AND postId = ?",
+    values: [board, id],
+    nestTables: true,
+  });
+  if(!data) return null;
+
+  const post = data[0].posts;
+  post.files = data.map((data) => data.files);
+  return post;
+};
+
 exports.getThread = async(board, id) => {
   const data = await database.getAll({
     sql: "SELECT postId AS id, createdAt, name, subject, content, sticky, lastBump, \
@@ -117,8 +134,8 @@ exports.getReplies = async(board, id) => {
 };
 
 
-exports.getPost = async(board, id) => await database.getOne({
-  sql: "SELECT boardUrl, postId AS id, ip, createdAt, name, subject, content, sticky \
+exports.getPostIp = async(board, id) => await database.getOne({
+  sql: "SELECT boardUrl, postId AS id, ip \
     FROM posts WHERE boardUrl = ? AND postId = ?",
   values: [board, id]
 });
