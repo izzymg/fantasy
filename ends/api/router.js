@@ -22,11 +22,11 @@ const formatPostContent = function(str) {
   if (!str || typeof str !== "string") {
     return null;
   }
-  str = str.replace(/(<br>*)?&gt;&gt;([0-9]*)\/([0-9]*)(.*)?/gm, 
-    "$1<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>$4"
+  str = str.replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm, 
+    "<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>"
   );
-  str = str.replace(/(.*)&gt;&gt;([0-9]*)(.*)?/gm, 
-    "$1<a class='quotelink' data-id='$2' href='#$2'>>>$2</a>$3"
+  str = str.replace(/&gt;&gt;([0-9]*)/gm, 
+    "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
   );
   return str;
 };
