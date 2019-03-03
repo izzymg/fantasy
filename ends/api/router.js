@@ -1,14 +1,14 @@
 const config = require("../../config/config");
 const multipart = require("../../libs/multipart");
-const persistence = require("../persistence");
 const Posts = require("../Posts");
 const Boards = require("../Boards");
+const Bans = require("../Bans");
 const Ip = require("../Ip");
 const Router = require("koa-router");
 const router = new Router();
 
 router.use("/boards/:board/*", async(ctx, next) => {
-  const board = await persistence.getBoard(ctx.params.board);
+  const board = await Boards.getBoard(ctx.params.board);
   if (!board) {
     return ctx.throw(404, "No such board");
   }
@@ -21,9 +21,7 @@ router.get("/boards", async(ctx) => {
   if (!boards) {
     return ctx.body = {};
   }
-  ctx.body = {
-    boards
-  };
+  ctx.body = { boards };
 });
 
 router.get("/boards/:board", async(ctx) => {
@@ -39,17 +37,13 @@ router.get("/boards/:board/threads", async(ctx) => {
   if (!threads) {
     return ctx.body = {};
   }
-  ctx.body = {
-    threads
-  };
+  ctx.body = { threads };
 });
 
 router.get("/boards/:board/:post", async(ctx) => {
   const post = await Posts.getPost(ctx.params.board, ctx.params.post);
   if (!post) return ctx.throw(404);
-  ctx.body = {
-    post
-  };
+  ctx.body = { post };
 });
 
 router.get("/boards/:board/threads/:thread", async(ctx) => {
@@ -58,10 +52,7 @@ router.get("/boards/:board/threads/:thread", async(ctx) => {
     Posts.getReplies(ctx.state.board.url, ctx.params.thread)
   ]);
   if (!thread) return ctx.throw(404);
-  ctx.body = {
-    thread,
-    replies
-  };
+  ctx.body = { thread, replies };
 });
 
 // Submit new thread to board
@@ -70,9 +61,9 @@ router.post("/boards/:board/:thread?",
     ctx.body = "";
 
     // Is IP on cooldown?
-    const cd = await Ip.getCooldown(ctx.ip);
+    const cd = await Ip.getCooldown(ctx.ip, ctx.params.board);
     if(cd && cd < Date.now()) {
-      await Ip.deleteCooldown(ctx.ip);
+      await Ip.deleteCooldown(ctx.ip, ctx.params.board);
     } else if (cd) {
       return ctx.throw(400, `You must wait ${
         Math.floor((cd - Date.now()) / 1000)
@@ -82,12 +73,11 @@ router.post("/boards/:board/:thread?",
     // Does board exist?
     const board = await Boards.getBoard(ctx.params.board);
     if (!board) return ctx.throw(404, "No such board");
-    ctx.state.board = board;
 
     // Is user banned from this board/all boards?
-    const ban = await persistence.getBan(ctx.ip, board.url);
+    const ban = await Bans.getBan(ctx.ip, board.url);
     if (ban && ban.expires < new Date(Date.now())) {
-      await persistence.deleteBan(ban.uid);
+      await Bans.deleteBan(ban.uid);
       ctx.body += "You were just unbanned. ";
     } else if (ban) {
       ctx.throw(403, "You are banned");
@@ -95,7 +85,7 @@ router.post("/boards/:board/:thread?",
 
     // Does thread exist if reply?
     if (ctx.params.thread) {
-      const thread = await Posts.getThread(ctx.state.board.url, ctx.params.thread);
+      const thread = await Posts.getThread(board.url, ctx.params.thread);
       if (!thread) {
         return ctx.throw(404);
       }
@@ -121,7 +111,7 @@ router.post("/boards/:board/:thread?",
     const userFiles = files ? files.map((file) => Posts.File(file, { fresh: true })) : null;
 
     const userPost = Posts.Post({
-      boardUrl: ctx.state.board.url,
+      boardUrl: board.url,
       parent: ctx.params.thread ? ctx.state.thread.id : 0,
       name: fields.name,
       subject: fields.subject,
@@ -140,17 +130,17 @@ router.post("/boards/:board/:thread?",
 
     if (userPost.parent == 0) {
       // Delete oldest thread if max threads has been reached
-      const threadCount = await Posts.getThreadCount(ctx.state.board.url);
-      if (threadCount > ctx.state.board.maxThreads) {
-        const oldestThreadId = await Posts.getOldestThreadId(ctx.state.board.url);
-        await Posts.deletePost(ctx.state.board.url, oldestThreadId);
+      const threadCount = await Posts.getThreadCount(board.url);
+      if (threadCount > board.maxThreads) {
+        const oldestThreadId = await Posts.getOldestThreadId(board.url);
+        await Posts.deletePost(board.url, oldestThreadId);
       }
     } else {
       // Bump OP as long as bump limit hasn't been reached
-      const replyCount = await Posts.getReplyCount(ctx.state.board.url, userPost.parent);
-      if (replyCount <= ctx.state.board.bumpLimit) {
+      const replyCount = await Posts.getReplyCount(board.url, userPost.parent);
+      if (replyCount <= board.bumpLimit) {
         try {
-          await Posts.bumpPost(ctx.state.board.url, userPost.parent);
+          await Posts.bumpPost(board.url, userPost.parent);
         } catch (error) {
           return ctx.throw(409, "Bumping thread failed, OP may have been deleted?");
         }
@@ -158,7 +148,7 @@ router.post("/boards/:board/:thread?",
     }
 
     // Create a new cooldown
-    await Ip.createCooldown(ctx.ip, ctx.state.board.cooldown);
+    await Ip.createCooldown(ctx.ip, board.url, board.cooldown);
     ctx.body += "Post submitted";
   }
 );
