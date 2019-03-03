@@ -1,6 +1,7 @@
 const config = require("../../config/config");
 const multipart = require("../../libs/multipart");
 const persistence = require("../persistence");
+const Post = require("../Post");
 
 const Router = require("koa-router");
 const router = new Router();
@@ -63,7 +64,8 @@ router.get("/boards/:board/threads", async(ctx) => {
 });
 
 router.get("/boards/:board/:post", async(ctx) => {
-  const post = await persistence.getPost(ctx.params.board, ctx.params.post);
+  //const post = await persistence.getPost(ctx.params.board, ctx.params.post);
+  const post = await Post.getFilePost(ctx.params.board, ctx.params.post);
   if(!post) return ctx.throw(404);
   ctx.body = { post };
 });

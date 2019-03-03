@@ -21,6 +21,13 @@ exports.initialize = async() => {
 
 exports.end = async() => await Promise.all([database.end(), mem.close()]);
 
+exports.query = ({ sql, values = [], nestTables = false }) => 
+  database.query({ sql, values, nestTables });
+exports.getOne = ({ sql, values = [], nestTables = false }) => 
+  database.getOne({ sql, values, nestTables });
+exports.getAll = async({ sql, values = [], nestTables = false }) => 
+  database.getAll({ sql, values, nestTables });
+
 exports.getBoards = async() => await database.getAll({
   sql: "SELECT url, title, about, bumpLimit, maxThreads, cooldown, createdAt, sfw FROM boards",
 });
