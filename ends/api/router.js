@@ -2,8 +2,7 @@ const config = require("../../config/config");
 const multipart = require("../../libs/multipart");
 const persistence = require("../persistence");
 const Posts = require("../Posts");
-const path = require("path");
-
+const Boards = require("../Boards");
 const Router = require("koa-router");
 const router = new Router();
 
@@ -17,7 +16,7 @@ router.use("/boards/:board/*", async(ctx, next) => {
 });
 
 router.get("/boards", async(ctx) => {
-  const boards = await persistence.getBoards();
+  const boards = await Boards.getBoards();
   if (!boards) {
     return ctx.body = {};
   }
@@ -27,7 +26,7 @@ router.get("/boards", async(ctx) => {
 });
 
 router.get("/boards/:board", async(ctx) => {
-  const board = await persistence.getBoard(ctx.params.board);
+  const board = await Boards.getBoard(ctx.params.board);
   if (!board) return ctx.throw(404);
   ctx.body = {
     board
@@ -35,7 +34,6 @@ router.get("/boards/:board", async(ctx) => {
 });
 
 router.get("/boards/:board/threads", async(ctx) => {
-  //const threads = await persistence.getThreads(ctx.state.board.url);
   const threads = await Posts.getThreads(ctx.params.board);
   if (!threads) {
     return ctx.body = {};
@@ -46,7 +44,6 @@ router.get("/boards/:board/threads", async(ctx) => {
 });
 
 router.get("/boards/:board/:post", async(ctx) => {
-  //const post = await persistence.getPost(ctx.params.board, ctx.params.post);
   const post = await Posts.getPost(ctx.params.board, ctx.params.post);
   if (!post) return ctx.throw(404);
   ctx.body = {
@@ -75,7 +72,7 @@ router.post("/boards/:board/:thread?",
     if (cd) return ctx.throw(400, `You must wait ${cd} seconds before posting again`);
 
     // Does board exist?
-    const board = await persistence.getBoard(ctx.params.board);
+    const board = await Boards.getBoard(ctx.params.board);
     if (!board) return ctx.throw(404, "No such board");
     ctx.state.board = board;
 

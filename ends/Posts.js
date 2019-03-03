@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("../libs/fs");
 
 /**
- * @typedef {object} UserPost
+ * @typedef {object} DbPost
  * @property {number} uid
  * @property {number} id
  * @property {string} boardUrl
@@ -75,7 +75,7 @@ const File = exports.File = function({ postUid, filename, thumbFilename,
 
 /**
  * 
- * @returns {Array<UserPost>}
+ * @returns {Array<DbPost>}
  */
 const FilePosts = function(rows) {
   let lastPost = null;
@@ -96,7 +96,7 @@ const FilePosts = function(rows) {
 
 /**
  * 
- * @returns {UserPost} 
+ * @returns {DbPost} 
  */
 const FilePost = function(rows) {
   const post = Post(rows[0].posts);
@@ -191,7 +191,7 @@ exports.bumpPost = async function(board, id) {
 };
 
 /**
- * @param {UserPost} post
+ * @param {DbPost} post
  */
 exports.savePost = async function(post) {
   const validationError = (message) => ({ status: 400, message });
