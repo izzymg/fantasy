@@ -158,7 +158,7 @@ router.post("/boards/:board/:thread?",
     }
 
     // Create a new cooldown
-    await persistence.createCooldown(ctx.ip, ctx.state.board.cooldown);
+    await Ip.createCooldown(ctx.ip, ctx.state.board.cooldown);
     ctx.body += "Post submitted";
   }
 );

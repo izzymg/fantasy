@@ -20,20 +20,20 @@ const fs = require("../libs/fs");
 
 
 const Post = exports.Post = function(
-  { postId, boardUrl, uid, parent = 0, createdAt = new Date(Date.now()),
-    lastBump, name = "Anonymous", subject, 
-    content, sticky = false, ip, files = [] }, { fresh } = {  fresh: false }) {
+  { postId, boardUrl, uid, parent, createdAt,
+    lastBump, name, subject, 
+    content, sticky, ip, files = [] }, { fresh } = {  fresh: false }) {
   
   const post = {
     ip,
     boardUrl,
-    parent,
-    createdAt,
+    parent: parent || 0,
+    createdAt: createdAt || new Date(Date.now()),
     lastBump: lastBump || parent == 0 ? new Date(Date.now()) : null,
-    name,
+    name: name || "Anonymous",
     subject,
     content,
-    sticky,
+    sticky: sticky || false,
     files
   };
   if(!fresh) {
