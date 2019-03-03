@@ -13,9 +13,9 @@ let mem;
 exports.initialize = async() => {
   database = exports.rawDb = sql.createPool(secrets.database, config.database);
   if(config.database.memStore) {
-    mem = memstore.createClient();
+    mem = exports.rawMem = memstore.createClient();
   } else {
-    mem = await redis.createClient(secrets.redis);
+    mem = exports.rawMem = await redis.createClient(secrets.redis);
   }
 };
 

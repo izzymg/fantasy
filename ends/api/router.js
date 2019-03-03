@@ -3,6 +3,7 @@ const multipart = require("../../libs/multipart");
 const persistence = require("../persistence");
 const Posts = require("../Posts");
 const Boards = require("../Boards");
+const Ip = require("../Ip");
 const Router = require("koa-router");
 const router = new Router();
 
@@ -67,9 +68,16 @@ router.get("/boards/:board/threads/:thread", async(ctx) => {
 router.post("/boards/:board/:thread?",
   async(ctx) => {
     ctx.body = "";
-    // IP cooldown
-    const cd = await persistence.getCooldown(ctx.ip);
-    if (cd) return ctx.throw(400, `You must wait ${cd} seconds before posting again`);
+
+    // Is IP on cooldown?
+    const cd = await Ip.getCooldown(ctx.ip);
+    if(cd && cd < Date.now()) {
+      await Ip.deleteCooldown(ctx.ip);
+    } else if (cd) {
+      return ctx.throw(400, `You must wait ${
+        Math.floor((cd - Date.now()) / 1000)
+      } seconds before posting again`);
+    }
 
     // Does board exist?
     const board = await Boards.getBoard(ctx.params.board);
@@ -151,6 +159,7 @@ router.post("/boards/:board/:thread?",
 
     // Create a new cooldown
     await persistence.createCooldown(ctx.ip, ctx.state.board.cooldown);
+    ctx.body += "Post submitted";
   }
 );
 
