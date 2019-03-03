@@ -118,8 +118,6 @@ module.exports = {
     tmpDir: "/tmp",
     // Where to store files
     filesDir: "/var/www/files",
-    // Appended on the end of thumbnails
-    thumbSuffix: "_thumb",
     // Used to scale thumbnails if need be
     thumbWidth: 150,
     defaultName: "Anonymous",

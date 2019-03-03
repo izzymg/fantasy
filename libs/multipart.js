@@ -1,3 +1,4 @@
+
 // Promise based multipart request parsing
 const Busboy = require("busboy");
 const uuid = require("uuid/v4");
@@ -99,9 +100,9 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
         tempWriteStream.on("finish", () => {
           if(!type) return resolve();
           res({
+            filename: id + "." + type.extension,
+            thumbFilename: type.mimetype.indexOf("image") !== -1 ? id + "_thumb.jpg" : null,
             tempPath,
-            id,
-            extension: type.extension,
             mimetype: type.mimetype,
             size: tempWriteStream.bytesWritten,
             originalName: trimEscapeHtml(filename)

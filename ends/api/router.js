@@ -1,12 +1,13 @@
 const config = require("../../config/config");
 const multipart = require("../../libs/multipart");
 const persistence = require("../persistence");
-const Post = require("../Post");
+const Posts = require("../Posts");
+const path = require("path");
 
 const Router = require("koa-router");
 const router = new Router();
 
-const lengthCheck = function(str, max, name) {
+const lengthCheck = function (str, max, name) {
   if (!str) {
     return null;
   }
@@ -19,92 +20,104 @@ const lengthCheck = function(str, max, name) {
   return null;
 };
 
-const formatPostContent = function(str) {
+const formatPostContent = function (str) {
   if (!str || typeof str !== "string") {
     return null;
   }
-  str = str.replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm, 
+  str = str.replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm,
     "<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>"
   );
-  str = str.replace(/&gt;&gt;([0-9]*)/gm, 
+  str = str.replace(/&gt;&gt;([0-9]*)/gm,
     "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
   );
   return str;
 };
 
-router.use("/boards/:board/*", async(ctx, next) => {
+router.use("/boards/:board/*", async (ctx, next) => {
   const board = await persistence.getBoard(ctx.params.board);
-  if(!board) {
+  if (!board) {
     return ctx.throw(404, "No such board");
   }
   ctx.state.board = board;
   return await next();
 });
 
-router.get("/boards", async(ctx) => {
+router.get("/boards", async (ctx) => {
   const boards = await persistence.getBoards();
-  if(!boards) {
-    return ctx.body = { };
+  if (!boards) {
+    return ctx.body = {};
   }
-  ctx.body = { boards };
+  ctx.body = {
+    boards
+  };
 });
 
-router.get("/boards/:board", async(ctx) => {
+router.get("/boards/:board", async (ctx) => {
   const board = await persistence.getBoard(ctx.params.board);
-  if(!board) return ctx.throw(404);
-  ctx.body = { board };
+  if (!board) return ctx.throw(404);
+  ctx.body = {
+    board
+  };
 });
 
-router.get("/boards/:board/threads", async(ctx) => {
-  const threads = await persistence.getThreads(ctx.state.board.url);
-  if(!threads) {
-    return ctx.body = { };
+router.get("/boards/:board/threads", async (ctx) => {
+  //const threads = await persistence.getThreads(ctx.state.board.url);
+  const threads = await Posts.getThreads(ctx.params.board);
+  if (!threads) {
+    return ctx.body = {};
   }
-  ctx.body = { threads };
+  ctx.body = {
+    threads
+  };
 });
 
-router.get("/boards/:board/:post", async(ctx) => {
+router.get("/boards/:board/:post", async (ctx) => {
   //const post = await persistence.getPost(ctx.params.board, ctx.params.post);
-  const post = await Post.getFilePost(ctx.params.board, ctx.params.post);
-  if(!post) return ctx.throw(404);
-  ctx.body = { post };
+  const post = await Posts.getPost(ctx.params.board, ctx.params.post);
+  if (!post) return ctx.throw(404);
+  ctx.body = {
+    post
+  };
 });
 
-router.get("/boards/:board/threads/:thread", async(ctx) => {
+router.get("/boards/:board/threads/:thread", async (ctx) => {
   const [thread, replies] = await Promise.all([
-    persistence.getThread(ctx.state.board.url, ctx.params.thread),
-    persistence.getReplies(ctx.state.board.url, ctx.params.thread)
+    Posts.getThread(ctx.state.board.url, ctx.params.thread),
+    Posts.getReplies(ctx.state.board.url, ctx.params.thread)
   ]);
-  if(!thread) return ctx.throw(404);
-  ctx.body = { thread, replies };
+  if (!thread) return ctx.throw(404);
+  ctx.body = {
+    thread,
+    replies
+  };
 });
 
 // Submit new thread to board
-router.post("/boards/:board/:thread?", 
-  async(ctx) => {
+router.post("/boards/:board/:thread?",
+  async (ctx) => {
     ctx.body = "";
     // IP cooldown
     const cd = await persistence.getCooldown(ctx.ip);
-    if(cd) return ctx.throw(400, `You must wait ${cd} seconds before posting again`);
+    if (cd) return ctx.throw(400, `You must wait ${cd} seconds before posting again`);
 
     // Does board exist?
     const board = await persistence.getBoard(ctx.params.board);
-    if(!board) return ctx.throw(404, "No such board");
+    if (!board) return ctx.throw(404, "No such board");
     ctx.state.board = board;
 
     // Is user banned from this board/all boards?
     const ban = await persistence.getBan(ctx.ip, board.url);
-    if(ban && ban.expires < new Date(Date.now())) {
+    if (ban && ban.expires < new Date(Date.now())) {
       await persistence.deleteBan(ban.uid);
       ctx.body += "You were just unbanned. ";
-    } else if(ban) {
+    } else if (ban) {
       ctx.throw(403, "You are banned");
     }
 
     // Does thread exist if reply?
-    if(ctx.params.thread) {
-      const thread = await persistence.getThread(ctx.state.board.url, ctx.params.thread);
-      if(!thread) {
+    if (ctx.params.thread) {
+      const thread = await Posts.getThread(ctx.state.board.url, ctx.params.thread);
+      if (!thread) {
         return ctx.throw(404);
       }
       ctx.state.thread = thread;
@@ -113,93 +126,54 @@ router.post("/boards/:board/:thread?",
     // Get the multipart data
     let fields, files;
     try {
-      ({ fields, files } = await multipart(ctx, config.posts.maxFiles, 
+      ({
+        fields,
+        files
+      } = await multipart(ctx, config.posts.maxFiles,
         config.posts.maxFileSize, config.posts.tmpDir
       ));
-    } catch(error) {
-      if(error.status == 400) {
+    } catch (error) {
+      if (error.status == 400) {
         return ctx.throw(400, error.message);
       }
       return ctx.throw(500, error);
     }
 
-    // Default fields
-    const parent = ctx.state.thread ? ctx.state.thread.id : 0;
-    const name = fields.name || "Anonymous";
-    const subject = parent == 0 ? fields.subject || "" : "";
-    const content = formatPostContent(fields.content) || "";
+    const userFiles = files ? files.map((file) => Posts.File(file, { fresh: true })) : null;
 
-    // Validate field existence
-    if(parent) {
-      if(config.posts.replies.requireContentOrFiles && 
-                (!files || files.length < 1) && !content) {
-        return ctx.throw(400, "Content or file required");
+    const userPost = Posts.Post({
+      boardUrl: ctx.state.board.url,
+      parent: ctx.params.thread ? ctx.state.thread.id : 0,
+      name: fields.name,
+      subject: fields.subject,
+      content: fields.content,
+      ip: ctx.ip,
+      files: userFiles
+    }, { fresh: true });
+    try {
+      await Posts.savePost(userPost);
+    } catch(error) {
+      if(error.status && error.status === 400) {
+        return ctx.throw(400, error.message);
       }
-    } else {
-      if(config.posts.threads.requireContent && !content) {
-        return ctx.throw(400, "Content required");
-      }
-      if(config.posts.threads.requireSubject && !subject) {
-        return ctx.throw(400, "Subject required");
-      }
-      if(config.posts.threads.requireFiles && (!files || files.length < 1)) {
-        return ctx.throw(400, "File required");
-      }
-    }
-
-    // Length check fields
-    let lengthError = lengthCheck(
-      name, config.posts.maxNameLength, "Name");
-    lengthError = lengthCheck(
-      subject, config.posts.maxSubjectLength, "Subject") || lengthError;
-    lengthError = lengthCheck(
-      content, config.posts.maxContentLength, "Post content") || lengthError;
-    if(lengthError) return ctx.throw(400, lengthError);
-
-    // Submit post
-    const { postUid } = await persistence.submitPost({
-      boardUrl: ctx.params.board,
-      name, subject, content,
-      parent,
-      ip: ctx.ip
-    });
-    ctx.body += "Submitted post.";
-
-    // Save files
-    if(files) {
-      const fileUploads = files.map(async(file) => {
-        await persistence.saveFile({
-          postUid,
-          filename: file.id + "." + file.extension,
-          thumbFilename: file.mimetype.indexOf("image") !== -1 ? file.id + 
-            config.posts.thumbSuffix + ".jpg" : null,
-          tempPath: file.tempPath,
-          mimetype: file.mimetype,
-          size: file.size,
-          originalName: file.originalName,
-        });
-      });
-      await Promise.all(fileUploads);
-      ctx.body += ` Uploaded ${fileUploads.length} ${
-        fileUploads.length > 1 ? "files." : "file."
-      }`;
+      return ctx.throw(500, error);
     }
 
     // Handle post bumping and pruning
-    if(parent == 0) {
+    if (userPost.parent == 0) {
       // Delete oldest thread if max threads has been reached
       const threadCount = await persistence.getThreadCount(ctx.state.board.url);
-      if(threadCount > ctx.state.board.maxThreads) {
+      if (threadCount > ctx.state.board.maxThreads) {
         const oldestThreadId = await persistence.getOldestThreadId(ctx.state.board.url);
         await persistence.deletePost(ctx.state.board.url, oldestThreadId);
       }
     } else {
       // Bump OP as long as bump limit hasn't been reached
-      const replyCount = await persistence.getReplyCount(ctx.state.board.url, parent);
-      if(replyCount <= ctx.state.board.bumpLimit) {
+      const replyCount = await persistence.getReplyCount(ctx.state.board.url, userPost.parent);
+      if (replyCount <= ctx.state.board.bumpLimit) {
         try {
-          await persistence.bumpPost(ctx.state.board.url, parent);
-        } catch(error) {
+          await persistence.bumpPost(ctx.state.board.url, userPost.parent);
+        } catch (error) {
           return ctx.throw(409, "Bumping thread failed, OP may have been deleted?");
         }
       }
