@@ -29,7 +29,7 @@ const Post = exports.Post = function(
     boardUrl,
     parent,
     createdAt,
-    lastBump,
+    lastBump: lastBump || parent == 0 ? new Date(Date.now()) : null,
     name,
     subject,
     content,
@@ -150,6 +150,46 @@ exports.getReplies = async function(board, threadId) {
   return FilePosts(rows);
 };
 
+
+exports.getThreadCount = async function(board) {
+  const num = await persistence.rawDb.getOne({
+    sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0",
+    values: [board]
+  });
+  if(!num || !num.count) return 0;
+  return num.count;
+};
+
+exports.getReplyCount = async function(board, id) {
+  const num = await persistence.rawDb.getOne({
+    sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?",
+    values: [board, id]
+  });
+  if(!num || !num.count) return 0;
+  return num.count;
+};
+
+exports.getOldestThreadId = async function(board) {
+  const oldest = await persistence.rawDb.getOne({
+    sql: `SELECT postId as id FROM posts WHERE parent = 0 AND boardUrl = ? AND sticky = false
+            ORDER BY lastBump ASC LIMIT 1;`,
+    values: [board]
+  });
+  if(!oldest) return null;
+  return oldest.id;
+};
+
+exports.bumpPost = async function(board, id) {
+  const res = await persistence.rawDb.query({
+    sql: "UPDATE posts SET lastBump = ? WHERE boardUrl = ? AND parent = 0 AND postId = ?",
+    values: [new Date(Date.now()), board, id]
+  });
+  if (!res || !res.affectedRows) {
+    throw "Bump failed";
+  }
+  return res.affectedRows;
+};
+
 /**
  * @param {UserPost} post
  */
@@ -253,4 +293,34 @@ exports.savePost = async function(post) {
   } finally {
     dbConnecton.release();
   }
+};
+
+exports.deletePost = async(board, id) => {
+  const files = await persistence.rawDb.getAll({
+    sql: `SELECT filename, thumbFilename
+          FROM files INNER JOIN posts ON files.postUid = posts.uid
+          WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
+    values: [board, id, id]}
+  );
+  let deletedFiles = 0;
+  if (files && files.length > 0) {
+    await Promise.all(files.map(async(file) => {
+      await fs.unlink(
+        path.join(config.posts.filesDir, file.filename)
+      );
+      if (file.thumbFilename) {
+        await fs.unlink(
+          path.join(config.posts.filesDir, file.thumbFilename)
+        );
+      }
+      deletedFiles++;
+    }));
+  }
+  const { affectedRows } = await persistence.rawDb.query({
+    sql: `DELETE posts, files FROM posts
+          LEFT JOIN files ON files.postUid = posts.uid
+          WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
+    values: [board, id, id]
+  });
+  return { deletedPosts: affectedRows, deletedFiles };
 };

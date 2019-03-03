@@ -7,33 +7,7 @@ const path = require("path");
 const Router = require("koa-router");
 const router = new Router();
 
-const lengthCheck = function (str, max, name) {
-  if (!str) {
-    return null;
-  }
-  if (typeof str !== "string") {
-    return `${name}: expected string.`;
-  }
-  if (str.length > max) {
-    return `${name} must be under ${max} characters.`;
-  }
-  return null;
-};
-
-const formatPostContent = function (str) {
-  if (!str || typeof str !== "string") {
-    return null;
-  }
-  str = str.replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm,
-    "<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>"
-  );
-  str = str.replace(/&gt;&gt;([0-9]*)/gm,
-    "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
-  );
-  return str;
-};
-
-router.use("/boards/:board/*", async (ctx, next) => {
+router.use("/boards/:board/*", async(ctx, next) => {
   const board = await persistence.getBoard(ctx.params.board);
   if (!board) {
     return ctx.throw(404, "No such board");
@@ -42,7 +16,7 @@ router.use("/boards/:board/*", async (ctx, next) => {
   return await next();
 });
 
-router.get("/boards", async (ctx) => {
+router.get("/boards", async(ctx) => {
   const boards = await persistence.getBoards();
   if (!boards) {
     return ctx.body = {};
@@ -52,7 +26,7 @@ router.get("/boards", async (ctx) => {
   };
 });
 
-router.get("/boards/:board", async (ctx) => {
+router.get("/boards/:board", async(ctx) => {
   const board = await persistence.getBoard(ctx.params.board);
   if (!board) return ctx.throw(404);
   ctx.body = {
@@ -60,7 +34,7 @@ router.get("/boards/:board", async (ctx) => {
   };
 });
 
-router.get("/boards/:board/threads", async (ctx) => {
+router.get("/boards/:board/threads", async(ctx) => {
   //const threads = await persistence.getThreads(ctx.state.board.url);
   const threads = await Posts.getThreads(ctx.params.board);
   if (!threads) {
@@ -71,7 +45,7 @@ router.get("/boards/:board/threads", async (ctx) => {
   };
 });
 
-router.get("/boards/:board/:post", async (ctx) => {
+router.get("/boards/:board/:post", async(ctx) => {
   //const post = await persistence.getPost(ctx.params.board, ctx.params.post);
   const post = await Posts.getPost(ctx.params.board, ctx.params.post);
   if (!post) return ctx.throw(404);
@@ -80,7 +54,7 @@ router.get("/boards/:board/:post", async (ctx) => {
   };
 });
 
-router.get("/boards/:board/threads/:thread", async (ctx) => {
+router.get("/boards/:board/threads/:thread", async(ctx) => {
   const [thread, replies] = await Promise.all([
     Posts.getThread(ctx.state.board.url, ctx.params.thread),
     Posts.getReplies(ctx.state.board.url, ctx.params.thread)
@@ -94,7 +68,7 @@ router.get("/boards/:board/threads/:thread", async (ctx) => {
 
 // Submit new thread to board
 router.post("/boards/:board/:thread?",
-  async (ctx) => {
+  async(ctx) => {
     ctx.body = "";
     // IP cooldown
     const cd = await persistence.getCooldown(ctx.ip);
@@ -159,20 +133,19 @@ router.post("/boards/:board/:thread?",
       return ctx.throw(500, error);
     }
 
-    // Handle post bumping and pruning
     if (userPost.parent == 0) {
       // Delete oldest thread if max threads has been reached
-      const threadCount = await persistence.getThreadCount(ctx.state.board.url);
+      const threadCount = await Posts.getThreadCount(ctx.state.board.url);
       if (threadCount > ctx.state.board.maxThreads) {
-        const oldestThreadId = await persistence.getOldestThreadId(ctx.state.board.url);
-        await persistence.deletePost(ctx.state.board.url, oldestThreadId);
+        const oldestThreadId = await Posts.getOldestThreadId(ctx.state.board.url);
+        await Posts.deletePost(ctx.state.board.url, oldestThreadId);
       }
     } else {
       // Bump OP as long as bump limit hasn't been reached
-      const replyCount = await persistence.getReplyCount(ctx.state.board.url, userPost.parent);
+      const replyCount = await Posts.getReplyCount(ctx.state.board.url, userPost.parent);
       if (replyCount <= ctx.state.board.bumpLimit) {
         try {
-          await persistence.bumpPost(ctx.state.board.url, userPost.parent);
+          await Posts.bumpPost(ctx.state.board.url, userPost.parent);
         } catch (error) {
           return ctx.throw(409, "Bumping thread failed, OP may have been deleted?");
         }
