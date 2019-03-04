@@ -6,6 +6,7 @@ const coBody = require("co-body");
 const Users = require("../../db/Users");
 const Sessions = require("../../db/Sessions");
 const Ips = require("../../db/Ips");
+const Posts = require("../../db/Posts");
 
 const fetchJson = async function(ctx, next) {
   ctx.assert(ctx.is("application/json"), 400, "Expected JSON data");
@@ -99,6 +100,12 @@ router.post("/changePassword", fetchJson, async function(ctx) {
   await Users.updateUserPassword(ctx.session.username, hash);
   await Sessions.deleteSession(ctx.session.id);
   return ctx.body = "Password updated, please login again";
+});
+
+router.post("/delete/:board/:post", async function(ctx, next) {
+  const user = await Users.getUser(ctx.session.username);
+  const authorized = await Users.canUserModerate(ctx.session.username, ctx.params.board);
+  ctx.assert(user && authorized === true, 403, "You don't have permission to do that");
 });
 
 module.exports = router;

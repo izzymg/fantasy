@@ -46,3 +46,19 @@ exports.updateUserPassword = async function(username, hash) {
   });
   if(!res.affectedRows) throw("Failed to update password");
 };
+
+/**
+ * @returns True/false indicating if the user can moderate the board, or is an administrator
+ * @param username Username of user
+ * @param board Url of board being checked
+ */
+
+exports.canUserModerate = async function(username, board) {
+  const res = await persistence.db.getOne({
+    sql: `SELECT createdAt FROM administrators WHERE username = ?
+          UNION
+          SELECT createdAt FROM moderators WHERE boardUrl = ? AND username = ?`,
+    values: [username, board, username]
+  });
+  return Boolean(res && res.createdAt);
+};
