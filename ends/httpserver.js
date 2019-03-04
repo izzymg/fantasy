@@ -44,11 +44,11 @@ module.exports = async function (router, {
           await fileFunctions.writeAppend(log, `${error}\n`);
         }
         ctx.status = 500;
-        return ctx.body = "<h2 style='font-family: sans-serif; font-weight: normal;'>Internal server error<h2>";
+        return ctx.body = "Internal server error";
       }
       // 400 bad requests take error.message
       ctx.status = status;
-      return ctx.body = `<h2 style='font-family: sans-serif; font-weight: normal;'> ${error.message} </h2>` || "Unknown error";
+      return ctx.body = error.message || "Unknown error";
     }
   });
   if (allowCors) {
