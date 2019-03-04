@@ -3,7 +3,7 @@ const multipart = require("../../libs/multipart");
 const Posts = require("../../db/Posts");
 const Boards = require("../../db/Boards");
 const Bans = require("../../db/Bans");
-const Ip = require("../../db/Ip");
+const Ips = require("../../db/Ips");
 const Router = require("koa-router");
 const router = new Router();
 
@@ -67,9 +67,9 @@ router.post("/boards/:board/:thread?",
     ctx.body = "";
 
     // Is IP on cooldown?
-    const cd = await Ip.getCooldown(ctx.ip, ctx.params.board);
+    const cd = await Ips.getCooldown(ctx.ip, ctx.params.board);
     if(cd && cd < Date.now()) {
-      await Ip.deleteCooldown(ctx.ip, ctx.params.board);
+      await Ips.deleteCooldown(ctx.ip, ctx.params.board);
     } else if (cd) {
       return ctx.throw(400, `You must wait ${
         Math.floor((cd - Date.now()) / 1000)
@@ -154,7 +154,7 @@ router.post("/boards/:board/:thread?",
     }
 
     // Create a new cooldown
-    await Ip.createCooldown(ctx.ip, board.url, board.cooldown);
+    await Ips.createCooldown(ctx.ip, board.url, board.cooldown);
     ctx.body += "Post submitted";
   }
 );
