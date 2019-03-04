@@ -1,4 +1,4 @@
-const persistence = require("./persistence");
+const persistence = require("../ends/persistence");
 const config = require("../config/config");
 const path = require("path");
 const fs = require("../libs/fs");

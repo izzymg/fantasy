@@ -9,7 +9,10 @@ function listen(server, host, port) {
   return new Promise((resolve, reject) => {
     try {
       server.listen(port, host, () => {
-        resolve({ host, port });
+        resolve({
+          host,
+          port
+        });
       });
     } catch (error) {
       reject(error);
@@ -17,7 +20,7 @@ function listen(server, host, port) {
   });
 }
 
-module.exports = async function(router, {
+module.exports = async function (router, {
   host,
   port,
   allowCors = null,
@@ -27,9 +30,32 @@ module.exports = async function(router, {
 }) {
   const server = new Koa();
   server.proxy = config.proxy;
-
+  server.use(async (ctx, next) => {
+    try {
+      await next();
+    } catch (error) {
+      const status = error.statusCode || error.status || 500;
+      if (status === 500) {
+        if (config.consoleErrors) {
+          console.error(error);
+          console.trace(error);
+        }
+        if (config.logInternalErrors) {
+          await fileFunctions.writeAppend(log, `${error}\n`);
+        }
+        ctx.status = 500;
+        return ctx.body = "<h1 style='font-weight: normal;'>Internal server error<h1>";
+      }
+      // 400 bad requests take error.message
+      ctx.status = status;
+      return ctx.body = `<h1 style='font-weight: normal;'> ${error.message} </h1>` || "Unknown error";
+    }
+  });
   if (allowCors) {
-    server.use(cors({ origin: allowCors, credentials:  allowCorsCredentials}));
+    server.use(cors({
+      origin: allowCors,
+      credentials: allowCorsCredentials
+    }));
   }
 
   if (logLevel) {
@@ -48,7 +74,7 @@ module.exports = async function(router, {
       fileFunctions.writeAppend(log, writeOut + "\n");
     });
   }
-  if(router) {
+  if (router) {
     server.use(router.routes());
   }
   return await listen(server, host, port);

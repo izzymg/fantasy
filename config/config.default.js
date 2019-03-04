@@ -14,7 +14,6 @@ module.exports = {
   // and ensuring the IP prints the correct address
   proxy: true,
 
-  enableLogging: true,
   // Remember, database timeouts are 500 internal server errors
   // The following options will spam log writes and seriously impact performance should your database backlog with requests
   // Consider these for debugging purposes

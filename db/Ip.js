@@ -1,4 +1,4 @@
-const persistence = require("./persistence");
+const persistence = require("../ends/persistence");
 
 exports.createCooldown = async function(ip, board, seconds) {
   await persistence.rawMem.hSet(ip, board, Date.now() + seconds * 1000);

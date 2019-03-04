@@ -1,4 +1,4 @@
-const persistence = require("./persistence");
+const persistence = require("../ends/persistence");
 
 /**
  * @typedef DbBan

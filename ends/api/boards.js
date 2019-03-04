@@ -1,12 +1,13 @@
 const config = require("../../config/config");
 const multipart = require("../../libs/multipart");
-const Posts = require("../Posts");
-const Boards = require("../Boards");
-const Bans = require("../Bans");
-const Ip = require("../Ip");
+const Posts = require("../../db/Posts");
+const Boards = require("../../db/Boards");
+const Bans = require("../../db/Bans");
+const Ip = require("../../db/Ip");
 const Router = require("koa-router");
 const router = new Router();
 
+// Set board for all board routes
 router.use("/boards/:board/*", async(ctx, next) => {
   const board = await Boards.getBoard(ctx.params.board);
   if (!board) {
@@ -16,6 +17,7 @@ router.use("/boards/:board/*", async(ctx, next) => {
   return await next();
 });
 
+// Get all boards
 router.get("/boards", async(ctx) => {
   const boards = await Boards.getBoards();
   if (!boards) {
@@ -24,6 +26,7 @@ router.get("/boards", async(ctx) => {
   ctx.body = { boards };
 });
 
+// Get info about board
 router.get("/boards/:board", async(ctx) => {
   const board = await Boards.getBoard(ctx.params.board);
   if (!board) return ctx.throw(404);
@@ -32,6 +35,7 @@ router.get("/boards/:board", async(ctx) => {
   };
 });
 
+// Get board threads
 router.get("/boards/:board/threads", async(ctx) => {
   const threads = await Posts.getThreads(ctx.params.board);
   if (!threads) {
@@ -40,12 +44,14 @@ router.get("/boards/:board/threads", async(ctx) => {
   ctx.body = { threads };
 });
 
+// Get single post
 router.get("/boards/:board/:post", async(ctx) => {
   const post = await Posts.getPost(ctx.params.board, ctx.params.post);
   if (!post) return ctx.throw(404);
   ctx.body = { post };
 });
 
+// Get thread and replies to thread
 router.get("/boards/:board/threads/:thread", async(ctx) => {
   const [thread, replies] = await Promise.all([
     Posts.getThread(ctx.state.board.url, ctx.params.thread),

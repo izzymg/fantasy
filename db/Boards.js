@@ -1,5 +1,4 @@
-const persistence = require("./persistence");
-const config = require("../config/config");
+const persistence = require("../ends/persistence");
 
 /**
  * @typedef {object} DbBoard
