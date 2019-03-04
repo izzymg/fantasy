@@ -194,8 +194,8 @@ exports.bumpPost = async function(board, id) {
  * @param {DbPost} post
  */
 exports.savePost = async function(post) {
+  let processedFiles = 0;
   const validationError = (message) => ({ status: 400, message });
-
   const lengthCheck = (str, max, name) => {
     if (!str) {
       return null;
@@ -284,6 +284,7 @@ exports.savePost = async function(post) {
           sql: "INSERT INTO files SET postUId = ?, ?",
           values: [insertedPost.insertId, userFile]
         });
+        processedFiles++;
       }));
     }
     await dbConnecton.commit();
@@ -293,6 +294,7 @@ exports.savePost = async function(post) {
   } finally {
     dbConnecton.release();
   }
+  return { processedFiles };
 };
 
 exports.deletePost = async(board, id) => {

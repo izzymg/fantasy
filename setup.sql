@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS posts (
     subject text,
     content text,
     sticky boolean DEFAULT false,
-    ip varchar(39) NOT NULL,
+    ip varchar(39),
     CONSTRAINT postboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)
         ON DELETE CASCADE,

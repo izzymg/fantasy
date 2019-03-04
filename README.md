@@ -2,7 +2,7 @@
 
 Imageboard/BBS written in NodeJS with Koa, MySQLJS/MySQL and Redis
 
-Tested only on MariaDB - not currently safe for production
+Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 
 #### Dependencies:
 
@@ -27,7 +27,13 @@ Developed in VS Code and tested with Node v10, MariaDB, Firefox & Chrome
 
 `npm run lint` 
 
-#### Getting started
+#### Frontend
+A static server side rendered version exists under `./static`, run `npm install` `npm build`
+
+You can find a highly featured vue frontend at [https://github.com/izzymg/zv](https://github.com/izzymg/zv)
+
+Pull this, change config.js to your site's API location
+
 
 #### Configuration
 
@@ -38,20 +44,6 @@ Rename `config.default.js` to `config.js`
 Rename `private.default.js` to `private.js`
 
 Read through the configurations, some options may be unsafe for production.
-
-#### Static (Frontend)
-
-The static files have their own package.json and node_modules to keep things tidy.
-
-Currently the imageboard's frontend is extremely simple with zero Javascript, a Vue frontend is in planning.
-
-cd into `static/` and run `npm install` to pull in [Sass](https://sass-lang.com/)
-
-`npm build`
-
-Don't rename/delete any templates as currently the site server is dependent on their existence. However you can edit them as much as you'd like. They are written in [Pug](https://pugjs.org/api/getting-started.html).
-
-*Important:* Anything placed in the /static/dist folder will be served to the user. You could for example place "banner.png" there, then edit a template to serve `img(src="/banner.png")`
 
 #### SQL
 
@@ -82,10 +74,6 @@ It's optimal you serve this application via a reverse proxy such as nginx.
 Start by setting all host and ports to unexposed, private options, for example the API might be `localhost:3000` and files at `localhost:4050`
 
 Set the `url` section in all server configurations to the actual front facing domain you use.
-
-This forces linked images and calls to the API to go through that domain, rather than the actual host and port used by the server.
-
-In other words, an `<img>` tag will link to `images.yoursite.com` rather than `localhost:4050`
 
 You should then setup your proxy to forward traffic from `images.yoursite.com` to `localhost:4050`
 

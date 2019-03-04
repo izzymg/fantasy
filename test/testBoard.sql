@@ -7,11 +7,11 @@ INSERT INTO boards (
     maxThreads,
     cooldown) 
     VALUES (
-    "bump",
-    "Bump tests",
-    "Testing bump limits and thread deletion",
+    "test",
+    "Dev testing",
+    "Dev tests",
     false,
     5,
-    3,
+    1,
     0
 );
