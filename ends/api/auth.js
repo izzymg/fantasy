@@ -106,6 +106,16 @@ router.post("/delete/:board/:post", async function(ctx, next) {
   const user = await Users.getUser(ctx.session.username);
   const authorized = await Users.canUserModerate(ctx.session.username, ctx.params.board);
   ctx.assert(user && authorized === true, 403, "You don't have permission to do that");
+  const { deletedPosts, deletedFiles } = await Posts.deletePost(ctx.params.board, ctx.params.post);
+
+  if(!deletedPosts) {
+    return ctx.body = "Didn't delete any posts, check the board url is correct and the post is still up";
+  }
+
+  ctx.body = `Deleted ${deletedPosts} ${deletedPosts == 1 ? "post" : "posts"}`;
+  if(deletedFiles) {
+    ctx.body += ` and ${deletedFiles} ${deletedFiles == 1 ? "file" : "files."}`;
+  }
 });
 
 module.exports = router;
