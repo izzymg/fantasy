@@ -10,7 +10,6 @@ if(config.env !== "production" && config.env !== "development") {
 console.log(`ZThree starting in ${config.env} mode. Send SIGINT or SIGTERM to cleanly exit.`);
 
 const apiService = require("./ends/api/service");
-const authService = require("./ends/auth/service");
 const siteService = require("./ends/site/service");
 const fileService = require("./ends/files/service");
 
@@ -27,7 +26,6 @@ async function init() {
   try {
     await siteService();
     await fileService();
-    await authService();
     await apiService();
   } catch(error) {
     return console.error("Failed to start server", error);

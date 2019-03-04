@@ -84,16 +84,6 @@ module.exports = {
     logLevel: "timing"
   },
 
-  // Handles user authentication, CRUD admin/mod operations
-  auth: {
-    port: 3100,
-    host: "localhost",
-    log: "/var/log/zchan/auth.log",
-    logLevel: null,
-    allowCors: "https://localhost",
-    allowCorsCredentials: true,
-  },
-
   // File server
   files: {
     host: "localhost",
