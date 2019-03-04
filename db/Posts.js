@@ -1,4 +1,4 @@
-const persistence = require("../ends/persistence");
+const persistence = require("./persistence");
 const config = require("../config/config");
 const path = require("path");
 const fs = require("../libs/fs");
@@ -110,7 +110,7 @@ exports.getPost = async function(board, id) {
       lastBump, filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files on files.postUid = posts.uid
       WHERE boardUrl = ? AND postId = ?`;
-  const rows = await persistence.rawDb.getAll({ sql, values: [board, id], nestTables: true });
+  const rows = await persistence.db.getAll({ sql, values: [board, id], nestTables: true });
   if(!rows) return null;
   return FilePost(rows);
 };
@@ -122,7 +122,7 @@ exports.getThreads = async function(board) {
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
       WHERE boardUrl = ? AND parent = 0
       ORDER BY sticky DESC, lastBump DESC`;
-  const rows = await persistence.rawDb.getAll({ sql, values: [board], nestTables: false });
+  const rows = await persistence.db.getAll({ sql, values: [board], nestTables: false });
   if(!rows) return null;
   return FilePosts(rows);
 };
@@ -133,7 +133,7 @@ exports.getThread = async function(board, id) {
       filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
       WHERE parent = 0 AND boardUrl = ? AND postId = ?`;
-  const rows = await persistence.rawDb.getAll({ sql, values: [board, id], nestTables: true});
+  const rows = await persistence.db.getAll({ sql, values: [board, id], nestTables: true});
   if(!rows) return null;
   return FilePost(rows);
 };
@@ -145,14 +145,14 @@ exports.getReplies = async function(board, threadId) {
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
       WHERE boardUrl = ? AND parent = ?
       ORDER BY createdAt ASC`;
-  const rows = await persistence.rawDb.getAll({ sql, values: [board, threadId], nestTables: false});
+  const rows = await persistence.db.getAll({ sql, values: [board, threadId], nestTables: false});
   if(!rows) return null;
   return FilePosts(rows);
 };
 
 
 exports.getThreadCount = async function(board) {
-  const num = await persistence.rawDb.getOne({
+  const num = await persistence.db.getOne({
     sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0",
     values: [board]
   });
@@ -161,7 +161,7 @@ exports.getThreadCount = async function(board) {
 };
 
 exports.getReplyCount = async function(board, id) {
-  const num = await persistence.rawDb.getOne({
+  const num = await persistence.db.getOne({
     sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?",
     values: [board, id]
   });
@@ -170,7 +170,7 @@ exports.getReplyCount = async function(board, id) {
 };
 
 exports.getOldestThreadId = async function(board) {
-  const oldest = await persistence.rawDb.getOne({
+  const oldest = await persistence.db.getOne({
     sql: `SELECT postId as id FROM posts WHERE parent = 0 AND boardUrl = ? AND sticky = false
             ORDER BY lastBump ASC LIMIT 1;`,
     values: [board]
@@ -180,7 +180,7 @@ exports.getOldestThreadId = async function(board) {
 };
 
 exports.bumpPost = async function(board, id) {
-  const res = await persistence.rawDb.query({
+  const res = await persistence.db.query({
     sql: "UPDATE posts SET lastBump = ? WHERE boardUrl = ? AND parent = 0 AND postId = ?",
     values: [new Date(Date.now()), board, id]
   });
@@ -248,7 +248,7 @@ exports.savePost = async function(post) {
 
   const postFiles = post.files;
   delete post.files;
-  const dbConnecton = await persistence.rawDb.getConnection();
+  const dbConnecton = await persistence.db.getConnection();
   try {
     await dbConnecton.beginTransaction();
 
@@ -296,7 +296,7 @@ exports.savePost = async function(post) {
 };
 
 exports.deletePost = async(board, id) => {
-  const files = await persistence.rawDb.getAll({
+  const files = await persistence.db.getAll({
     sql: `SELECT filename, thumbFilename
           FROM files INNER JOIN posts ON files.postUid = posts.uid
           WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
@@ -316,7 +316,7 @@ exports.deletePost = async(board, id) => {
       deletedFiles++;
     }));
   }
-  const { affectedRows } = await persistence.rawDb.query({
+  const { affectedRows } = await persistence.db.query({
     sql: `DELETE posts, files FROM posts
           LEFT JOIN files ON files.postUid = posts.uid
           WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,

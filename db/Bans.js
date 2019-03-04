@@ -1,4 +1,4 @@
-const persistence = require("../ends/persistence");
+const persistence = require("./persistence");
 
 /**
  * @typedef DbBan
@@ -22,7 +22,7 @@ const Ban = exports.Ban = function({ uid, ip, boardUrl, allBoards, expires, reas
 };
 
 exports.getBan = async function(ip, board) {
-  const row = await persistence.rawDb.getOne({
+  const row = await persistence.db.getOne({
     sql: `SELECT uid, ip, boardUrl, allBoards, expires, reason FROM bans
           WHERE ip = ? AND (boardUrl = ? OR allBoards = true)`,
     values: [ip, board]
@@ -30,7 +30,7 @@ exports.getBan = async function(ip, board) {
   if(row) return Ban(row);
 };
 
-exports.deleteBan = async(uid) => await persistence.rawDb.query({
+exports.deleteBan = async(uid) => await persistence.db.query({
   sql: "DELETE FROM bans WHERE uid = ?",
   values: [uid]
 });

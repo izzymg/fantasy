@@ -13,7 +13,7 @@ const apiService = require("./ends/api/service");
 const siteService = require("./ends/site/service");
 const fileService = require("./ends/files/service");
 
-const persistence = require("./ends/persistence");
+const persistence = require("./db/persistence");
 
 persistence.initialize().then(() => {
   init();

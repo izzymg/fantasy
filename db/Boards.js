@@ -1,4 +1,4 @@
-const persistence = require("../ends/persistence");
+const persistence = require("./persistence");
 
 /**
  * @typedef {object} DbBoard
@@ -29,7 +29,7 @@ const Board = exports.Board = function({
 };
 
 exports.getBoard = async function(url) {
-  const row = await persistence.rawDb.getOne({
+  const row = await persistence.db.getOne({
     sql: "SELECT url, title, about, sfw, bumpLimit, maxThreads, cooldown FROM boards WHERE url = ?",
     values: [url]
   });
@@ -40,7 +40,7 @@ exports.getBoard = async function(url) {
  * @returns {Promise<Array<DbBoard>>}
  */
 exports.getBoards = async function() {
-  const rows = await persistence.rawDb.getAll({
+  const rows = await persistence.db.getAll({
     sql: "SELECT url, title, about, sfw, bumpLimit, maxThreads, cooldown FROM boards"
   });
   if(rows) return rows.map((row) => Board(row));

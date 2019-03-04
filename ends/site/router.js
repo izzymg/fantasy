@@ -1,7 +1,8 @@
 const Router = require("koa-router");
 const config = require("../../config/config");
 const router = new Router({ strict: true });
-const persistence = require("../persistence");
+const Boards = require("../../db/Boards");
+const Posts = require("../../db/Posts");
 const koaViews = require("koa-views");
 const koaStatic = require("koa-static");
 const path = require("path");
@@ -53,18 +54,15 @@ router.get("/boards/:board/threads/:thread/", async(ctx) => {
 
 // Boards list
 router.get("/boards/", async(ctx) => {
-  const boards = await persistence.getBoards();
+  const boards = await Boards.getBoards();
   await ctx.render("boards", { boards });
 });
 
 // Set state up on all board routes
 router.all("/boards/:board/*", async(ctx, next) => {
-  const board = await persistence.getBoard(ctx.params.board);
+  const board = await Boards.getBoard(ctx.params.board);
   if (!board) {
     return ctx.throw(404);
-  }
-  if(ctx.state.session) {
-    ctx.state.isModOrAdmin = await persistence.isModOrAdmin(ctx.state.session.username, board.url);
   }
   ctx.state.board = board;
   return await next();
@@ -73,7 +71,7 @@ router.all("/boards/:board/*", async(ctx, next) => {
 // Get catalog
 router.get("/boards/:board/", async(ctx) => {
   try {
-    const threads = await persistence.getThreads(ctx.state.board.url);
+    const threads = await Posts.getThreads(ctx.state.board.url);
     return await ctx.render("catalog", { threads });
   } catch (error) {
     return ctx.throw(500, error);
@@ -83,10 +81,10 @@ router.get("/boards/:board/", async(ctx) => {
 // Get thread
 router.get("/boards/:board/threads/:thread", async(ctx) => {
   const [ thread, replies ] = await Promise.all([
-    persistence.getThread(
+    Posts.getThread(
       ctx.state.board.url, ctx.params.thread
     ),
-    persistence.getReplies(
+    Posts.getReplies(
       ctx.state.board.url, ctx.params.thread
     )
   ]);

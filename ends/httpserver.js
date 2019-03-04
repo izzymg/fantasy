@@ -30,7 +30,7 @@ module.exports = async function (router, {
 }) {
   const server = new Koa();
   server.proxy = config.proxy;
-  server.use(async (ctx, next) => {
+  server.use(async(ctx, next) => {
     try {
       await next();
     } catch (error) {
@@ -44,11 +44,11 @@ module.exports = async function (router, {
           await fileFunctions.writeAppend(log, `${error}\n`);
         }
         ctx.status = 500;
-        return ctx.body = "<h1 style='font-weight: normal;'>Internal server error<h1>";
+        return ctx.body = "<h2 style='font-family: sans-serif; font-weight: normal;'>Internal server error<h1>";
       }
       // 400 bad requests take error.message
       ctx.status = status;
-      return ctx.body = `<h1 style='font-weight: normal;'> ${error.message} </h1>` || "Unknown error";
+      return ctx.body = `<h2 style='font-family: sans-serif; font-weight: normal;'> ${error.message} </h1>` || "Unknown error";
     }
   });
   if (allowCors) {
