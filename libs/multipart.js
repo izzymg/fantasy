@@ -5,27 +5,6 @@ const uuid = require("uuid/v4");
 const path = require("path");
 const fs = require("fs");
 
-const trimEscapeHtml = function(str) {
-  if (!str) {
-    return null;
-  }
-  str = str.trim();
-  if (!str) {
-    return null;
-  }
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/`/g, "&#96;")
-    .replace(/\r\n/g, "\n")
-    .replace(/\n{2,}/g, "\n\n")
-    .replace(/\n/g, "<br>")
-    .replace(/(<br>){2,}/g, "<br><br>");
-};
-
 const fileSignatures = {
   "89504E470D0A1A0A": "image/png",
   // There are two potential accepted gif types
@@ -105,7 +84,7 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
             tempPath,
             mimetype: type.mimetype,
             size: tempWriteStream.bytesWritten,
-            originalName: trimEscapeHtml(filename)
+            originalName: filename
           });
         });
       }));
@@ -113,7 +92,7 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
     });
 
     // Form fields
-    busboy.on("field", async(name, value) => fields[name] = trimEscapeHtml(value));
+    busboy.on("field", async(name, value) => fields[name] = value);
 
     busboy.on("fieldsLimit", () => reject({
       status: 400, message: "Too many fields" 

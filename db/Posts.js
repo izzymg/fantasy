@@ -3,6 +3,60 @@ const config = require("../config/config");
 const path = require("path");
 const fs = require("../libs/fs");
 
+
+function lengthCheck(str, max, name) {
+  str = str.replace(/\r\n/, "\n");
+  if (!str) {
+    return null;
+  }
+  if (typeof str !== "string") {
+    return `${name}: expected string.`;
+  }
+
+  str = str.trim();
+  if (str.length > max) {
+    return `${name} must be under ${max} characters.`;
+  }
+
+  if (!str) {
+    return null;
+  }
+
+  return null;
+}
+
+function sanitize(str) {
+  str = str.trim();
+  if (!str) {
+    return null;
+  }
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/`/g, "&#96;")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{2,}/g, "\n\n")
+    .replace(/\n/g, "<br>")
+    .replace(/(<br>){2,}/g, "<br><br>");
+}
+
+function formatPostContent(str) {
+  if (!str || typeof str !== "string") {
+    return null;
+  }
+  str = str.replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm, 
+    "<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>"
+  );
+  str = str.replace(/&gt;&gt;([0-9]*)/gm, 
+    "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
+  );
+  str = str.replace(/^&gt;(.*)/gm, "<span class='quote'>$1</span>");
+  return str;
+}
+
 /**
  * @typedef {object} DbPost
  * @property {number} uid
@@ -196,38 +250,18 @@ exports.bumpPost = async function(board, id) {
 exports.savePost = async function(post) {
   let processedFiles = 0;
   const validationError = (message) => ({ status: 400, message });
-  const lengthCheck = (str, max, name) => {
-    if (!str) {
-      return null;
-    }
-    if (typeof str !== "string") {
-      return `${name}: expected string.`;
-    }
-    if (str.length > max) {
-      return `${name} must be under ${max} characters.`;
-    }
-    return null;
-  };
-
-  const formatPostContent = (str) => {
-    if (!str || typeof str !== "string") {
-      return null;
-    }
-    str = str.replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm, 
-      "<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>"
-    );
-    str = str.replace(/&gt;&gt;([0-9]*)/gm, 
-      "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
-    );
-    str = str.replace(/^&gt;(.*)/gm, "<span class='quote'>$1</span>");
-    return str;
-  };
 
   let lengthError = null;
   lengthError = lengthCheck(post.name, config.posts.maxNameLength, "Name") || lengthError;
   lengthError = lengthCheck(post.subject, config.posts.maxSubjectLength, "Subject") || lengthError;
   lengthError = lengthCheck(post.content, config.posts.maxContentLength, "Content") || lengthError;
   if(lengthError) throw validationError(lengthError);
+
+
+  post.name = sanitize(post.name);
+  post.subject = sanitize(post.subject);
+  post.content = formatPostContent(sanitize(post.content));
+
   if(post.parent) {
     if(config.posts.replies.requireContentOrFiles && (!post.files) && !post.content) {
       throw validationError("Content or file required");
@@ -243,8 +277,6 @@ exports.savePost = async function(post) {
       throw validationError("File required");
     }
   }
-
-  post.content = formatPostContent(post.content);
 
   const postFiles = post.files;
   delete post.files;
@@ -279,6 +311,7 @@ exports.savePost = async function(post) {
           );
         }
         delete userFile.tempPath;
+        userFile.originalName = sanitize(userFile.originalName);
         // Save to db
         await dbConnecton.query({
           sql: "INSERT INTO files SET postUId = ?, ?",
