@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS bans (
     ip varchar(39) NOT NULL,
     boardUrl varchar(20) NOT NULL,
     allBoards boolean DEFAULT FALSE,
-    expires datetime NOT NULL,
+    expires datetime,
     reason text,
     constraint banboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)

@@ -1,3 +1,5 @@
+// Authentication based API routes
+
 const Router = require("koa-router");
 const router = new Router();
 const bcrypt = require("bcrypt");
@@ -7,8 +9,9 @@ const Users = require("../../db/Users");
 const Sessions = require("../../db/Sessions");
 const Ips = require("../../db/Ips");
 const Posts = require("../../db/Posts");
+const Bans = require("../../db/Bans");
 
-const fetchJson = async function(ctx, next) {
+async function fetchJson(ctx, next) {
   ctx.assert(ctx.is("application/json"), 400, "Expected JSON data");
   try {
     const body = await coBody.json(ctx, {
@@ -17,13 +20,21 @@ const fetchJson = async function(ctx, next) {
     ctx.fields = body;
   } catch (error) {
     if (error.status == 400) {
-      return ctx.throw(400, error.message);
+      ctx.throw(400, error.message);
     }
-    return ctx.throw(500, error);
+    ctx.throw(500, error);
   }
   return await next();
-};
+}
 
+async function requireModOrAdmin(ctx, next) {
+  const user = await Users.getUser(ctx.session.username);
+  const authorized = await Users.canUserModerate(ctx.session.username, ctx.params.board);
+  ctx.assert(user && authorized === true, 403, "You don't have permission to do that");
+  return await next();
+}
+
+// POST to login page
 router.post("/login", fetchJson, async function(ctx) {
   ctx.assert(ctx.fields.username && typeof ctx.fields.username == "string",
     400, "Expected username"
@@ -37,7 +48,7 @@ router.post("/login", fetchJson, async function(ctx) {
   if (lastAttempt && lastAttempt > Date.now() - (12 * 60 * 60 * 1000)) {
     attempts = 0;
   } else if (attempts > 5) {
-    return ctx.throw(403, "Too many login attempts, try again later");
+    ctx.throw(403, "Too many login attempts, try again later");
   }
 
   await Ips.setLogins(ctx.ip, attempts + 1, new Date(Date.now()));
@@ -50,12 +61,14 @@ router.post("/login", fetchJson, async function(ctx) {
       const sessionId = uuid();
       await Sessions.setSession(sessionId, user.username);
       ctx.set("Set-Cookie", `id=${sessionId}`);
-      return ctx.body = "Success";
+      ctx.body = "Success";
+      return;
     }
   }
-  return ctx.throw(403, "Invalid username or password");
+  ctx.throw(403, "Invalid username or password");
 });
 
+// Set session on future routes
 router.use(async function(ctx, next) {
   const id = ctx.cookies.get("id");
   const session = await Sessions.getSession(id);
@@ -66,13 +79,16 @@ router.use(async function(ctx, next) {
     };
     return await next();
   }
-  return ctx.throw(403, "You don't have permission to do that");
+  ctx.throw(403, "You don't have permission to do that");
 });
 
+// Get session information
 router.get("/sessionInfo", async function(ctx) {
   return ctx.body = { username: ctx.session.username };
 });
 
+
+// Change password
 router.post("/changePassword", fetchJson, async function(ctx) {
   ctx.assert(ctx.fields.currentPassword && typeof ctx.fields.currentPassword === "string",
     400, "Expected current password"
@@ -102,20 +118,57 @@ router.post("/changePassword", fetchJson, async function(ctx) {
   return ctx.body = "Password updated, please login again";
 });
 
-router.post("/delete/:board/:post", async function(ctx, next) {
-  const user = await Users.getUser(ctx.session.username);
-  const authorized = await Users.canUserModerate(ctx.session.username, ctx.params.board);
-  ctx.assert(user && authorized === true, 403, "You don't have permission to do that");
+// Delete post from board
+router.post("/delete/:board/:post", requireModOrAdmin, async function(ctx) {
   const { deletedPosts, deletedFiles } = await Posts.deletePost(ctx.params.board, ctx.params.post);
 
   if(!deletedPosts) {
-    return ctx.body = "Didn't delete any posts, check the board url is correct and the post is still up";
+    ctx.body = "Didn't delete any posts, check the board url is correct and the post is still up";
+    return;
   }
 
   ctx.body = `Deleted ${deletedPosts} ${deletedPosts == 1 ? "post" : "posts"}`;
   if(deletedFiles) {
     ctx.body += ` and ${deletedFiles} ${deletedFiles == 1 ? "file" : "files."}`;
   }
+});
+
+// Ban user by post
+router.post("/ban/:board/:post", requireModOrAdmin, fetchJson, async function(ctx) {
+  const hours = Number(ctx.fields.hours) || 0;
+  const days = Number(ctx.fields.days) || 0;
+  ctx.assert(ctx.fields.reason, 400, "Expected reason for ban");
+
+  const currentTime = Date.now();
+  let banExpiry = null;
+  if(hours || days) {
+    banExpiry = new Date(currentTime + (hours * 60 * 60 * 1000) + (days * 24 * 60 * 60 * 1000));
+    ctx.assert(banExpiry > currentTime, 400, "Ban expires in the past");
+  }
+
+  const postIp = await Posts.getPostIp(ctx.params.board, ctx.params.post);
+  if(!postIp) {
+    ctx.throw(404, "No such post, check board is corrent or that it hasn't been deleted.");
+  }
+  try {
+    await Bans.saveBan(Bans.Ban({
+      ip: postIp,
+      boardUrl: ctx.params.board,
+      allBoards: ctx.fields.allBoards || false,
+      expires: banExpiry,
+      reason: ctx.fields.reason
+    }, { fresh: true }));
+    ctx.body = `Banned user from ${
+      ctx.fields.allBoards ? "all boards" : `/${ctx.params.board}/`} for post ${
+      ctx.params.post}. ${
+      banExpiry ? `Expires ${banExpiry.toLocaleString()}.` : "This ban is permanent."}`;
+  } catch(error) {
+    if(error.status && error.status === 400) {
+      ctx.throw(400, error.message);
+    }
+    ctx.throw(500, error);
+  }
+
 });
 
 module.exports = router;

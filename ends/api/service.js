@@ -1,10 +1,10 @@
 const server = require("../httpserver");
 const config = require("../../config/config");
-const boards = require("./boards");
+const main = require("./main");
 const auth = require("./auth");
 const Router = require("koa-router");
 const router = new Router();
-router.use(boards.routes());
+router.use(main.routes());
 router.use(auth.routes());
 router.use(auth.allowedMethods());
 

@@ -2,60 +2,8 @@ const persistence = require("./persistence");
 const config = require("../config/config");
 const path = require("path");
 const fs = require("../libs/fs");
-
-
-function lengthCheck(str, max, name) {
-  if (!str) {
-    return null;
-  }
-  if (typeof str !== "string") {
-    return `${name}: expected string.`;
-  }
-
-  str = str.trim();
-  if (str.length > max) {
-    return `${name} must be under ${max} characters.`;
-  }
-
-  if (!str) {
-    return null;
-  }
-
-  return null;
-}
-
-function sanitize(str) {
-  if(!str) return null;
-  str = str.trim();
-  if (!str) {
-    return null;
-  }
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/`/g, "&#96;")
-    .replace(/\r\n/g, "\n")
-    .replace(/\n{2,}/g, "\n\n")
-    .replace(/\n/g, "<br>")
-    .replace(/(<br>){2,}/g, "<br><br>");
-}
-
-function formatPostContent(str) {
-  if (!str || typeof str !== "string") {
-    return null;
-  }
-  str = str.replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm, 
-    "<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>"
-  );
-  str = str.replace(/&gt;&gt;([0-9]*)/gm, 
-    "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
-  );
-  str = str.replace(/&gt;([A-Za-z0-9'";:\s)(*&^%$#@!`~\\|]+)/gm, "<span class='quote'>>$1</span>");
-  return str;
-}
+const validation = require("../libs/validation");
+const validationError = (message) => ({ status: 400, message });
 
 /**
  * @typedef {object} DbPost
@@ -204,6 +152,16 @@ exports.getReplies = async function(board, threadId) {
   return FilePosts(rows);
 };
 
+/**
+ * @returns {string} IP Address of post or null if not found
+ */
+exports.getPostIp = async function(board, id) {
+  const row = await persistence.db.getOne({
+    sql: "SELECT ip FROM posts WHERE boardUrl = ? AND postId = ?",
+    values: [board, id]
+  });
+  return row ? row.ip : null;
+};
 
 exports.getThreadCount = async function(board) {
   const num = await persistence.db.getOne({
@@ -249,18 +207,21 @@ exports.bumpPost = async function(board, id) {
  */
 exports.savePost = async function(post) {
   let processedFiles = 0;
-  const validationError = (message) => ({ status: 400, message });
 
+  // Length check returns null if no error
   let lengthError = null;
-  lengthError = lengthCheck(post.name, config.posts.maxNameLength, "Name") || lengthError;
-  lengthError = lengthCheck(post.subject, config.posts.maxSubjectLength, "Subject") || lengthError;
-  lengthError = lengthCheck(post.content, config.posts.maxContentLength, "Content") || lengthError;
+  lengthError = validation.lengthCheck(
+    post.name, config.posts.maxNameLength, "Name") || lengthError;
+  lengthError = validation.lengthCheck(
+    post.subject, config.posts.maxSubjectLength, "Subject") || lengthError;
+  lengthError = validation.lengthCheck(
+    post.content, config.posts.maxContentLength, "Content") || lengthError;
   if(lengthError) throw validationError(lengthError);
 
-
-  post.name = sanitize(post.name);
-  post.subject = sanitize(post.subject);
-  post.content = formatPostContent(sanitize(post.content));
+  // Sanitizing post will increase post length
+  post.name = validation.sanitize(post.name);
+  post.subject = validation.sanitize(post.subject);
+  post.content = validation.formatPostContent(validation.sanitize(post.content));
 
   if(post.parent) {
     if(config.posts.replies.requireContentOrFiles && (!post.files) && !post.content) {
@@ -311,7 +272,7 @@ exports.savePost = async function(post) {
           );
         }
         delete userFile.tempPath;
-        userFile.originalName = sanitize(userFile.originalName);
+        userFile.originalName = validation.sanitize(userFile.originalName);
         // Save to db
         await dbConnecton.query({
           sql: "INSERT INTO files SET postUId = ?, ?",

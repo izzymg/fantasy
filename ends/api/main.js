@@ -1,3 +1,5 @@
+// Publically accessible API routes 
+
 const config = require("../../config/config");
 const multipart = require("../../libs/multipart");
 const Posts = require("../../db/Posts");
@@ -82,7 +84,7 @@ router.post("/boards/:board/:thread?",
 
     // Is user banned from this board/all boards?
     const ban = await Bans.getBan(ctx.ip, board.url);
-    if (ban && ban.expires < new Date(Date.now())) {
+    if (ban && ban.expires && ban.expires < new Date(Date.now())) {
       await Bans.deleteBan(ban.uid);
       ctx.body += "You were just unbanned. ";
     } else if (ban) {
@@ -158,5 +160,11 @@ router.post("/boards/:board/:thread?",
     ctx.body += "Post submitted";
   }
 );
+
+// Get user ban status
+router.get("/banInfo", async function(ctx) {
+  const bans = await Bans.getAllBans(ctx.ip);
+  ctx.body = bans ? { bans } : null;
+});
 
 module.exports = router;
