@@ -25,6 +25,7 @@ function lengthCheck(str, max, name) {
 }
 
 function sanitize(str) {
+  if(!str) return null;
   str = str.trim();
   if (!str) {
     return null;
