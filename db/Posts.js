@@ -5,7 +5,6 @@ const fs = require("../libs/fs");
 
 
 function lengthCheck(str, max, name) {
-  str = str.replace(/\r\n/, "\n");
   if (!str) {
     return null;
   }
