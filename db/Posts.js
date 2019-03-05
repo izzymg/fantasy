@@ -53,7 +53,7 @@ function formatPostContent(str) {
   str = str.replace(/&gt;&gt;([0-9]*)/gm, 
     "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
   );
-  str = str.replace(/^&gt;(.*)/gm, "<span class='quote'>$1</span>");
+  str = str.replace(/^&gt;(.*)/gm, "<span class='quote'>>$1</span>");
   return str;
 }
 
