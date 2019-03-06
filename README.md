@@ -25,7 +25,7 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 * More administration functions
 * Tripcodes
 * Store MD5 hash of images
-* Smaller thumbnails, webms
+* Support webms
 * Captchas
 
 Full usage documentation to come.
