@@ -16,7 +16,7 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 * Exposed JSON API 
 * Multiple image upload support (configurable)
 * Plain server-side rendered (SSR) templating available for no-JS browsing
-* Automatic thumbnail processing
+* Automatic thumbnail processing with Sharp
 * Designed with being run behind a reverse proxy in mind
 
 ##### TODO
@@ -24,7 +24,8 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 * Automatic antispam
 * More administration functions
 * Tripcodes
-* Image hashing
+* Store MD5 hash of images
+* Smaller thumbnails, webms
 * Captchas
 
 Full usage documentation to come.
@@ -45,7 +46,7 @@ Also be sure to set the final files directory to be served by your web server. N
 
 Setup nginx or another web server to forward a traffic to the unexposed API/SSR port, ensure `X-FORWARDED-FOR` is configured in nginx for fantasy to read the IP address of users.
 
-`npm install` to pull in dependencies
+`npm install` to pull in dependencies, you may need `npm i node-gyp -g` if it fails on windows due to bcrypt or sharp
 
 `cd ssr` `npm install` `npm build` if using templated SSR site (builds and minifies CSS for production)
 
