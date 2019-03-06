@@ -268,7 +268,7 @@ exports.savePost = async function(post) {
           await fs.createThumbnail(
             path.join(config.posts.filesDir, userFile.filename),
             path.join(config.posts.filesDir, userFile.thumbFilename),
-            config.posts.thumbWidth
+            config.posts.thumbWidth, config.posts.thumbQuality
           );
         }
         delete userFile.tempPath;

@@ -18,7 +18,7 @@ exports.writeAppend = async function(file, text) {
   });
 };
 
-exports.createThumbnail = async function(inFilename, outFilename, width) {
+exports.createThumbnail = async function(inFilename, outFilename, width, quality) {
   try {
     const image = sharp(inFilename);
     const metadata = await image.metadata();
@@ -26,7 +26,7 @@ exports.createThumbnail = async function(inFilename, outFilename, width) {
     if (metadata.width > width) {
       await image
         .resize(150)
-        .toFormat("jpeg")
+        .jpeg({ quality: quality, force: true })
         .toFile(outFilename);
     } else {
       await image.toFormat("jpeg").toFile(outFilename);

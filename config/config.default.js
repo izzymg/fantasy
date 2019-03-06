@@ -106,6 +106,7 @@ module.exports = {
     filesDir: "/var/www/files",
     // Used to scale thumbnails if need be
     thumbWidth: 150,
+    thumbQuality: 40,
     defaultName: "Anonymous",
     threads: {
       requireSubject: true,
