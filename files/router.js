@@ -1,10 +1,10 @@
 const Router = require("koa-router");
-const config = require("../../config/config");
+const config = require("../config/config");
 const router = new Router();
 const sendFile = require("koa-sendfile");
 const path = require("path");
 
-router.get("/:filename", async(ctx) => {
+router.get("/:filename", async function(ctx) {
   const filesDir = path.normalize(config.posts.filesDir);
   const fp = path.join(filesDir, ctx.params.filename);
   const pathStats = path.parse(fp);

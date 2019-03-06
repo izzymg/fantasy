@@ -1,0 +1,86 @@
+@import url("https://fonts.googleapis.com/css?family=PT+Serif|Assistant");
+html {
+  font-family: "Assistant", sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: #3fca79;
+  text-decoration: none;
+}
+
+.thumbnail {
+  max-height: 200px;
+  overflow: auto;
+}
+
+hr {
+  color: #858585;
+}
+
+.boardInfo .item::after, hr .item::after {
+  content: " /";
+  color: black;
+}
+.boardInfo span, hr span {
+  font-weight: normal;
+  font-size: 0.9em;
+  color: #474747;
+  margin: 0 2px;
+}
+.boardInfo .errored, hr .errored {
+  color: lightcoral;
+}
+
+.navbar {
+  border-bottom: 1px solid lightgrey;
+  padding: 20px;
+}
+.navbar a {
+  margin: 0 10px;
+}
+.navbar .right {
+  float: right;
+}
+
+.pagecontent {
+  margin: 10px 5px;
+}
+.pagecontent .title {
+  text-align: center;
+}
+
+.statusbox {
+  top: 0;
+  position: sticky;
+  height: 0;
+  visibility: hidden;
+  opacity: 0;
+  font-size: 1em;
+  text-align: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  background: rgba(39, 39, 39, 0.856);
+  color: #f5f5f5;
+  transition: opacity 350ms, height 350ms;
+}
+.statusbox .text.error {
+  color: #e05466;
+}
+.statusbox .close {
+  cursor: pointer;
+  color: #e05466;
+  float: left;
+}
+
+h1, h2, h3, h4 {
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+}
+
+/*# sourceMappingURL=layout.css.map */

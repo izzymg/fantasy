@@ -1,7 +1,10 @@
 {
-    "name": "zthree",
-    "version": "1.0.0",
+    "name": "fantasy",
+    "version": "1.2.0",
     "description": "Imageboard/BBS software",
+    "repository": {
+        "url": "https://github.com/izzymg/fantasy"
+    },
     "main": "server.js",
     "scripts": {
         "lint": "eslint \"**/*.js\"",

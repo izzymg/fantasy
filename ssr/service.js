@@ -1,5 +1,5 @@
-const server = require("../httpserver");
-const config = require("../../config/config");
+const server = require("../libs/httpserver");
+const config = require("../config/config");
 const router = require("./router");
 
 module.exports = async function() {

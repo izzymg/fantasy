@@ -22,9 +22,6 @@ module.exports = {
   // Used as the name of the website in templates
   webname: "ZChan",
 
-  // Static files dir, null for the root of the the server (default)
-  staticDir: null,
-
   // A connection pool is used for all SQL queries
   // Read up on connection pools to understand these sections
 

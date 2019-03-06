@@ -5,11 +5,11 @@ const router = new Router();
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const coBody = require("co-body");
-const Users = require("../../db/Users");
-const Sessions = require("../../db/Sessions");
-const Ips = require("../../db/Ips");
-const Posts = require("../../db/Posts");
-const Bans = require("../../db/Bans");
+const Users = require("../db/Users");
+const Sessions = require("../db/Sessions");
+const Ips = require("../db/Ips");
+const Posts = require("../db/Posts");
+const Bans = require("../db/Bans");
 
 async function fetchJson(ctx, next) {
   ctx.assert(ctx.is("application/json"), 400, "Expected JSON data");

@@ -1,5 +1,5 @@
-const server = require("../httpserver");
-const config = require("../../config/config");
+const server = require("../libs/httpserver");
+const config = require("../config/config");
 const main = require("./main");
 const auth = require("./auth");
 const Router = require("koa-router");

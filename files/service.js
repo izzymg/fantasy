@@ -1,5 +1,5 @@
-const config = require("../../config/config");
-const server = require("../httpserver");
+const config = require("../config/config");
+const server = require("../libs/httpserver");
 const router = require("./router");
 
 

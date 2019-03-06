@@ -1,7 +1,7 @@
 // HTTP server factory
 const Koa = require("koa");
 const config = require("../config/config");
-const fileFunctions = require("../libs/fs");
+const fs = require("../libs/fs");
 const cors = require("@koa/cors");
 
 // Wait on listen callback
@@ -20,7 +20,7 @@ function listen(server, host, port) {
   });
 }
 
-module.exports = async function (router, {
+module.exports = async function(router, {
   host,
   port,
   allowCors = null,
@@ -41,7 +41,7 @@ module.exports = async function (router, {
           console.trace(error);
         }
         if (config.logInternalErrors) {
-          await fileFunctions.writeAppend(log, `${error}\n`);
+          await fs.writeAppend(log, `${error}\n`);
         }
         ctx.status = 500;
         return ctx.body = "Internal server error";
@@ -71,7 +71,7 @@ module.exports = async function (router, {
       await next();
       const timeTaken = Date.now() - start;
       writeOut += `\n\tResponse time: ${timeTaken}ms`;
-      fileFunctions.writeAppend(log, writeOut + "\n");
+      fs.writeAppend(log, writeOut + "\n");
     });
   }
   if (router) {

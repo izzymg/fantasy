@@ -1,11 +1,11 @@
 // Publically accessible API routes 
 
-const config = require("../../config/config");
-const multipart = require("../../libs/multipart");
-const Posts = require("../../db/Posts");
-const Boards = require("../../db/Boards");
-const Bans = require("../../db/Bans");
-const Ips = require("../../db/Ips");
+const config = require("../config/config");
+const multipart = require("../libs/multipart");
+const Posts = require("../db/Posts");
+const Boards = require("../db/Boards");
+const Bans = require("../db/Bans");
+const Ips = require("../db/Ips");
 const Router = require("koa-router");
 const router = new Router();
 

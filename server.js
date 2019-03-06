@@ -9,9 +9,9 @@ if(config.env !== "production" && config.env !== "development") {
 
 console.log(`ZThree starting in ${config.env} mode. Send SIGINT or SIGTERM to cleanly exit.`);
 
-const apiService = require("./ends/api/service");
-const siteService = require("./ends/site/service");
-const fileService = require("./ends/files/service");
+const apiService = require("./api/service");
+const siteService = require("./ssr/service");
+const fileService = require("./files/service");
 
 const persistence = require("./db/persistence");
 

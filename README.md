@@ -1,82 +1,54 @@
-# ZThree
+# Fantasy
 
-Imageboard/BBS written in NodeJS with Koa, MySQLJS/MySQL and Redis
+#### Imageboard/BBS software with NodeJS, MariaDB and Redis
 
 Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 
-#### Dependencies:
+[Vue Frontend for Fantasy](https://github.com/izzymg/zv)
 
-Node v8+ is required due to usage of ES6
+##### Features
 
-Run `npm install` once you've installed NodeJS and npm to automatically pull in these deps
+* Posting cooldowns
+* Automatic thread deletion on board cap
+* Thread bumps and bump limit
+* Anonymous only posting, accounts only for administration
+* Secure administration, post deletion and bans
+* Exposed JSON API 
+* Multiple image upload support (configurable)
+* Plain server-side rendered (SSR) templating available for no-JS browsing
+* Automatic thumbnail processing
+* Designed with being run behind a reverse proxy in mind
 
-* koa/sendfile/router/views/static
-* busboy
-* sharp
-* pug
-* mysql
-* sass
-* uuid
-* node-redis
-* bcrypt
-* co-body
+##### TODO
+* Report system
+* Automatic antispam
+* More administration functions
+* Tripcodes
+* Image hashing
+* Captchas
 
-#### Development
+Full usage documentation to come.
 
-Developed in VS Code and tested with Node v10, MariaDB, Firefox & Chrome
+## Setup
 
-`npm run lint` 
+Install MariaDB (Postgres should work, but untested) and Redis. Create a database in MariaDB called fantasy, and a user privileged to write, read and create tables on it.
 
-#### Frontend
-A static server side rendered version exists under `./static`, run `npm install` `npm build`
+`cd sql` `mysql -u dbUser -p fantasy < setup.sql` will run a set of `CREATE x IF NOT EXISTS` commands. 
 
-You can find a highly featured vue frontend at [https://github.com/izzymg/zv](https://github.com/izzymg/zv)
+`admin.sql` will create a user called admin, with the password of 'admin', and place them in the administrators table.
 
-Pull this, change config.js to your site's API location
+Remove `.default` from files in `./config` directory and setup
 
+Make sure to disable the file server in production, set `proxy = true`, set your front facing URLs and CORS options correctly. Set the ports for all  servers to unexposed (not public facing) options.
 
-#### Configuration
+Also be sure to set the final files directory to be served by your web server. Note the temp directory also.
 
-Under /config:
+Setup nginx or another web server to forward a traffic to the unexposed API/SSR port, ensure `X-FORWARDED-FOR` is configured in nginx for fantasy to read the IP address of users.
 
-Rename `config.default.js` to `config.js`
+`npm install` to pull in dependencies
 
-Rename `private.default.js` to `private.js`
+`cd ssr` `npm install` `npm build` if using templated SSR site (builds and minifies CSS for production)
 
-Read through the configurations, some options may be unsafe for production.
+[Get the Vue.JS frontend here](https://github.com/izzymg/zv) - currently the SSR has zero site interaction beyond posting - all administration will need to be done through the JSON apis.
 
-#### SQL
-
-Connect to your MySQL server (`mysql -h [yourdbhost] -u [username] -p`) and run `create database zthree`
-
-Then exit, and in your terminal run `mysql -h [yourdbhost] -u [username] -p zthree < ./setup.sql`
-
-That will execute all the commands inside "setup.sql" to create the tables. This will not overwrite already existing tables.
-
-This will run a set of `CREATE TABLE IF NOT EXIST` commands to setup the board's tables in the database.
-
-Enter your database credentials in `private.js` configuration's "database" section.
-
-#### Redis
-
-Redis is used for storing session state and managing IP post-cooldowns. Support for SQLite is planned.
-
-Start a redis server, configure a password for it. Then enter the host, user and password into the `private.js` file's "Redis" section.
-
-For testing *only*, an in-memory implementation can be enabled in the config option under "database": memStore
-
-This just creates a Javascript object and is designed purely for testing on environments where Redis is unavailable, like Windows.
-
-#### Production
-
-It's optimal you serve this application via a reverse proxy such as nginx.
-
-Start by setting all host and ports to unexposed, private options, for example the API might be `localhost:3000` and files at `localhost:4050`
-
-Set the `url` section in all server configurations to the actual front facing domain you use.
-
-You should then setup your proxy to forward traffic from `images.yoursite.com` to `localhost:4050`
-
-#### Starting the server
-
-`npm start` or `node ./server.js` to boot the server
+Grab a process manager like pm2 and put server.js under it.
