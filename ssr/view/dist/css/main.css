@@ -1,0 +1,32 @@
+html {
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #eeeef7;
+  margin: 0;
+}
+
+.errored {
+  color: #e25959;
+}
+
+.navbar {
+  padding: 10px;
+  background: #cbcbe7;
+  opacity: 0.8;
+}
+.navbar a {
+  margin: 0 5px;
+}
+
+.pagetitle {
+  width: 100%;
+  text-align: center;
+}
+
+.quote {
+  color: green;
+}
+
+/*# sourceMappingURL=main.css.map */

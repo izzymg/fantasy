@@ -1,12 +1,11 @@
 mixin post(post)
   .post
     .postInfo
-      a.postId(name=post.id href="#" + post.id)
-        span.id no.#{post.id}
       if post.subject
         span.subject !{post.subject}
       span.name !{post.name}
       span(title=post.createdAt).date #{new Date(post.createdAt).toLocaleString()}
+      a.postId(name=post.id href="#" + post.id) no.#{post.id}
     if post.files.length > 0
       .files
         for file in post.files

@@ -1,0 +1,6 @@
+.boardInfo {
+  font-size: small;
+  .item::after {
+    content: " / ";
+  }
+}

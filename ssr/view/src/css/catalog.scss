@@ -1,0 +1,39 @@
+@import "postForm";
+@import "boardInfo";
+
+.threads {
+  margin: 0 2px;
+}
+
+.threadPreview {
+  display: inline-block;
+  vertical-align: top;
+  max-height: 300px;
+  max-width: 150px;
+  word-wrap: break-word;
+  overflow: hidden;
+  margin: 0 5px;
+
+  img {
+    border: 1px solid lightgrey;
+    padding: 1px;
+  }
+
+  a {
+    text-decoration: none;
+    color: black;
+  }
+
+
+  .date {
+    color: green;
+    display: block;
+    font-size: small;
+  }
+
+  .subject {
+    color: blue;
+    text-decoration: underline;
+    display: block;
+  }
+}

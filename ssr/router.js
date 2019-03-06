@@ -9,14 +9,14 @@ const path = require("path");
 
 // Views
 router.use(
-  koaViews(path.join(__dirname, "/static/templates"), {
+  koaViews(path.join(__dirname, "/view/templates"), {
     extension: "pug",
     options: { cache: config.env == "production" ? true: false },
   })
 );
 
 // Server static files (JS/CSS/Media)
-router.use(koaStatic(path.join(__dirname, "/static/dist")));
+router.use(koaStatic(path.join(__dirname, "/view/dist")));
 
 router.use(async function(ctx, next) {
   ctx.state.api = `${config.site.apiUrl}`;

@@ -1,0 +1,18 @@
+{
+  "name": "fantasyssr",
+  "version": "1.0.0",
+  "description": "SSR templates for fantasy",
+  "dependencies": {
+    "sass": "^1.17.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build": "sass --style compressed --no-source-map src/css:dist/css",
+    "watch": "sass --watch src/css:dist/css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/izzymg/fantasy"
+  },
+  "author": "IzzyMG"
+}

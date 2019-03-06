@@ -1,0 +1,32 @@
+@import "vars";
+
+html {
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: $fantasyblue;
+  margin: 0;
+}
+
+.errored {
+  color: rgb(226, 89, 89);
+}
+
+.navbar {
+  padding: 10px;
+  background: darken($fantasyblue, 10%);
+  opacity: 0.8;
+  a {
+    margin: 0 5px;
+  }
+}
+
+.pagetitle {
+  width: 100%;
+  text-align: center;
+}
+
+.quote {
+  color: green;
+}

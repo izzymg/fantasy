@@ -7,6 +7,7 @@ mixin threadPreview(post)
                         img(src=`${files}/${file.thumbFilename}`).thumbnail
                     else
                         a(href=`${files}/${file.filename}`).fileLink !{file.originalName}
+            span.date !{new Date(post.createdAt).toLocaleString()}
             if post.subject
                 span.subject !{post.subject}
             p.content !{post.content}

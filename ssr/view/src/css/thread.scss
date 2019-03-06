@@ -1,0 +1,53 @@
+@import "postForm";
+@import "boardInfo";
+@import "vars";
+
+.post {
+  padding: 5px 15px;
+  overflow: hidden;
+  display: block;
+  .extra {
+    font-size: small;
+    color: black;
+  }
+  .content {
+    p {
+      padding: 0;
+      margin: 0;
+      word-wrap: break-word;
+    }
+  }
+  .postInfo {
+    margin: 5px 0;
+    .name {
+      color: green;
+    }
+    .subject {
+      margin: 0 5px;
+      color: lightskyblue;
+    }
+    .postId {
+      margin: 0 10px;
+    }
+    .date {
+      margin: 0 5px;
+    }
+  }
+  .fileInfo {
+    display: inline-block;
+    margin: 5px;
+  }
+  .file {
+    float: left;
+    clear: both;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+}
+
+.replies .post {
+  margin: 10px auto;
+  background: darken($fantasyblue, 5%);
+  border: 1px solid lightgrey;
+  max-width: 95%;
+}

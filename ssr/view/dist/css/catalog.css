@@ -1,0 +1,54 @@
+.postFormBox form {
+  width: 60%;
+  margin: 0 auto;
+}
+.postFormBox form .formName, .postFormBox form .formSubject, .postFormBox form .formContent {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 5px 0;
+  font-family: Arial, sans-serif;
+  font-size: 0.9rem;
+  padding: 5px;
+}
+
+.boardInfo {
+  font-size: small;
+}
+.boardInfo .item::after {
+  content: " / ";
+}
+
+.threads {
+  margin: 0 2px;
+}
+
+.threadPreview {
+  display: inline-block;
+  vertical-align: top;
+  max-height: 300px;
+  max-width: 150px;
+  word-wrap: break-word;
+  overflow: hidden;
+  margin: 0 5px;
+}
+.threadPreview img {
+  border: 1px solid lightgrey;
+  padding: 1px;
+}
+.threadPreview a {
+  text-decoration: none;
+  color: black;
+}
+.threadPreview .date {
+  color: green;
+  display: block;
+  font-size: small;
+}
+.threadPreview .subject {
+  color: blue;
+  text-decoration: underline;
+  display: block;
+}
+
+/*# sourceMappingURL=catalog.css.map */
