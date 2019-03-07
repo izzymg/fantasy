@@ -91,6 +91,11 @@ module.exports = {
 
   // Configuration of posts
   posts: {
+    enableTripcodes: true,
+    // https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options
+    // Use openssl list -digest-algorithms
+    tripAlgorithm: "md5",
+    tripSalt: "veryimportantsalt",
     maxNameLength: 16,
     maxSubjectLength: 60,
     maxContentLength: 900,

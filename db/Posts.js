@@ -256,7 +256,9 @@ exports.savePost = async function(post) {
               config.posts.thumbWidth, config.posts.thumbQuality
             );
           }
-        } catch(e) { throw validationError("Failed to process image"); }
+        } catch(e) {
+          throw validationError("Failed to process image");
+        }
         delete userFile.tempPath;
         // Save to db
         await dbConnecton.query({

@@ -1,6 +1,7 @@
 // Publically accessible API routes 
 
 const validation = require("../libs/validation");
+const crypto = require("crypto");
 const config = require("../config/config");
 const multipart = require("../libs/multipart");
 const Posts = require("../db/Posts");
@@ -8,6 +9,7 @@ const Boards = require("../db/Boards");
 const Bans = require("../db/Bans");
 const Ips = require("../db/Ips");
 const Router = require("koa-router");
+const jEncoding = require("encoding-japanese");
 const router = new Router();
 
 // Set board for all board routes
@@ -133,9 +135,27 @@ router.post("/boards/:board/:thread?",
     fields.subject = validation.sanitize(fields.subject);
     fields.content = validation.formatPostContent(validation.sanitize(fields.content));
 
+    // Tripcodes
+    if(config.posts.enableTripcodes) {
+      const tripIndex = fields.name.indexOf("#");
+      if(tripIndex !== -1) {
+        if(fields.name[tripIndex - 1] === "\\") {
+          // Slice off backslash before # and ignore tripcode
+          // Allows escaping tripcode detection if user wants a # in their name
+          fields.name = fields.name.slice(0, tripIndex - 1) + fields.name.slice(tripIndex);
+        } else {
+          const trip = crypto.createHmac(config.posts.tripAlgorithm, config.posts.tripSalt);
+          const password = jEncoding.base64Encode(jEncoding
+            .convert(Buffer.from(fields.name.slice(tripIndex + 1), "utf8"), "SJIS", "utf8"));
+          trip.update(password);
+          fields.name = fields.name.slice(0, tripIndex) + "!" + trip.digest("base64");
+        }
+      }
+    }
 
     const userFiles = files ? files.map((file) => {
-      file.originalName = validation.sanitize(file.originalName); Posts.File(file, { fresh: true });
+      file.originalName = validation.sanitize(file.originalName);
+      return Posts.File(file, { fresh: true });
     }) : null;
 
     const userPost = Posts.Post({

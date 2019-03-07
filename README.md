@@ -11,6 +11,7 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 * Posting cooldowns
 * Automatic thread deletion on board cap
 * Thread bumps and bump limit
+* Optional tripcodes
 * Anonymous only posting, accounts only for administration
 * Secure administration, post deletion and bans
 * Exposed JSON API 
@@ -23,7 +24,6 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 * Report system
 * Automatic antispam
 * More administration functions
-* Tripcodes
 * Store MD5 hash of images
 * Support webms
 * Captchas
