@@ -3,6 +3,7 @@
 const Router = require("koa-router");
 const router = new Router();
 const bcrypt = require("bcrypt");
+const validation = require("../libs/validation");
 const uuid = require("uuid");
 const coBody = require("co-body");
 const Users = require("../db/Users");
@@ -138,6 +139,7 @@ router.post("/ban/:board/:post", requireModOrAdmin, fetchJson, async function(ct
   const hours = Number(ctx.fields.hours) || 0;
   const days = Number(ctx.fields.days) || 0;
   ctx.assert(ctx.fields.reason, 400, "Expected reason for ban");
+  ctx.fields.reason = validation.sanitize(ctx.fields.reason);
 
   const currentTime = Date.now();
   let banExpiry = null;

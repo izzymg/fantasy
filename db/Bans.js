@@ -33,7 +33,6 @@ const Ban = exports.Ban = function({
 exports.saveBan = async function(ban) {
   let lengthError = validation.lengthCheck(ban.reason, 1000, "Ban");
   if(lengthError) throw validationError(lengthError);
-  ban.reason = validation.sanitize(ban.reason);
   const res = await persistence.db.query({
     sql: "INSERT INTO BANS SET ?", values: [ban]
   });

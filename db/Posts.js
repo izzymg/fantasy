@@ -2,7 +2,6 @@ const persistence = require("./persistence");
 const config = require("../config/config");
 const path = require("path");
 const fs = require("../libs/fs");
-const validation = require("../libs/validation");
 const validationError = (message) => ({ status: 400, message });
 
 /**
@@ -208,21 +207,6 @@ exports.bumpPost = async function(board, id) {
 exports.savePost = async function(post) {
   let processedFiles = 0;
 
-  // Length check returns null if no error
-  let lengthError = null;
-  lengthError = validation.lengthCheck(
-    post.name, config.posts.maxNameLength, "Name") || lengthError;
-  lengthError = validation.lengthCheck(
-    post.subject, config.posts.maxSubjectLength, "Subject") || lengthError;
-  lengthError = validation.lengthCheck(
-    post.content, config.posts.maxContentLength, "Content") || lengthError;
-  if(lengthError) throw validationError(lengthError);
-
-  // Sanitizing post will increase post length
-  post.name = validation.sanitize(post.name);
-  post.subject = validation.sanitize(post.subject);
-  post.content = validation.formatPostContent(validation.sanitize(post.content));
-
   if(post.parent) {
     if(config.posts.replies.requireContentOrFiles && (!post.files) && !post.content) {
       throw validationError("Content or file required");
@@ -274,7 +258,6 @@ exports.savePost = async function(post) {
           }
         } catch(e) { throw validationError("Failed to process image"); }
         delete userFile.tempPath;
-        userFile.originalName = validation.sanitize(userFile.originalName);
         // Save to db
         await dbConnecton.query({
           sql: "INSERT INTO files SET postUId = ?, ?",

@@ -1,5 +1,6 @@
 // Publically accessible API routes 
 
+const validation = require("../libs/validation");
 const config = require("../config/config");
 const multipart = require("../libs/multipart");
 const Posts = require("../db/Posts");
@@ -63,7 +64,7 @@ router.get("/boards/:board/threads/:thread", async(ctx) => {
   ctx.body = { thread, replies };
 });
 
-// Submit new thread to board
+// Submit post
 router.post("/boards/:board/:thread?",
   async(ctx) => {
     ctx.body = "";
@@ -116,7 +117,26 @@ router.post("/boards/:board/:thread?",
       return ctx.throw(500, error);
     }
 
-    const userFiles = files ? files.map((file) => Posts.File(file, { fresh: true })) : null;
+    
+    // Length check returns null if no error
+    let lengthError = null;
+    lengthError = validation.lengthCheck(
+      fields.name, config.posts.maxNameLength, "Name") || lengthError;
+    lengthError = validation.lengthCheck(
+      fields.subject, config.posts.maxSubjectLength, "Subject") || lengthError;
+    lengthError = validation.lengthCheck(
+      fields.content, config.posts.maxContentLength, "Content") || lengthError;
+    if(lengthError) ctx.throw(400, lengthError);
+
+    // Sanitizing post will increase post length
+    fields.name = validation.sanitize(fields.name);
+    fields.subject = validation.sanitize(fields.subject);
+    fields.content = validation.formatPostContent(validation.sanitize(fields.content));
+
+
+    const userFiles = files ? files.map((file) => {
+      file.originalName = validation.sanitize(file.originalName); Posts.File(file, { fresh: true });
+    }) : null;
 
     const userPost = Posts.Post({
       boardUrl: board.url,
