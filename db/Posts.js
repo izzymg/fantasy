@@ -259,18 +259,20 @@ exports.savePost = async function(post) {
     if(postFiles) {
       await Promise.all(postFiles.map(async(userFile) => {
         // Copy temp store to permanent
-        await fs.createImage(
-          userFile.tempPath,
-          path.join(config.posts.filesDir, userFile.filename)
-        );
-        // Create thumbnail on image mimetypes
-        if(userFile.thumbFilename) {
-          await fs.createThumbnail(
-            path.join(config.posts.filesDir, userFile.filename),
-            path.join(config.posts.filesDir, userFile.thumbFilename),
-            config.posts.thumbWidth, config.posts.thumbQuality
+        try {
+          await fs.createImage(
+            userFile.tempPath,
+            path.join(config.posts.filesDir, userFile.filename)
           );
-        }
+          // Create thumbnail on image mimetypes
+          if(userFile.thumbFilename) {
+            await fs.createThumbnail(
+              path.join(config.posts.filesDir, userFile.filename),
+              path.join(config.posts.filesDir, userFile.thumbFilename),
+              config.posts.thumbWidth, config.posts.thumbQuality
+            );
+          }
+        } catch(e) { throw validationError("Failed to process image"); }
         delete userFile.tempPath;
         userFile.originalName = validation.sanitize(userFile.originalName);
         // Save to db
@@ -283,8 +285,9 @@ exports.savePost = async function(post) {
     }
     await dbConnecton.commit();
   } catch(error) {
+    // Always rollback before throwing the error again
     dbConnecton.rollback();
-    throw new Error(error);
+    throw error;
   } finally {
     dbConnecton.release();
   }
