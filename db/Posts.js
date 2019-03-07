@@ -259,7 +259,7 @@ exports.savePost = async function(post) {
     if(postFiles) {
       await Promise.all(postFiles.map(async(userFile) => {
         // Copy temp store to permanent
-        await fs.copy(
+        await fs.createImage(
           userFile.tempPath,
           path.join(config.posts.filesDir, userFile.filename)
         );

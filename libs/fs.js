@@ -18,6 +18,14 @@ exports.writeAppend = async function(file, text) {
   });
 };
 
+exports.createImage = async function(inFilename, outFilename) {
+  try {
+    await sharp(inFilename).toFile(outFilename);
+  } catch(e) {
+    throw new Error(e);
+  }
+};
+
 exports.createThumbnail = async function(inFilename, outFilename, width, quality) {
   try {
     const image = sharp(inFilename);
