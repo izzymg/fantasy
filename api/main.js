@@ -139,17 +139,12 @@ router.post("/boards/:board/:thread?",
     if(config.posts.enableTripcodes) {
       const tripIndex = fields.name.indexOf("#");
       if(tripIndex !== -1) {
-        if(fields.name[tripIndex - 1] === "\\") {
-          // Slice off backslash before # and ignore tripcode
-          // Allows escaping tripcode detection if user wants a # in their name
-          fields.name = fields.name.slice(0, tripIndex - 1) + fields.name.slice(tripIndex);
-        } else {
-          const trip = crypto.createHmac(config.posts.tripAlgorithm, config.posts.tripSalt);
-          const password = jEncoding.base64Encode(jEncoding
-            .convert(Buffer.from(fields.name.slice(tripIndex + 1), "utf8"), "SJIS", "utf8"));
-          trip.update(password);
-          fields.name = fields.name.slice(0, tripIndex) + "!" + trip.digest("base64");
-        }
+        const trip = crypto.createHmac(config.posts.tripAlgorithm, config.posts.tripSalt);
+        const password = jEncoding.base64Encode(jEncoding
+          .convert(Buffer.from(fields.name.slice(tripIndex + 1), "utf8"), "SJIS", "utf8"));
+        trip.update(password);
+        fields.name = fields.name.slice(0, tripIndex) + "<span class='trip'>!#" + 
+        validation.sanitize(trip.digest("base64")) + "</span>";
       }
     }
 
