@@ -29,7 +29,7 @@ exports.createThumbnail = async function(inFilename, outFilename, width, quality
         .jpeg({ quality: quality, force: true })
         .toFile(outFilename);
     } else {
-      await image.toFormat("jpeg").toFile(outFilename);
+      await image.jpeg({ quality: quality, force: true }).toFile(outFilename);
     }
   } catch (e) {
     throw new Error(e);
