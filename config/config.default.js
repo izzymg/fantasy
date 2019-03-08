@@ -20,7 +20,7 @@ module.exports = {
   logInternalErrors: false,
   consoleErrors: false,
   // Used as the name of the website in templates
-  webname: "ZChan",
+  webname: "Fantasy",
 
   // A connection pool is used for all SQL queries
   // Read up on connection pools to understand these sections
@@ -64,7 +64,7 @@ module.exports = {
     filesUrl: "http://localhost:3200",
     // Used in title element and home page
     webname: "Test",
-    log: "/var/log/zchan/site.log",
+    log: "/var/log/fantasy/site.log",
     logLevel: null
   },
 
@@ -72,7 +72,7 @@ module.exports = {
   api: {
     port: 3000,
     host: "localhost",
-    log: "/var/log/zchan/api.log",
+    log: "/var/log/fantasy/api.log",
     // Important: This sets the Access-Control-Allow-Origin header, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     // Javascript post submissions will not work without CORS enabled so set this to the URL of the site server
     // Null for no header set, otherwise any value will be directly set into the header
@@ -84,7 +84,7 @@ module.exports = {
   files: {
     host: "localhost",
     port: 3200,
-    log: "/var/log/zchan/files.log",
+    log: "/var/log/fantasy/files.log",
     allowCors: null,
     logLevel: "timing"
   },

@@ -4,10 +4,10 @@ process.on("warning", (e) => console.warn(e.stack));
 
 if(config.env !== "production" && config.env !== "development") {
   config.env = "production";
-  console.warn("Warning: ZThree defaulting to production mode. Set config.env correctly.");
+  console.warn("Warning: Fantasy defaulting to production mode. Set config.env correctly.");
 }
 
-console.log(`ZThree starting in ${config.env} mode. Send SIGINT or SIGTERM to cleanly exit.`);
+console.log(`Fantasy starting in ${config.env} mode. Send SIGINT or SIGTERM to cleanly exit.`);
 
 const apiService = require("./api/service");
 const siteService = require("./ssr/service");
