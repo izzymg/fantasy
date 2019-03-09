@@ -2,6 +2,7 @@ const Koa = require("koa");
 const Router = require("koa-router");
 const router = new Router();
 const server = new Koa();
+const cors = require("@koa/cors");
 const config = require("../config/config");
 const main = require("./main");
 const auth = require("./auth");
@@ -10,6 +11,10 @@ const { logRequestTime, handleErrors } = require("../libs/middleware");
 router.use(main.routes());
 router.use(auth.routes());
 router.use(auth.allowedMethods());
+
+if(config.api.allowCors) {
+  server.use(cors({ origin: config.api.allowCors }));
+}
 
 if(config.logRequestTime) {
   server.use(logRequestTime(config.infoLog));
