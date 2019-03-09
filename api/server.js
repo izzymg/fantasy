@@ -13,7 +13,7 @@ router.use(auth.routes());
 router.use(auth.allowedMethods());
 
 if(config.api.allowCors) {
-  server.use(cors({ origin: config.api.allowCors }));
+  server.use(cors({ origin: config.api.allowCors, credentials: config.api.allowCorsCredentials }));
 }
 
 if(config.logRequestTime) {
