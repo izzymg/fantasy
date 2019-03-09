@@ -15,9 +15,9 @@ block content
     +boardInfo(null, replies ? replies.length : 0)
     .thread
         #op
-            +post(op)
+            +post(op, board.url)
         .replies
             if replies     
                 each reply in replies
-                    +post(reply)
+                    +post(reply, board.url)
                         p #{reply.id}

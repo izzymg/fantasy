@@ -18,6 +18,7 @@
     }
   }
   .postInfo {
+    font-size: 0.9em;
     margin: 5px 0;
     .name {
       color: green;
@@ -26,11 +27,19 @@
       margin: 0 5px;
       color: lightskyblue;
     }
-    .postId {
-      margin: 0 10px;
-    }
     .date {
+      font-size: small;
       margin: 0 5px;
+    }
+    .report {
+      display: inline;
+      input {
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-decoration: underline;
+        color: blue;
+      }
     }
   }
   .fileInfo {
