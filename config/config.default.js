@@ -69,6 +69,11 @@ module.exports = {
 
   // Configuration of posts
   posts: {
+    defaultName: "Anonymous",
+    // Where to write temporary files
+    tmpDir: "/tmp",
+    // Where to store files
+    filesDir: "/var/www/files",
     enableTripcodes: true,
     // https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options
     // Use openssl list -digest-algorithms
@@ -83,14 +88,11 @@ module.exports = {
     maxFiles: 3,
     // Store an MD5 hash of the image?
     md5: true,
-    // Where to write temporary files
-    tmpDir: "/tmp",
-    // Where to store files
-    filesDir: "/var/www/files",
     // Used to scale thumbnails if need be
     thumbWidth: 150,
     thumbQuality: 40,
-    defaultName: "Anonymous",
+    // Time between reports in ms
+    reportCooldown: 1000 * 60 * 30,
     threads: {
       requireSubject: true,
       requireContent: false,

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS boards (
     bumpLimit integer DEFAULT 200,
     maxThreads integer DEFAULT 30,
     cooldown smallint DEFAULT 60,
-    createdAt datetime DEFAULT CURRENT_TIMESTAMP
+    createdAt datetime DEFAULT now()
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS posts (
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS posts (
     boardUrl varchar(20) NOT NULL,
     postId integer NOT NULL,
     parent integer NOT NULL DEFAULT 0,
-    createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    createdAt datetime NOT NULL DEFAULT now(),
     lastBump datetime,
     name text,
     subject text,
@@ -59,12 +59,12 @@ CREATE TABLE IF NOT EXISTS files (
 CREATE TABLE IF NOT EXISTS users (
     username varchar(100) PRIMARY KEY,
     password text,
-    createdAt datetime DEFAULT CURRENT_TIMESTAMP
+    createdAt datetime DEFAULT now()
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS administrators (
     username varchar(100) UNIQUE,
-    createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    createdAt datetime NOT NULL DEFAULT now(),
     CONSTRAINT adminuser
         FOREIGN KEY (username) REFERENCES users (username)
         ON DELETE CASCADE
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS administrators (
 CREATE TABLE IF NOT EXISTS moderators (
     username varchar(100) NOT NULL,
     boardUrl varchar(20) NOT NULL,
-    createdAt datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    createdAt datetime NOT NULL DEFAULT now(),
     CONSTRAINT moduser
         FOREIGN KEY (username) REFERENCES users (username)
         ON DELETE CASCADE,
@@ -90,4 +90,18 @@ CREATE TABLE IF NOT EXISTS bans (
     reason text,
     constraint banboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)
+        ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS reports (
+    boardUrl varchar(20) NOT NULL,
+    postUid integer NOT NULL,
+    ip varchar(29) NOT NULL,
+    createdAt datetime DEFAULT now(),
+    CONSTRAINT reportpost
+        FOREIGN KEY (postUid) REFERENCES posts (uid)
+        ON DELETE CASCADE,
+    CONSTRAINT reportboard
+        FOREIGN KEY (boardUrl) REFERENCES boards (url)
+        ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

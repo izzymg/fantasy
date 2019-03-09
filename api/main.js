@@ -7,6 +7,7 @@ const multipart = require("../libs/multipart");
 const Posts = require("../db/Posts");
 const Boards = require("../db/Boards");
 const Bans = require("../db/Bans");
+const Reports = require("../db/Reports");
 const Ips = require("../db/Ips");
 const Router = require("koa-router");
 const jEncoding = require("encoding-japanese");
@@ -195,6 +196,25 @@ router.post("/boards/:board/:thread?",
     ctx.body += "Post submitted";
   }
 );
+
+// Report post
+router.post("/report/:board/:post", async function(ctx) {
+  const lastReport = await Ips.getLastReport(ctx.ip);
+  if(lastReport && lastReport + config.posts.reportCooldown > Date.now()) {
+    ctx.throw(400, "Please wait before you can do that again");
+  }
+  const postUid = await Posts.getPostUid(ctx.params.board, ctx.params.post);
+  if(!postUid) ctx.throw(404, "No post found");
+  const report = Reports.Report({
+    postUid,
+    ip: ctx.ip,
+    createdAt: new Date(Date.now()),
+    boardUrl: ctx.params.board
+  });
+  await Reports.saveReport(report);
+  ctx.body = "Reported post";
+  await Ips.setLastReport(ctx.ip, Date.now());
+});
 
 // Get user ban status
 router.get("/banInfo", async function(ctx) {

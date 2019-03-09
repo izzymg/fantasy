@@ -6,17 +6,17 @@ const validationError = (message) => ({ status: 400, message });
 
 /**
  * @typedef {object} DbPost
- * @property {number} uid
- * @property {number} id
- * @property {string} boardUrl
- * @property {number} parent
- * @property {Date} lastBump
+ * @property {number} uid Unique ID of post
+ * @property {number} id Board-unique ID of post
+ * @property {string} boardUrl Board post is on
+ * @property {number} parent 0 if thread post or ID of replied-to thread
+ * @property {Date} lastBump Date the post was last bumped
  * @property {string} name
  * @property {string} subject
  * @property {string} content
  * @property {boolean} sticky
- * @property {string} ip
- * @property {Array<UserFile>} files
+ * @property {string} ip Poster's IP address
+ * @property {Array<UserFile>} files Array of files
 */
 
 
@@ -160,6 +160,17 @@ exports.getPostIp = async function(board, id) {
     values: [board, id]
   });
   return row ? row.ip : null;
+};
+
+/**
+ * @returns {number} UID of post or null if not found
+ */
+exports.getPostUid = async function(board, id) {
+  const row = await persistence.db.getOne({
+    sql: "SELECT uid FROM posts WHERE boardUrl = ? AND postId = ?",
+    values: [board, id]
+  });
+  return row ? row.uid : null;
 };
 
 exports.getThreadCount = async function(board) {
