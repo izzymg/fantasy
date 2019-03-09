@@ -4,7 +4,7 @@ include partials/boardInfo.pug
 include partials/postForm.pug
 
 block head
-    link(rel="stylesheet" href="/css/catalog.css")
+    link(rel="stylesheet" href=`${static}/css/catalog.css`)
     title /#{board.url}/ - #{board.title} - #{webname}
 block content
     .pagetitle

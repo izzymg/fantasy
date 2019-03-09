@@ -52,4 +52,4 @@ Setup nginx or another web server to forward a traffic to the unexposed API/SSR 
 
 [Get the Vue.JS frontend here](https://github.com/izzymg/zv) - currently the SSR has zero site interaction beyond posting - all administration will need to be done through the JSON apis.
 
-Grab a process manager like pm2 and put server.js under it.
+Grab a process manager like pm2 and put api.js/ssr.js under it.

@@ -136,7 +136,7 @@ router.post("/boards/:board/:thread?",
     fields.content = validation.formatPostContent(validation.sanitize(fields.content));
 
     // Tripcodes
-    if(config.posts.enableTripcodes) {
+    if(config.posts.enableTripcodes && fields.name) {
       const tripIndex = fields.name.indexOf("#");
       if(tripIndex !== -1) {
         const trip = crypto.createHmac(config.posts.tripAlgorithm, config.posts.tripSalt);

@@ -14,13 +14,12 @@ module.exports = {
   // and ensuring the IP prints the correct address
   proxy: true,
 
-  // Remember, database timeouts are 500 internal server errors
-  // The following options will spam log writes and seriously impact performance should your database backlog with requests
-  // Consider these for debugging purposes
-  logInternalErrors: false,
+  logRequestTime: false,
+  logErrors: false,
   consoleErrors: false,
-  // Used as the name of the website in templates
-  webname: "Fantasy",
+  // Generic info and error/warning logs
+  infoLog: "/var/log/fantasy.log",
+  errorLog: "/var/log/fantasy.log",
 
   // A connection pool is used for all SQL queries
   // Read up on connection pools to understand these sections
@@ -45,48 +44,27 @@ module.exports = {
   // e.g. if you are reverse proxying https traffic from api.mysite.com to localhost:3100
   // enter "https://api.mysite.com" as the url in api and disable https
 
-  // All logs will open via append, so you can set them all to the same if you wish
-  // Ensure the log directory is created and the server has permissions to write out
-  // Refer to global log configuration at top of file
-
-  /* Possible log levels (500 errors are globally controlled by 'logInternalErrors'): 
-    "debug": log all traffic data and time taken
-    "timing": log all traffic time taken
-    null: No logging
-  */
-
-  // Serves rendered templates, the front of your site
-  site: {
-    port: 80,
-    host: "localhost",
-    // URLs used by the site to serve files and submit posts 
-    apiUrl: "http://localhost:3000",
-    filesUrl: "http://localhost:3200",
-    // Used in title element and home page
-    webname: "Test",
-    log: "/var/log/fantasy/site.log",
-    logLevel: null
-  },
-
-  // Serves JSON data, handles post submissions
+   // Serves JSON data, handles post submissions
   api: {
     port: 3000,
     host: "localhost",
-    log: "/var/log/fantasy/api.log",
     // Important: This sets the Access-Control-Allow-Origin header, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     // Javascript post submissions will not work without CORS enabled so set this to the URL of the site server
     // Null for no header set, otherwise any value will be directly set into the header
     allowCors: "https://localhost",
-    logLevel: "timing"
   },
 
-  // File server
-  files: {
+  // Serves rendered templates, the front of your site
+  ssr: {
+    enabled: true,
+    port: 8080,
     host: "localhost",
-    port: 3200,
-    log: "/var/log/fantasy/files.log",
-    allowCors: null,
-    logLevel: "timing"
+    // URLs used by the site to serve files and submit posts 
+    apiUrl: "https://api.yoursite.net",
+    filesUrl: "https://yourcdn.yoursite.net",
+    staticUrl: "https://yourcdn.yoursite.net",
+    // Used in title element and home page
+    webname: "Fantasy",
   },
 
   // Configuration of posts

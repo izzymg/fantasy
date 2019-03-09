@@ -6,7 +6,6 @@
     "type": "git",
     "url": "https://github.com/izzymg/fantasy"
   },
-  "main": "server.js",
   "scripts": {
     "lint": "eslint \"**/*.js\"",
     "fix-lint": "eslint \"**/*.js\" --fix",

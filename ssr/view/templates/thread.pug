@@ -4,7 +4,7 @@ include partials/post.pug
 include partials/postForm.pug
 
 block head
-    link(rel="stylesheet" href="/css/thread.css")
+    link(rel="stylesheet" href=`${static}/css/thread.css`)
     title /#{board.url}/ - #{op.subject || ""} - #{webname}
 block content
     .pagetitle

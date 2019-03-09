@@ -13,6 +13,7 @@ exports.initialize = async() => {
   } else {
     mem = exports.mem = await redis.createClient(secrets.redis);
   }
+  return;
 };
 
 exports.end = async() => await Promise.all([database.end(), mem.close()]);

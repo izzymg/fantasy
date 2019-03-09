@@ -1,42 +1,20 @@
+const persistence = require("./db/persistence");
+const api = require("./api/server");
 const config = require("./config/config");
 
-process.on("warning", (e) => console.warn(e.stack));
+console.log("Fantasy starting in", config.env, "mode");
 
-if(config.env !== "production" && config.env !== "development") {
-  config.env = "production";
-  console.warn("Warning: Fantasy defaulting to production mode. Set config.env correctly.");
-}
-
-console.log(`Fantasy starting in ${config.env} mode. Send SIGINT or SIGTERM to cleanly exit.`);
-
-const apiService = require("./api/service");
-const siteService = require("./ssr/service");
-const fileService = require("./files/service");
-
-const persistence = require("./db/persistence");
-
-persistence.initialize().then(() => {
-  init();
-}).catch((e) => {
-  console.error("Error initialising persistence", e);
-});
-
-async function init() {
-  
+persistence.initialize().then(function() {
   try {
-    await siteService();
-    await fileService();
-    await apiService();
+    api.start();
+    if(config.ssr.enabled) {
+      const ssr = require("./ssr/server");
+      ssr.start();
+    }
   } catch(error) {
-    return console.error("Failed to start server", error);
+    console.error("Error starting Fantasy", error);
+    process.exit(1);
   }
-
-  async function onExit(sig) {
-    console.log(`Received ${sig}, exiting`);
-    await persistence.end();
-    process.exit(0);
-  }
-
-  process.on("SIGINT", onExit);
-  process.on("SIGTERM", onExit);
-}
+}).catch(function(error) {
+  console.error("Error initializing persistence", error);
+});

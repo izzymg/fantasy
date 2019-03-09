@@ -1,27 +1,33 @@
+const { logRequestTime, handleErrors } = require("../libs/middleware");
+const path = require("path");
+const koaViews = require("koa-views");
+const Koa = require("koa");
+const server = new Koa();
 const Router = require("koa-router");
-const config = require("../config/config");
 const router = new Router({ strict: true });
+const config = require("../config/config");
 const Boards = require("../db/Boards");
 const Posts = require("../db/Posts");
-const koaViews = require("koa-views");
-const koaStatic = require("koa-static");
-const path = require("path");
+
+if(config.logRequestTime) {
+  server.use(logRequestTime(config.infoLog));
+}
+
+server.use(handleErrors(config.logErrors ? config.errorLog : null, config.consoleErrors));
 
 // Views
 router.use(
   koaViews(path.join(__dirname, "/view/templates"), {
     extension: "pug",
-    options: { cache: config.env == "production" ? true: false },
+    options: { cache: config.env == "production" ? true : false },
   })
 );
 
-// Server static files (JS/CSS/Media)
-router.use(koaStatic(path.join(__dirname, "/view/dist")));
-
 router.use(async function(ctx, next) {
-  ctx.state.api = `${config.site.apiUrl}`;
-  ctx.state.files = `${config.site.filesUrl}`;
-  ctx.state.webname = config.site.webname;
+  ctx.state.api = `${config.ssr.apiUrl}`;
+  ctx.state.files = `${config.ssr.filesUrl}`;
+  ctx.state.static = `${config.ssr.staticUrl}`;
+  ctx.state.webname = config.ssr.webname;
   return await next();
 });
 
@@ -104,4 +110,12 @@ router.get("*", async function(ctx)  {
   await ctx.render("notfound");
 });
 
-module.exports = router;
+if(config.proxy) server.proxy = true;
+
+server.use(router.routes());
+
+exports.start = function() {
+  server.listen(config.ssr.port, config.ssr.host, function() {
+    console.log(`SSR server listening on ${config.ssr.host}:${config.ssr.port}`);
+  });
+};
