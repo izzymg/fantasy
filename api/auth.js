@@ -35,6 +35,21 @@ async function requireModOrAdmin(ctx, next) {
   return await next();
 }
 
+// Get session information
+router.get("/sessionInfo", async function(ctx) {
+  const id = ctx.cookies.get("id");
+  if(id) {
+    const session = await Sessions.getSession(id);
+    if(session) {
+      ctx.body = {
+        username: session.username
+      };
+      return;
+    }
+  }
+  ctx.body = null;
+});
+
 // POST to login page
 router.post("/login", fetchJson, async function(ctx) {
   ctx.assert(ctx.fields.username && typeof ctx.fields.username == "string",
@@ -82,12 +97,6 @@ router.use(async function(ctx, next) {
   }
   ctx.throw(403, "You don't have permission to do that");
 });
-
-// Get session information
-router.get("/sessionInfo", async function(ctx) {
-  return ctx.body = { username: ctx.session.username };
-});
-
 
 // Change password
 router.post("/changePassword", fetchJson, async function(ctx) {
