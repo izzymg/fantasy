@@ -48,17 +48,31 @@ exports.updateUserPassword = async function(username, hash) {
 };
 
 /**
- * @returns True/false indicating if the user can moderate the board, or is an administrator
+ * @returns 2 = admin, 1 = mod, 0 = none
  * @param username Username of user
  * @param board Url of board being checked
  */
 
 exports.canUserModerate = async function(username, board) {
+  const [admin, mod] = await Promise.all([
+    persistence.db.getOne({
+      sql: "SELECT createdAt FROM administrators WHERE username = ?",
+      values: [username]
+    }),
+    persistence.db.getAll({
+      sql:"SELECT createdAt FROM moderators WHERE boardUrl = ? AND username = ?",
+      values: [board, username]
+    })
+  ]);
+  if(admin && admin.createdAt) return 2;
+  if(mod && mod.length > 0) return 1;
+  return 0;
+};
+
+exports.getAdmin = async function(username) {
   const res = await persistence.db.getOne({
-    sql: `SELECT createdAt FROM administrators WHERE username = ?
-          UNION
-          SELECT createdAt FROM moderators WHERE boardUrl = ? AND username = ?`,
-    values: [username, board, username]
+    sql: "SELECT createdAt FROM administrators WHERE username = ?",
+    values: [username]
   });
-  return Boolean(res && res.createdAt);
+  if(res) return User(res);
 };

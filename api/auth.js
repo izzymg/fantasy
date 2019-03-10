@@ -10,6 +10,7 @@ const Users = require("../db/Users");
 const Sessions = require("../db/Sessions");
 const Ips = require("../db/Ips");
 const Posts = require("../db/Posts");
+const Boards = require("../db/Boards");
 const Bans = require("../db/Bans");
 
 async function fetchJson(ctx, next) {
@@ -25,13 +26,6 @@ async function fetchJson(ctx, next) {
     }
     ctx.throw(500, error);
   }
-  return await next();
-}
-
-async function requireModOrAdmin(ctx, next) {
-  const user = await Users.getUser(ctx.session.username);
-  const authorized = await Users.canUserModerate(ctx.session.username, ctx.params.board);
-  ctx.assert(user && authorized === true, 403, "You don't have permission to do that");
   return await next();
 }
 
@@ -128,8 +122,16 @@ router.post("/changePassword", fetchJson, async function(ctx) {
   return ctx.body = "Password updated, please login again";
 });
 
+async function requireModOfBoard(ctx, next) {
+  const user = await Users.getUser(ctx.session.username);
+  const authorized = await Users.canUserModerate(ctx.session.username, ctx.params.board);
+  ctx.assert(user && authorized > 0, 403, "You don't have permission to do that");
+  ctx.isAdmin = Boolean(authorized == 2);
+  return await next();
+}
+
 // Delete post from board
-router.post("/delete/:board/:post", requireModOrAdmin, async function(ctx) {
+router.post("/delete/:board/:post", requireModOfBoard, async function(ctx) {
   const { deletedPosts, deletedFiles } = await Posts.deletePost(ctx.params.board, ctx.params.post);
 
   if(!deletedPosts) {
@@ -144,7 +146,7 @@ router.post("/delete/:board/:post", requireModOrAdmin, async function(ctx) {
 });
 
 // Ban user by post
-router.post("/ban/:board/:post", requireModOrAdmin, fetchJson, async function(ctx) {
+router.post("/ban/:board/:post", requireModOfBoard, fetchJson, async function(ctx) {
   const hours = Number(ctx.fields.hours) || 0;
   const days = Number(ctx.fields.days) || 0;
   ctx.assert(ctx.fields.reason, 400, "Expected reason for ban");
@@ -182,7 +184,7 @@ router.post("/ban/:board/:post", requireModOrAdmin, fetchJson, async function(ct
 });
 
 // Sticky post
-router.post("/stick/:board/:post", requireModOrAdmin, async function(ctx) {
+router.post("/stick/:board/:post", requireModOfBoard, async function(ctx) {
   const post = await Posts.getThread(ctx.params.board, ctx.params.post);
   if(!post) ctx.throw(404, "No post found, is the post a thread?");
   await Posts.setSticky(ctx.params.board, ctx.params.post, true);
@@ -190,11 +192,22 @@ router.post("/stick/:board/:post", requireModOrAdmin, async function(ctx) {
 });
 
 // Sticky post
-router.post("/unstick/:board/:post", requireModOrAdmin, async function(ctx) {
+router.post("/unstick/:board/:post", requireModOfBoard, async function(ctx) {
   const post = await Posts.getThread(ctx.params.board, ctx.params.post);
   if(!post) ctx.throw(404, "No post found, is the post a thread?");
   await Posts.setSticky(ctx.params.board, ctx.params.post, false);
   ctx.body = "Unstickied";
+});
+
+// Get boards a user can moderate
+router.get("/mod/boards", async function(ctx) {
+  const isAdmin = await Users.getAdmin(ctx.session.username);
+  if(isAdmin) {
+    ctx.body = await Boards.getBoards();
+  } else {
+    const boards = await Boards.getModable(ctx.session.username);
+    ctx.body = boards;
+  }
 });
 
 module.exports = router;

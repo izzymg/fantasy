@@ -45,3 +45,16 @@ exports.getBoards = async function() {
   });
   if(rows) return rows.map((row) => Board(row));
 };
+
+/**
+ * @returns {Promise<Array<DbBoard>>} Array of boards user may moderate
+ */
+exports.getModable = async function(username){
+  const rows = await persistence.db.getAll({
+    sql: `SELECT url, title, about, sfw, bumpLimit, maxThreads, cooldown, boards.createdAt 
+    FROM boards LEFT JOIN moderators ON boards.url = moderators.boardUrl
+    WHERE moderators.username = ?`,
+    values: [username]
+  });
+  if(rows) return rows.map((row) => Board(row));
+};
