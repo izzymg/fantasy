@@ -16,6 +16,7 @@ exports.handleErrors = function(logFile = null, logToConsole = false) {
     } catch(error) {
       const status = error.status || 500;
       if(status !== 500) {
+        ctx.status = error.status;
         ctx.body = error.message || `Status ${error.status}`;
         return;
       }
