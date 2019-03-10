@@ -179,7 +179,22 @@ router.post("/ban/:board/:post", requireModOrAdmin, fetchJson, async function(ct
     }
     ctx.throw(500, error);
   }
+});
 
+// Sticky post
+router.post("/stick/:board/:post", requireModOrAdmin, async function(ctx) {
+  const post = await Posts.getThread(ctx.params.board, ctx.params.post);
+  if(!post) ctx.throw(404, "No post found, is the post a thread?");
+  await Posts.setSticky(ctx.params.board, ctx.params.post, true);
+  ctx.body = "Stickied";
+});
+
+// Sticky post
+router.post("/unstick/:board/:post", requireModOrAdmin, async function(ctx) {
+  const post = await Posts.getThread(ctx.params.board, ctx.params.post);
+  if(!post) ctx.throw(404, "No post found, is the post a thread?");
+  await Posts.setSticky(ctx.params.board, ctx.params.post, false);
+  ctx.body = "Unstickied";
 });
 
 module.exports = router;

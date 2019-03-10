@@ -319,3 +319,11 @@ exports.deletePost = async(board, id) => {
   });
   return { deletedPosts: affectedRows, deletedFiles };
 };
+
+exports.setSticky = async function(board, id, sticky = true) {
+  const res = await persistence.db.query({
+    sql: "UPDATE posts SET sticky = ? WHERE boardUrl = ? AND postId = ? AND parent = 0",
+    values: [sticky, board, id]
+  });
+  if(!res.affectedRows) throw "Set sticky failed";
+};
