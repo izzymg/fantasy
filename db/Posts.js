@@ -30,7 +30,7 @@ const Post = exports.Post = function(
     boardUrl,
     parent: parent || 0,
     createdAt: createdAt || new Date(Date.now()),
-    lastBump: lastBump || parent == 0 ? new Date(Date.now()) : null,
+    lastBump: lastBump || (!parent ? new Date(Date.now()) : null),
     name: name || "Anonymous",
     subject,
     content,
@@ -203,7 +203,7 @@ exports.getOldestThreadId = async function(board) {
 
 exports.bumpPost = async function(board, id) {
   const res = await persistence.db.query({
-    sql: "UPDATE posts SET lastBump = ? WHERE boardUrl = ? AND parent = 0 AND postId = ?",
+    sql: "UPDATE posts SET lastBump = ? WHERE boardUrl = ? AND postId = ? AND parent = 0",
     values: [new Date(Date.now()), board, id]
   });
   if (!res || !res.affectedRows) {
