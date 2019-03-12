@@ -207,6 +207,7 @@ router.post("/report/:board/:post", async function(ctx) {
   if(!postUid) ctx.throw(404, "No post found");
   const report = Reports.Report({
     postUid,
+    postId: ctx.params.post,
     ip: ctx.ip,
     createdAt: new Date(Date.now()),
     boardUrl: ctx.params.board

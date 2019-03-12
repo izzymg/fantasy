@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS bans (
 CREATE TABLE IF NOT EXISTS reports (
     boardUrl varchar(20) NOT NULL,
     postUid integer NOT NULL,
+    postId integer NOT NULL,
     ip varchar(29) NOT NULL,
     createdAt datetime DEFAULT now(),
     CONSTRAINT reportpost

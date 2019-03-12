@@ -11,6 +11,7 @@ const Sessions = require("../db/Sessions");
 const Ips = require("../db/Ips");
 const Posts = require("../db/Posts");
 const Boards = require("../db/Boards");
+const Reports = require("../db/Reports");
 const Bans = require("../db/Bans");
 
 async function fetchJson(ctx, next) {
@@ -181,6 +182,11 @@ router.post("/ban/:board/:post", requireModOfBoard, fetchJson, async function(ct
     }
     ctx.throw(500, error);
   }
+});
+
+// Get reports on board
+router.get("/reports/:board/", requireModOfBoard, async function(ctx) {
+  ctx.body = await Reports.getBoardReports(ctx.params.board);
 });
 
 // Sticky post
