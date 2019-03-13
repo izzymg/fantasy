@@ -93,12 +93,20 @@ CREATE TABLE IF NOT EXISTS bans (
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS reportlevels(
+    level integer PRIMARY KEY,
+    description text
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS reports (
     boardUrl varchar(20) NOT NULL,
     postUid integer NOT NULL,
     postId integer NOT NULL,
+    level integer NOT NULL,
     ip varchar(29) NOT NULL,
     createdAt datetime DEFAULT now(),
+    CONSTRAINT reportlevel
+        FOREIGN KEY (level) REFERENCES reportlevels (level),
     CONSTRAINT reportpost
         FOREIGN KEY (postUid) REFERENCES posts (uid)
         ON DELETE CASCADE,
