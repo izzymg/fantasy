@@ -3,6 +3,7 @@ const server = new Koa();
 const cors = require("@koa/cors");
 const config = require("../config/config");
 const authRoute = require("./routes/auth");
+const boardsRoute = require("./routes/boards");
 const postsRoute = require("./routes/posts");
 const { logRequestTime, handleErrors } = require("../libs/middleware");
 
@@ -20,6 +21,7 @@ server.use(handleErrors(config.logErrors ? config.errorLog : null, config.consol
 if(config.proxy) server.proxy = true;
 
 server.use(authRoute);
+server.use(boardsRoute);
 server.use(postsRoute);
 
 exports.start = function() {

@@ -60,8 +60,10 @@ This is a list of routes the API exposes.
 
 | Method | URL                                | Info                             |
 | ------ | ---------------------------------- | -------------------------------- |
-| POST   | /auth/login                        | Expects {username, password}     |
-| GET    | /auth/session                      | Returns { username }             |
 | GET    | /posts/:board/:id                  | Returns a single post at :id     |
 | GET    | /posts/:board/threads              | Returns all threads at :board    |
 | GET    | /posts/:board/threads/:id          | Returns { thread, replies }      |
+| GET    | /boards                            | Returns all boards               |
+| GET    | /boards/:id                        | Returns board :id information    |
+| POST   | /auth/login                        | Expects {username, password}     |
+| GET    | /auth/session                      | Returns { username }             |

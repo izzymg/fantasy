@@ -5,10 +5,7 @@ const postsDb = require("../../db/posts");
 // Threads on board
 router.get("/posts/:board/threads", async(ctx) => {
   const threads = await postsDb.getThreads(ctx.params.board);
-  if (!threads) {
-    return ctx.body = {};
-  }
-  ctx.body = { threads };
+  if(threads) ctx.body = { threads };
 });
 
 // Thread and replies
