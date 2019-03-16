@@ -10,14 +10,14 @@ exports.createClient = () => {
     close: () => client = null,
     del: (key) => {
       if(client[key]) {
-        client[key] = null;
+        delete client[key];
         return 1;
       }
       return 0;
     },
     hDel: (key, field) => {
-      if(client[key][field]) {
-        client[key][field] = null;
+      if(client[key] && client[key][field]) {
+        delete client[key][field];
         return 1;
       }
       return 0;
