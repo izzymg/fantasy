@@ -6,8 +6,8 @@ const server = new Koa();
 const Router = require("koa-router");
 const router = new Router({ strict: true });
 const config = require("../config/config");
-const Boards = require("../db/Boards");
-const Posts = require("../db/Posts");
+const Boards = require("../db/boards");
+const Posts = require("../db/posts");
 
 if(config.logRequestTime) {
   server.use(logRequestTime(config.infoLog));

@@ -1,5 +1,5 @@
 const persistence = require("../db/persistence");
-const Boards = require("../db/Boards");
+const Boards = require("../db/boards");
 const assert = require("assert");
 
 before(async function () {

@@ -6,13 +6,13 @@ const bcrypt = require("bcrypt");
 const validation = require("../libs/validation");
 const uuid = require("uuid");
 const coBody = require("co-body");
-const Users = require("../db/Users");
-const Sessions = require("../db/Sessions");
-const Ips = require("../db/Ips");
-const Posts = require("../db/Posts");
-const Boards = require("../db/Boards");
-const Reports = require("../db/Reports");
-const Bans = require("../db/Bans");
+const Users = require("../db/users");
+const Sessions = require("../db/sessions");
+const Ips = require("../db/ips");
+const Posts = require("../db/posts");
+const Boards = require("../db/boards");
+const Reports = require("../db/reports");
+const Bans = require("../db/bans");
 
 async function fetchJson(ctx, next) {
   ctx.assert(ctx.is("application/json"), 400, "Expected JSON data");

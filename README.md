@@ -53,3 +53,15 @@ Setup nginx or another web server to forward a traffic to the unexposed API/SSR 
 [Get the Vue.JS frontend here](https://github.com/izzymg/zv) - currently the SSR has zero site interaction beyond posting - all administration will need to be done through the JSON apis.
 
 Grab a process manager like pm2 and put api.js/ssr.js under it.
+
+## API routes
+
+This is a list of routes the API exposes.
+
+| Method | URL                                | Info                             |
+| ------ | ---------------------------------- | -------------------------------- |
+| POST   | /auth/login                        | Expects {username, password}     |
+| GET    | /auth/session                      | Returns { username }             |
+| GET    | /posts/:board/:id                  | Returns a single post at :id     |
+| GET    | /posts/:board/threads              | Returns all threads at :board    |
+| GET    | /posts/:board/threads/:id          | Returns { thread, replies }      |

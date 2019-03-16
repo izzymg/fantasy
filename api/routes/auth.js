@@ -3,9 +3,9 @@ const router = new KoaRouter();
 const coBody = require("co-body");
 const uuid = require("uuid");
 const bcrypt = require("bcrypt");
-const IpsDb = require("../../db/Ips");
-const SessionsDb = require("../../db/Sessions");
-const UsersDb = require("../../db/Users");
+const ipsDb = require("../../db/ips");
+const sessionsDb = require("../../db/sessions");
+const usersDb = require("../../db/users");
 
 // POST to login page
 router.post("/auth/login", async function(ctx) {
@@ -17,7 +17,7 @@ router.post("/auth/login", async function(ctx) {
     400, "Expected password"
   );
 
-  let { attempts, lastAttempt } = await IpsDb.getLogins(ctx.ip);
+  let { attempts, lastAttempt } = await ipsDb.getLogins(ctx.ip);
   // Delete attempts if last attempt was over 12 hrs ago
   if (lastAttempt && lastAttempt > Date.now() - (12 * 60 * 60 * 1000)) {
     attempts = 0;
@@ -25,15 +25,15 @@ router.post("/auth/login", async function(ctx) {
     ctx.throw(403, "Too many login attempts, try again later");
   }
 
-  await IpsDb.setLogins(ctx.ip, attempts + 1, new Date(Date.now()));
+  await ipsDb.setLogins(ctx.ip, attempts + 1, new Date(Date.now()));
 
-  const user = await UsersDb.getUserWithPassword(fields.username);
+  const user = await usersDb.getUserWithPassword(fields.username);
 
   if (user && user.password) {
     const passwordMatch = await bcrypt.compare(fields.password, user.password);
     if (passwordMatch === true) {
       const sessionId = uuid();
-      await SessionsDb.setSession(sessionId, user.username);
+      await sessionsDb.setSession(sessionId, user.username);
       ctx.set("Set-Cookie", `id=${sessionId}`);
       ctx.body = "Success";
       return;
@@ -44,7 +44,7 @@ router.post("/auth/login", async function(ctx) {
 
 // Get session information
 router.get("/auth/session", async function(ctx) {
-  const session = await SessionsDb.getSession(ctx.cookies.get("id"));
+  const session = await sessionsDb.getSession(ctx.cookies.get("id"));
   if(session) {
     ctx.body = {
       username: session.username
