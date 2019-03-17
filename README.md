@@ -67,8 +67,8 @@ GET    | /posts/:board/threads              | Returns all threads at :board
 GET    | /posts/:board/threads/:post        | Returns { thread, replies }                                           
 DELETE | /posts/:board/:post                | Deletes post :post on :board
 POST   | /posts/report/:board/:post         | Reports post
-PUT    | /posts/stick/:board/:post            | Sticks post
-PUT    | /posts/unstick/:board/:post          | Unsticks post
+PUT    | /posts/stick/:board/:post          | Sticks post
+PUT    | /posts/unstick/:board/:post        | Unsticks post
 GET    | /boards                            | Returns all boards                                                    
 GET    | /boards/:board                     | Returns board :post information                                         
 GET    | /boards/mod                        | Returns all board you moderate                                        
