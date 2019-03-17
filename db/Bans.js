@@ -23,6 +23,8 @@ const Ban = exports.Ban = function({
   };
   if(!fresh) {
     ban.uid = uid;
+  } else {
+    ban.reason = validation.sanitize(ban.reason);
   }
   return ban;
 };

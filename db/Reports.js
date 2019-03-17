@@ -13,8 +13,8 @@ const persistence = require("./persistence");
 /**
  * @returns {report} Report
  */
-const Report = exports.Report = function({ boardUrl, postId, postUid, ip, createdAt }) {
-  const Report = { boardUrl, postId, postUid, ip, createdAt };
+const Report = exports.Report = function({ boardUrl, postId, postUid, level, ip, createdAt }) {
+  const Report = { boardUrl, postId, postUid, level, ip, createdAt };
   return Report;
 };
 

@@ -2,6 +2,7 @@ const persistence = require("./persistence");
 const config = require("../config/config");
 const path = require("path");
 const fs = require("../libs/fs");
+const validation = require("../libs/validation");
 const validationError = (message) => ({ status: 400, message });
 
 /**
@@ -40,6 +41,33 @@ const Post = exports.Post = function(
   if(!fresh) {
     post.uid = uid;
     post.id = postId;
+  } else {
+    if(post.parent) {
+      if(config.posts.replies.requireContentOrFiles && (!post.files) && !post.content) {
+        throw validationError("Content or file required");
+      }
+      // Remove subject from replies
+      post.subject = null;
+    } else {
+      if(config.posts.threads.requireContent && !post.content) {
+        throw validationError("Content required");
+      }
+      if(config.posts.threads.requireSubject && !post.subject) {
+        throw validationError("Subject required");
+      }
+      if(config.posts.threads.requireFiles && (!post.files)) {
+        throw validationError("File required");
+      }
+    }
+    validation.lengthCheck(post.name, config.posts.maxNameLength, "Name");
+    validation.lengthCheck(post.subject, config.posts.maxSubjectLength, "Subject");
+    validation.lengthCheck(post.content, config.posts.maxContentLength, "Content");
+    // Sanitize and format fields
+    post.subject = validation.sanitize(post.subject);
+    post.name = validation.formatNameContent(
+      validation.sanitize(post.name), config.posts.tripAlgorithm, config.posts.tripSalt
+    );
+    post.content = validation.formatPostContent(validation.sanitize(post.content));
   }
   return post;
 };
@@ -70,6 +98,7 @@ const File = exports.File = function({ postUid, filename, thumbFilename,
     file.postUid = postUid;
   } else {
     file.tempPath = tempPath;
+    file.originalName = validation.sanitize(file.originalName);
   }
   return file;
 };
@@ -218,22 +247,6 @@ exports.bumpPost = async function(board, id) {
 exports.savePost = async function(post) {
   let processedFiles = 0;
 
-  if(post.parent) {
-    if(config.posts.replies.requireContentOrFiles && (!post.files) && !post.content) {
-      throw validationError("Content or file required");
-    }
-  } else {
-    if(config.posts.threads.requireContent && !post.content) {
-      throw validationError("Content required");
-    }
-    if(config.posts.threads.requireSubject && !post.subject) {
-      throw validationError("Subject required");
-    }
-    if(config.posts.threads.requireFiles && (!post.files)) {
-      throw validationError("File required");
-    }
-  }
-
   const postFiles = post.files;
   delete post.files;
   const dbConnecton = await persistence.db.getConnection();
@@ -253,13 +266,18 @@ exports.savePost = async function(post) {
     if(!insertedPost.insertId) throw new Error("Failed to insert post into DB");
     if(postFiles) {
       await Promise.all(postFiles.map(async(userFile) => {
-        // Copy temp store to permanent
         try {
-          await fs.createImage(
-            userFile.tempPath,
-            path.join(config.posts.filesDir, userFile.filename)
-          );
-          // Create thumbnail on image mimetypes
+          if(userFile.mimetype == "image/jpeg" || userFile.mimetype == "image/png") {
+            await fs.createImage(
+              userFile.tempPath,
+              path.join(config.posts.filesDir, userFile.filename)
+            );
+          } else {
+            await fs.rename(
+              userFile.tempPath,
+              path.join(config.posts.filesDir, userFile.filename)
+            );
+          }
           if(userFile.thumbFilename) {
             await fs.createThumbnail(
               path.join(config.posts.filesDir, userFile.filename),

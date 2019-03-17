@@ -58,12 +58,22 @@ Grab a process manager like pm2 and put api.js/ssr.js under it.
 
 This is a list of routes the API exposes.
 
-| Method | URL                                | Info                             |
-| ------ | ---------------------------------- | -------------------------------- |
-| GET    | /posts/:board/:id                  | Returns a single post at :id     |
-| GET    | /posts/:board/threads              | Returns all threads at :board    |
-| GET    | /posts/:board/threads/:id          | Returns { thread, replies }      |
-| GET    | /boards                            | Returns all boards               |
-| GET    | /boards/:id                        | Returns board :id information    |
-| POST   | /auth/login                        | Expects {username, password}     |
-| GET    | /auth/session                      | Returns { username }             |
+Method | URL                                | Info (all content types JSON unless stated otherwise)                 
+------ | ---------------------------------- | --------------------------------------------------------------------- 
+GET    | /posts/:board/:post                | Returns a single post at :post                                          
+POST   | /posts/:board/                     | Multipart: Create thread, { name, subject, content, any file fields } 
+POST   | /posts/:board/:post                | Multipart: Create reply to :post, ignores subject                       
+GET    | /posts/:board/threads              | Returns all threads at :board                                         
+GET    | /posts/:board/threads/:post        | Returns { thread, replies }                                           
+DELETE | /posts/:board/:post                | Deletes post :post on :board
+POST   | /posts/report/:board/:post         | Reports post
+PUT    | /posts/stick/:board/:post            | Sticks post
+PUT    | /posts/unstick/:board/:post          | Unsticks post
+GET    | /boards                            | Returns all boards                                                    
+GET    | /boards/:board                     | Returns board :post information                                         
+GET    | /boards/mod                        | Returns all board you moderate                                        
+GET    | /boards/:board/reports             | Returns all reports on :board                                         
+POST   | /auth/login                        | Expects { username, password }                                          
+GET    | /auth/session                      | Returns { username }                                                  
+GET    | /bans                              | Returns your IP bans                                                  
+POST   | /bans/:board/:post                 | Bans poster of :post from board                                         

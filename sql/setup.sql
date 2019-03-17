@@ -105,8 +105,6 @@ CREATE TABLE IF NOT EXISTS reports (
     level integer NOT NULL,
     ip varchar(29) NOT NULL,
     createdAt datetime DEFAULT now(),
-    CONSTRAINT reportlevel
-        FOREIGN KEY (level) REFERENCES reportlevels (level),
     CONSTRAINT reportpost
         FOREIGN KEY (postUid) REFERENCES posts (uid)
         ON DELETE CASCADE,

@@ -1,3 +1,0 @@
-Before running, created an empty board '/test/', with the settings found in ./testBoard.sql
-
-`mysql -u username -p fantasy < ..sql/testBoard.sql`

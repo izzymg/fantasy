@@ -5,6 +5,7 @@ const config = require("../config/config");
 const authRoute = require("./routes/auth");
 const boardsRoute = require("./routes/boards");
 const postsRoute = require("./routes/posts");
+const bansRoute = require("./routes/bans");
 const { logRequestTime, handleErrors } = require("../libs/middleware");
 
 
@@ -23,6 +24,7 @@ if(config.proxy) server.proxy = true;
 server.use(authRoute);
 server.use(boardsRoute);
 server.use(postsRoute);
+server.use(bansRoute);
 
 exports.start = function() {
   server.listen(config.api.port, config.api.host, function() {

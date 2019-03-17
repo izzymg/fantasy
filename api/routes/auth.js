@@ -8,7 +8,7 @@ const sessionsDb = require("../../db/sessions");
 const usersDb = require("../../db/users");
 
 // POST to login page
-router.post("/auth/login", async function(ctx) {
+router.post("/auth/login", async(ctx) => {
   const fields = await coBody.json(ctx, { strict: true });
   ctx.assert(fields.username && typeof fields.username == "string",
     400, "Expected username"
@@ -34,7 +34,7 @@ router.post("/auth/login", async function(ctx) {
     if (passwordMatch === true) {
       const sessionId = uuid();
       await sessionsDb.setSession(sessionId, user.username);
-      ctx.set("Set-Cookie", `id=${sessionId}`);
+      ctx.set("Set-Cookie", `id=${sessionId}; HttpOnly; path=/`);
       ctx.body = "Success";
       return;
     }
@@ -43,7 +43,7 @@ router.post("/auth/login", async function(ctx) {
 });
 
 // Get session information
-router.get("/auth/session", async function(ctx) {
+router.get("/auth/session", async(ctx) => {
   const session = await sessionsDb.getSession(ctx.cookies.get("id"));
   if(session) {
     ctx.body = {
