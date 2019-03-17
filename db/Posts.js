@@ -136,7 +136,7 @@ const FilePost = function(rows) {
 
 exports.getPost = async function(board, id) {
   const sql = 
-    `SELECT createdAt, name, subject, content, sticky, parent,
+    `SELECT postId, createdAt, name, subject, content, sticky, parent,
       lastBump, filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files on files.postUid = posts.uid
       WHERE boardUrl = ? AND postId = ?`;
