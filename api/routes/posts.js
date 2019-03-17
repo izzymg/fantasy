@@ -12,7 +12,7 @@ const middleware = require("./middleware");
 // Threads on board
 router.get("/posts/:board/threads", async(ctx) => {
   const threads = await postsDb.getThreads(ctx.params.board);
-  if(threads) ctx.body = { threads };
+  ctx.body = threads ? { threads } : null;
 });
 
 // Thread and replies
