@@ -9,7 +9,7 @@ const middleware = require("./middleware");
 router.get("/bans", async(ctx) => ctx.body = (await bansDb.getAllBans(ctx.ip) || null));
 
 // Ban user for post
-router.post("/ban/:board/:post", async(ctx, next) => {
+router.post("/bans/:board/:post", async(ctx, next) => {
   await middleware.requireModOfBoard(ctx.params.board)(ctx, next);
   const fields = await coBody.json(ctx, { strict: true });
   const hours = Number(fields.hours) || 0;
