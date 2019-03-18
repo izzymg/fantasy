@@ -52,6 +52,7 @@ module.exports = {
     // Javascript post submissions will not work without CORS enabled so set this to the URL of the site server
     // Null for no header set, otherwise any value will be directly set into the header
     allowCors: "https://localhost",
+    allowCorsCredentials: true,
   },
 
   // Serves rendered templates, the front of your site
