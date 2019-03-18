@@ -151,7 +151,7 @@ router.post("/posts/report/:board/:post", async function(ctx) {
 router.put ("/posts/stick/:board/:post", async function(ctx, next) {
   await middleware.requireModOfBoard(ctx.params.board)(ctx, next);
   const post = await postsDb.getThread(ctx.params.board, ctx.params.post);
-  if(!post) ctx.throw(404, "No post found, is the post a thread?");
+  ctx.assert(post, 404, "No post found, is the post a thread?");
   await postsDb.setSticky(ctx.params.board, ctx.params.post, true);
   ctx.body = "Stickied";
 });
