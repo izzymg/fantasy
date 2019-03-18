@@ -40,7 +40,8 @@ router.post("/posts/:board/:parent?", async(ctx) => {
   ctx.assert(board, 404, "No such board");
   if(ctx.params.parent) {
     parent = await postsDb.getThread(ctx.params.board, ctx.params.parent);
-    ctx.assert(parent, 404, "No such thread");    
+    ctx.assert(parent, 404, "No such thread");
+    ctx.assert(!parent.locked, 400, "Thread is locked");
   }
 
   // Is IP on cooldown?
@@ -87,7 +88,6 @@ router.post("/posts/:board/:parent?", async(ctx) => {
     return ctx.throw(500, error);
   }
 
-  
   if (userPost.parent == 0) {
     // Delete oldest thread if max threads has been reached
     const threadCount = await postsDb.getThreadCount(board.url);

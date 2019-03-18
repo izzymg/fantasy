@@ -7,6 +7,11 @@ mixin threadPreview(post)
                         img(src=`${files}/${file.thumbFilename}`).thumbnail
                     else
                         a(href=`${files}/${file.filename}`).fileLink !{file.originalName}
+            div.threadInfo
+                if post.locked
+                    span(title="Thread cannot be replied to anymore").locked Locked
+                if post.sticky
+                    span(title="Thread stays on top and will not be pruned").sticky Sticky
             span.date !{new Date(post.createdAt).toLocaleString()}
             if post.subject
                 span.subject !{post.subject}

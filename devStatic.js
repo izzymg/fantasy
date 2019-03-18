@@ -1,6 +1,5 @@
 // Serves static files for dev testing
 
-
 const config = require("./config/config");
 const koaStatic = require("koa-static");
 const Koa = require("koa");

@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS posts (
     subject text,
     content text,
     sticky boolean DEFAULT false,
+    locked boolean DEFAULT false,
     ip varchar(39),
     CONSTRAINT postboard
         FOREIGN KEY (boardUrl) REFERENCES boards (url)

@@ -16,6 +16,7 @@ const validationError = (message) => ({ status: 400, message });
  * @property {string} subject
  * @property {string} content
  * @property {boolean} sticky
+ * @property {boolean} locked
  * @property {string} ip Poster's IP address
  * @property {Array<UserFile>} files Array of files
 */
@@ -24,7 +25,7 @@ const validationError = (message) => ({ status: 400, message });
 const Post = exports.Post = function(
   { postId, boardUrl, uid, parent, createdAt,
     lastBump, name, subject, 
-    content, sticky, ip, files = [] }, { fresh } = {  fresh: false }) {
+    content, sticky, locked, ip, files = [] }, { fresh } = {  fresh: false }) {
   
   const post = {
     ip,
@@ -36,6 +37,7 @@ const Post = exports.Post = function(
     subject,
     content,
     sticky: sticky || false,
+    locked: locked || false,
     files
   };
   if(!fresh) {
@@ -136,7 +138,7 @@ const FilePost = function(rows) {
 
 exports.getPost = async function(board, id) {
   const sql = 
-    `SELECT postId, createdAt, name, subject, content, sticky, parent,
+    `SELECT postId, createdAt, name, subject, content, sticky, locked, parent,
       lastBump, filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files on files.postUid = posts.uid
       WHERE boardUrl = ? AND postId = ?`;
@@ -147,7 +149,7 @@ exports.getPost = async function(board, id) {
 
 exports.getThreads = async function(board) {
   const sql = 
-    `SELECT postId, createdAt, name, subject, content, sticky, lastBump,
+    `SELECT postId, createdAt, name, subject, content, sticky, locked, lastBump,
       filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
       WHERE boardUrl = ? AND parent = 0
@@ -159,7 +161,7 @@ exports.getThreads = async function(board) {
 
 exports.getThread = async function(board, id) {
   const sql =
-    `SELECT postId, createdAt, name, subject, content, sticky, lastBump, 
+    `SELECT postId, createdAt, name, subject, content, sticky, locked, lastBump, 
       filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
       WHERE parent = 0 AND boardUrl = ? AND postId = ?`;
@@ -170,7 +172,7 @@ exports.getThread = async function(board, id) {
 
 exports.getReplies = async function(board, threadId) {
   const sql = 
-    `SELECT postId, createdAt, name, subject, content, sticky,
+    `SELECT postId, createdAt, name, subject, content, sticky, locked,
       filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
       WHERE boardUrl = ? AND parent = ?
@@ -344,4 +346,12 @@ exports.setSticky = async function(board, id, sticky = true) {
     values: [sticky, board, id]
   });
   if(!res.affectedRows) throw "Set sticky failed";
+};
+
+exports.setLocked = async function(board, id, locked = true) {
+  const res = await persistence.db.query({
+    sql: "UPDATE posts SET locked = ? WHERE boardUrl = ? AND postId = ? AND parent = 0",
+    values: [locked, board, id]
+  });
+  if(!res.affectedRows) throw "Set locked failed";
 };

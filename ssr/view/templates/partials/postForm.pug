@@ -1,6 +1,6 @@
 mixin postForm(board, thread)
     .postFormBox
-        form.postForm(method="post" enctype="multipart/form-data" action=`${api}/boards/${board}${thread ? `/${thread}` : ""}`)
+        form.postForm(method="post" enctype="multipart/form-data" action=`${api}/posts/${board}${thread ? `/${thread}` : ""}`)
             input.formName(type="text" name="name" placeholder="Name")
             if !thread
                 input.formSubject(type="text" name="subject" placeholder="Subject")

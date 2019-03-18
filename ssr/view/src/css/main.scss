@@ -5,20 +5,33 @@ html {
 }
 
 body {
-  background: $fantasyblue;
+  background: $fantasybg;
   margin: 0;
 }
 
+a, button {
+  color: $fantasyblue;
+  transition: color 200ms;
+  &:hover {
+    color: darken($fantasyblue, 20%);
+  }
+}
+
 .errored {
-  color: rgb(226, 89, 89);
+  color: $fantasyred;
 }
 
 .navbar {
   padding: 10px;
-  background: darken($fantasyblue, 10%);
-  opacity: 0.8;
+  background: #3b3b3b;
   a {
+    transition: color 100ms;
+    text-decoration: none;
+    color: #fafafa;
     margin: 0 5px;
+    &:hover {
+      color: $fantasyblue;
+    }
   }
 }
 
