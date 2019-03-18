@@ -12,7 +12,7 @@ mixin threadPreview(post)
                     span(title="Thread cannot be replied to anymore").locked Locked
                 if post.sticky
                     span(title="Thread stays on top and will not be pruned").sticky Sticky
+            span.name !{post.name}
             span.date !{new Date(post.createdAt).toLocaleString()}
-            if post.subject
-                span.subject !{post.subject}
+            span.subject !{post.subject}
             p.content !{post.content}
