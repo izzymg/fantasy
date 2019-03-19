@@ -45,11 +45,8 @@ router.post("/auth/login", async(ctx) => {
 // Get session information
 router.get("/auth/session", async(ctx) => {
   const session = await sessionsDb.getSession(ctx.cookies.get("id"));
-  if(session) {
-    ctx.body = {
-      username: session.username
-    };
-  }
+  ctx.assert(session, 403, "No session found");
+  ctx.body = { username: session.username };
 });
 
 // Change password
