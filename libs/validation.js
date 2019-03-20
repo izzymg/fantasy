@@ -64,8 +64,8 @@ exports.formatPostContent = function(str) {
     .replace(/&gt;&gt;([0-9]*)/gm, 
       "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
     )
-    .replace(/&gt;([A-Za-z0-9'";:\s)(*&^%$#@!`~\\|]+)/gm, "<span class='quote'>>$1</span>")
     .replace(/(<br>){2,}/g, "<br><br>")
-    .replace(/\n/g, "<br>");
+    .replace(/\n/g, "<br>")
+    .replace(/&gt;([A-Za-z0-9'";:\s)(*&^%$#@!`~\\|]+)/gm, "<span class='quote'>>$1</span>");
   return str;
 };
