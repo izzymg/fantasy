@@ -66,6 +66,6 @@ exports.formatPostContent = function(str) {
     )
     .replace(/(<br>){2,}/g, "<br><br>")
     .replace(/\n/g, "<br>")
-    .replace(/&gt;([A-Za-z0-9'";:\s)(*&^%$+-_#@!`~\\|]+)/gm, "<span class='quote'>>$1</span>");
+    .replace(/&gt;([^<]+)/gm, "<span class='quote'>>$1</span>");
   return str;
 };
