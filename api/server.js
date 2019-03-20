@@ -17,7 +17,10 @@ if(config.logRequestTime) {
   server.use(logRequestTime(config.infoLog));
 }
 
-server.use(handleErrors(config.logErrors ? config.errorLog : null, config.consoleErrors));
+server.use(handleErrors(
+  config.logErrors ? config.errorLog : null,
+  config.consoleErrors, config.logAllErrors)
+);
 
 if(config.proxy) server.proxy = true;
 

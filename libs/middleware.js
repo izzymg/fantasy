@@ -9,11 +9,15 @@ exports.logRequestTime = function(logFile) {
   };
 };
 
-exports.handleErrors = function(logFile = null, logToConsole = false) {
+exports.handleErrors = function(logFile = null, logToConsole = false, logAll = false) {
   return async function(ctx, next) {
     try {
       await next();
     } catch(error) {
+      if(logAll && logFile) {
+        if(logToConsole) console.error(error);
+        fs.writeAppend(logFile, `${new Date(Date.now().toLocaleString)} ${error}\n`);
+      }
       const status = error.status || 500;
       if(status !== 500) {
         ctx.status = error.status;

@@ -13,9 +13,11 @@ module.exports = {
   // You can test this by setting the log level to "debug" on a particular API while behind a reverse proxy
   // and ensuring the IP prints the correct address
   proxy: true,
-
   logRequestTime: false,
+  // Logs internal (500) errors
   logErrors: false,
+  // Logs absolutely ever error, including bad request, forbidden etc
+  logAllErrors: false,
   consoleErrors: false,
   // Generic info and error/warning logs
   infoLog: "/var/log/fantasy.log",
