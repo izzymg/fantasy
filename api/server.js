@@ -31,6 +31,6 @@ server.use(bansRoute);
 
 exports.start = function() {
   server.listen(config.api.port, config.api.host, function() {
-    console.log(`API server listening on ${config.api.host}:${config.api.port}`);
+    console.log(`API listening on ${config.api.host}:${config.api.port}`);
   });
 };

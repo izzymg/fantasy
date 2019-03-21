@@ -2,4 +2,3 @@ node_modules/
 config/config.js
 config/private.js
 .vscode/
-ssr/view/dist/

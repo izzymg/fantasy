@@ -1,18 +1,21 @@
 // Serves static files for dev testing
 
-const config = require("./config/config");
+const path = require("path");
 const koaStatic = require("koa-static");
 const Koa = require("koa");
 const server = new Koa();
 
-if(!process.argv[2]) {
-  console.error("Usage: node ./devStatic.js [port]");
+const host = process.argv[2];
+const port = process.argv[3];
+const dir = path.normalize(process.argv[4]);
+
+if(!port || !path || !host) {
+  console.error("Usage: node ./devStatic.js [host] [port] [dir]");
   process.exit(1);
 }
 
-server.use(koaStatic(config.posts.filesDir));
-server.use(koaStatic(__dirname + "/ssr/view/dist"));
+server.use(koaStatic(dir));
 
-server.listen(process.argv[2], function() {
-  console.warn("Listening. Never use this in production");
+server.listen(port, host, function() {
+  console.warn(`Serving ${dir} on ${host}:${port}. Never use this in production`);
 });

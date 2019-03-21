@@ -57,19 +57,6 @@ module.exports = {
     allowCorsCredentials: true,
   },
 
-  // Serves rendered templates, the front of your site
-  ssr: {
-    enabled: true,
-    port: 8080,
-    host: "localhost",
-    // URLs used by the site to serve files and submit posts 
-    apiUrl: "https://api.yoursite.net",
-    filesUrl: "https://yourcdn.yoursite.net",
-    staticUrl: "https://yourcdn.yoursite.net",
-    // Used in title element and home page
-    webname: "Fantasy",
-  },
-
   // Configuration of posts
   posts: {
     defaultName: "Anonymous",
