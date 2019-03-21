@@ -1,5 +1,5 @@
 const persistence = require("./persistence");
-const validation = require("../libs/validation");
+const validation = require("../../libs/validation");
 const validationError = (message) => ({ status: 400, message });
 
 /**

@@ -1,11 +1,11 @@
 const KoaRouter = require("koa-router");
 const router = new KoaRouter();
 const config = require("../../config/config");
-const postsDb = require("../../db/posts");
-const boardsDb = require("../../db/boards");
-const ipsDb = require("../../db/ips");
-const bansDb = require("../../db/bans");
-const reportsDb = require("../../db/reports");
+const postsDb = require("..//db/posts");
+const boardsDb = require("..//db/boards");
+const ipsDb = require("..//db/ips");
+const bansDb = require("..//db/bans");
+const reportsDb = require("..//db/reports");
 const multipart = require("../../libs/multipart");
 const middleware = require("./middleware");
 
@@ -34,6 +34,9 @@ router.get("/posts/:board/:post", async(ctx) => {
 
 // Submit post
 router.post("/posts/:board/:parent?", async(ctx) => {
+
+  ctx.assert(ctx.is("multipart/form-data"), 400, "Invalid content type");
+
   let parent, files, fields, unbanned;
   
   const board = await boardsDb.getBoard(ctx.params.board);

@@ -1,8 +1,8 @@
 const persistence = require("./persistence");
-const config = require("../config/config");
+const config = require("../../config/config");
 const path = require("path");
-const fs = require("../libs/fs");
-const validation = require("../libs/validation");
+const fs = require("../../libs/fs");
+const validation = require("../../libs/validation");
 const validationError = (message) => ({ status: 400, message });
 
 /**

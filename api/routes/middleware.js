@@ -1,5 +1,5 @@
-const usersDb = require("../../db/users");
-const sessionsDb = require("../../db/sessions");
+const usersDb = require("..//db/users");
+const sessionsDb = require("..//db/sessions");
 module.exports = {
   requireModOfBoard(board) {
     return async function(ctx, next) {

@@ -1,13 +1,16 @@
 const Koa = require("koa");
 const server = new Koa();
+const http = require("http");
 const cors = require("@koa/cors");
 const config = require("../config/config");
+const persistence = require("./db/persistence");
 const authRoute = require("./routes/auth");
 const boardsRoute = require("./routes/boards");
 const postsRoute = require("./routes/posts");
 const bansRoute = require("./routes/bans");
 const { logRequestTime, handleErrors } = require("../libs/middleware");
 
+let httpServer;
 
 if(config.api.allowCors) {
   server.use(cors({ origin: config.api.allowCors, credentials: config.api.allowCorsCredentials }));
@@ -30,7 +33,22 @@ server.use(postsRoute);
 server.use(bansRoute);
 
 exports.start = function() {
-  server.listen(config.api.port, config.api.host, function() {
-    console.log(`API listening on ${config.api.host}:${config.api.port}`);
+  persistence.start().then(() => {
+    httpServer = http.createServer(server.callback())
+      .listen(config.api.port, config.api.host, function() {
+        console.log(`API listening on ${config.api.host}:${config.api.port}`);
+      });
+  }).catch((error) => {
+    console.error("API failed to start database", error);
   });
+};
+
+exports.end = function() {
+  console.log("API exiting");
+  persistence.end().then(() => {
+    httpServer.close();
+  }).catch((error) => {
+    console.error("API failed to close database", error);
+  });
+  return;
 };

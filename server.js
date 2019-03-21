@@ -1,16 +1,18 @@
-const persistence = require("./db/persistence");
 const api = require("./api/server");
 const config = require("./config/config");
-
 console.log("Fantasy starting in", config.env, "mode");
 
-persistence.initialize().then(function() {
-  try {
-    api.start();
-  } catch(error) {
-    console.error("Error starting Fantasy", error);
-    process.exit(1);
-  }
-}).catch(function(error) {
-  console.error("Error initializing persistence", error);
-});
+function end(sig) {
+  console.log("Recieved", sig, ", exiting");
+  api.end();
+  process.exit(0);
+}
+
+try {
+  api.start();
+  process.on("SIGINT", end);
+  process.on("SIGTERM", end);
+} catch(error) {
+  console.error("Error starting Fantasy", error);
+  process.exit(1);
+}
