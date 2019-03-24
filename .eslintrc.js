@@ -20,6 +20,7 @@ module.exports = {
         "semi": ["error", "always"],
         "no-console": "off",
         "max-len": ["error", {"code": 100}],
-        "no-unused-vars": ["warn"]
+        "no-unused-vars": ["warn"],
+        "object-curly-spacing": ["warn", "always"]
     },
 };

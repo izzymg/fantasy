@@ -165,7 +165,7 @@ exports.getThread = async function(board, id) {
       filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
       WHERE parent = 0 AND boardUrl = ? AND postId = ?`;
-  const rows = await persistence.db.getAll({ sql, values: [board, id], nestTables: true});
+  const rows = await persistence.db.getAll({ sql, values: [board, id], nestTables: true });
   if(!rows) return null;
   return FilePost(rows);
 };
@@ -177,7 +177,7 @@ exports.getReplies = async function(board, threadId) {
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
       WHERE boardUrl = ? AND parent = ?
       ORDER BY createdAt ASC`;
-  const rows = await persistence.db.getAll({ sql, values: [board, threadId], nestTables: false});
+  const rows = await persistence.db.getAll({ sql, values: [board, threadId], nestTables: false });
   if(!rows) return null;
   return FilePosts(rows);
 };
@@ -315,8 +315,8 @@ exports.deletePost = async(board, id) => {
     sql: `SELECT filename, thumbFilename
           FROM files INNER JOIN posts ON files.postUid = posts.uid
           WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
-    values: [board, id, id]}
-  );
+    values: [board, id, id]
+  });
   let deletedFiles = 0;
   if (files && files.length > 0) {
     await Promise.all(files.map(async(file) => {

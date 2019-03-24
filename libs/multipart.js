@@ -67,8 +67,8 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
 
       incoming.on("limit", () => reject({
         status: 400,
-        message: `File too large, max ${maxFileSize}`})
-      );
+        message: `File too large, max ${maxFileSize}`
+      }));
 
       files.push(new Promise((res, rej) => {
         let id = uuid();

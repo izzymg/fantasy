@@ -12,9 +12,9 @@ const persistence = require("./persistence");
  * @property {Date} createdAt
  */
 
-const Board = exports.Board = function({
-  url, title, about, sfw = true, bumpLimit = 100, maxThreads = 20, cooldown = 30,
-  createdAt = new Date(Date.now())}) {
+const Board = exports.Board = function(
+  { url, title, about, sfw = true, bumpLimit = 100, maxThreads = 20, cooldown = 30,
+    createdAt = new Date(Date.now()) }) {
 
   return {
     url,

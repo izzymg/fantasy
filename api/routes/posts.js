@@ -50,7 +50,7 @@ router.post("/posts/:board/:parent?", async(ctx) => {
   // Is IP on cooldown?
   const cd = await ipsDb.getCooldown(ctx.ip, board.url);
   ctx.assert(!cd || cd < Date.now(), 400,
-    `You must wait ${Math.floor((cd - Date.now()) / 1000)} seconds before posting again`
+    `You must wait ${ Math.floor((cd - Date.now()) / 1000) } seconds before posting again`
   );
   if(cd) await ipsDb.deleteCooldown(ctx.ip, board.url);
 
@@ -116,7 +116,9 @@ router.post("/posts/:board/:parent?", async(ctx) => {
 
 router.delete("/posts/:board/:post", async(ctx, next) => {
   await middleware.requireModOfBoard(ctx.params.board)(ctx, next);
-  const { deletedPosts, deletedFiles } = await postsDb.deletePost(ctx.params.board, ctx.params.post);
+  const {
+    deletedPosts, deletedFiles
+  } = await postsDb.deletePost(ctx.params.board, ctx.params.post);
 
   if(!deletedPosts) {
     ctx.body = "Didn't delete any posts, check the board is correct and the post is still up";
