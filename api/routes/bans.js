@@ -1,8 +1,8 @@
 const KoaRouter = require("koa-router");
 const router = new KoaRouter();
 const coBody = require("co-body");
-const bansDb = require("..//db/bans");
-const postsDb = require("..//db/posts");
+const bansDb = require("../db/bans");
+const postsDb = require("../db/posts");
 const middleware = require("./middleware");
 
 // Get your bans

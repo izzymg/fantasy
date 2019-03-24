@@ -1,9 +1,9 @@
 const KoaRouter = require("koa-router");
 const router = new KoaRouter();
-const boardsDb = require("..//db/boards");
-const sessionsDb = require("..//db/sessions");
-const usersDb = require("..//db/users");
-const reportsDb = require("..//db/reports");
+const boardsDb = require("../db/boards");
+const sessionsDb = require("../db/sessions");
+const usersDb = require("../db/users");
+const reportsDb = require("../db/reports");
 const middleware = require("./middleware");
 
 // Get reports

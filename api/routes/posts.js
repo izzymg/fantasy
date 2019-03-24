@@ -1,11 +1,11 @@
 const KoaRouter = require("koa-router");
 const router = new KoaRouter();
 const config = require("../../config/config");
-const postsDb = require("..//db/posts");
-const boardsDb = require("..//db/boards");
-const ipsDb = require("..//db/ips");
-const bansDb = require("..//db/bans");
-const reportsDb = require("..//db/reports");
+const postsDb = require("../db/posts");
+const boardsDb = require("../db/boards");
+const ipsDb = require("../db/ips");
+const bansDb = require("../db/bans");
+const reportsDb = require("../db/reports");
 const multipart = require("../../libs/multipart");
 const middleware = require("./middleware");
 

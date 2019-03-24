@@ -3,9 +3,9 @@ const router = new KoaRouter();
 const coBody = require("co-body");
 const uuid = require("uuid");
 const bcrypt = require("bcrypt");
-const ipsDb = require("..//db/ips");
-const sessionsDb = require("..//db/sessions");
-const usersDb = require("..//db/users");
+const ipsDb = require("../db/ips");
+const sessionsDb = require("../db/sessions");
+const usersDb = require("../db/users");
 
 // POST to login page
 router.post("/auth/login", async(ctx) => {
