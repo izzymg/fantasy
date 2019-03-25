@@ -4,10 +4,12 @@ const http = require("http");
 const cors = require("@koa/cors");
 const config = require("../config/config");
 const persistence = require("./db/persistence");
+const dbConnection = require("./db/connection");
 const authRoute = require("./routes/auth");
 const boardsRoute = require("./routes/boards");
 const postsRoute = require("./routes/posts");
 const bansRoute = require("./routes/bans");
+const newRoute = require("./routes/newRoute");
 const { logRequestTime, handleErrors } = require("../libs/middleware");
 
 let httpServer;
@@ -31,15 +33,18 @@ server.use(authRoute);
 server.use(boardsRoute);
 server.use(postsRoute);
 server.use(bansRoute);
+server.use(newRoute);
 
 exports.start = function() {
-  persistence.start().then(() => {
-    httpServer = http.createServer(server.callback())
-      .listen(config.api.port, config.api.host, function() {
-        console.log(`API listening on ${config.api.host}:${config.api.port}`);
-      });
-  }).catch((error) => {
-    console.error("API failed to start database", error);
+  dbConnection.start().then(() => {
+    persistence.start().then(() => {
+      httpServer = http.createServer(server.callback())
+        .listen(config.api.port, config.api.host, function() {
+          console.log(`API listening on ${config.api.host}:${config.api.port}`);
+        });
+    }).catch((error) => {
+      console.error("API failed to start database", error);
+    });
   });
 };
 

@@ -1,5 +1,5 @@
 INSERT INTO boards (
-    url,
+    uid,
     title,
     about,
     sfw,
@@ -15,3 +15,6 @@ INSERT INTO boards (
     1,
     0
 );
+
+INSERT INTO posts SET id = (SELECT id FROM boardids WHERE boardUid = "test" FOR UPDATE),
+    name = "Test Post", content = "Test", subject = "Test", parent = 0, boardUid = "test";

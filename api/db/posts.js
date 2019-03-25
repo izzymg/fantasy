@@ -9,7 +9,7 @@ const validationError = (message) => ({ status: 400, message });
  * @typedef {object} DbPost
  * @property {number} uid Unique ID of post
  * @property {number} id Board-unique ID of post
- * @property {string} boardUrl Board post is on
+ * @property {string} boardUid Board post is on
  * @property {number} parent 0 if thread post or ID of replied-to thread
  * @property {Date} lastBump Date the post was last bumped
  * @property {string} name
@@ -23,13 +23,13 @@ const validationError = (message) => ({ status: 400, message });
 
 
 const Post = exports.Post = function(
-  { postId, boardUrl, uid, parent, createdAt,
+  { id, boardUid, uid, parent, createdAt,
     lastBump, name, subject, 
     content, sticky, locked, ip, files = [] }, { fresh } = {  fresh: false }) {
   
   const post = {
     ip,
-    boardUrl,
+    boardUid,
     parent: parent || 0,
     createdAt: createdAt || new Date(Date.now()),
     lastBump: lastBump || (!parent ? new Date(Date.now()) : null),
@@ -42,7 +42,7 @@ const Post = exports.Post = function(
   };
   if(!fresh) {
     post.uid = uid;
-    post.id = postId;
+    post.id = id;
   } else {
     if(post.parent) {
       if(config.posts.replies.requireContentOrFiles && (!post.files) && !post.content) {
@@ -114,7 +114,7 @@ const FilePosts = function(rows) {
   let posts = [];
   rows.forEach((row) => {
     // Push row file data onto already existent post
-    if(row.filename && lastPost && lastPost.id == row.postId) {
+    if(row.filename && lastPost && lastPost.id == row.id) {
       lastPost.files.push(File(row));
       return;
     }
@@ -138,10 +138,10 @@ const FilePost = function(rows) {
 
 exports.getPost = async function(board, id) {
   const sql = 
-    `SELECT postId, createdAt, name, subject, content, sticky, locked, parent,
+    `SELECT id, createdAt, name, subject, content, sticky, locked, parent,
       lastBump, filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files on files.postUid = posts.uid
-      WHERE boardUrl = ? AND postId = ?`;
+      WHERE boardUid = ? AND id = ?`;
   const rows = await persistence.db.getAll({ sql, values: [board, id], nestTables: true });
   if(!rows) return null;
   return FilePost(rows);
@@ -149,10 +149,10 @@ exports.getPost = async function(board, id) {
 
 exports.getThreads = async function(board) {
   const sql = 
-    `SELECT postId, createdAt, name, subject, content, sticky, locked, lastBump,
+    `SELECT id, createdAt, name, subject, content, sticky, locked, lastBump,
       filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
-      WHERE boardUrl = ? AND parent = 0
+      WHERE boardUid = ? AND parent = 0
       ORDER BY sticky DESC, lastBump DESC`;
   const rows = await persistence.db.getAll({ sql, values: [board], nestTables: false });
   if(!rows) return null;
@@ -161,10 +161,10 @@ exports.getThreads = async function(board) {
 
 exports.getThread = async function(board, id) {
   const sql =
-    `SELECT postId, createdAt, name, subject, content, sticky, locked, lastBump, 
+    `SELECT id, createdAt, name, subject, content, sticky, locked, lastBump, 
       filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
-      WHERE parent = 0 AND boardUrl = ? AND postId = ?`;
+      WHERE parent = 0 AND boardUid = ? AND id = ?`;
   const rows = await persistence.db.getAll({ sql, values: [board, id], nestTables: true });
   if(!rows) return null;
   return FilePost(rows);
@@ -172,10 +172,10 @@ exports.getThread = async function(board, id) {
 
 exports.getReplies = async function(board, threadId) {
   const sql = 
-    `SELECT postId, createdAt, name, subject, content, sticky, locked,
+    `SELECT id, createdAt, name, subject, content, sticky, locked,
       filename, thumbFilename, originalName, mimetype, size
       FROM posts LEFT JOIN files ON files.postUid = posts.uid
-      WHERE boardUrl = ? AND parent = ?
+      WHERE boardUid = ? AND parent = ?
       ORDER BY createdAt ASC`;
   const rows = await persistence.db.getAll({ sql, values: [board, threadId], nestTables: false });
   if(!rows) return null;
@@ -187,7 +187,7 @@ exports.getReplies = async function(board, threadId) {
  */
 exports.getPostIp = async function(board, id) {
   const row = await persistence.db.getOne({
-    sql: "SELECT ip FROM posts WHERE boardUrl = ? AND postId = ?",
+    sql: "SELECT ip FROM posts WHERE boardUid = ? AND id = ?",
     values: [board, id]
   });
   return row ? row.ip : null;
@@ -198,7 +198,7 @@ exports.getPostIp = async function(board, id) {
  */
 exports.getPostUid = async function(board, id) {
   const row = await persistence.db.getOne({
-    sql: "SELECT uid FROM posts WHERE boardUrl = ? AND postId = ?",
+    sql: "SELECT uid FROM posts WHERE boardUid = ? AND id = ?",
     values: [board, id]
   });
   return row ? row.uid : null;
@@ -206,7 +206,7 @@ exports.getPostUid = async function(board, id) {
 
 exports.getThreadCount = async function(board) {
   const num = await persistence.db.getOne({
-    sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = 0",
+    sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUid = ? AND parent = 0",
     values: [board]
   });
   if(!num || !num.count) return 0;
@@ -215,7 +215,7 @@ exports.getThreadCount = async function(board) {
 
 exports.getReplyCount = async function(board, id) {
   const num = await persistence.db.getOne({
-    sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUrl = ? AND parent = ?",
+    sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUid = ? AND parent = ?",
     values: [board, id]
   });
   if(!num || !num.count) return 0;
@@ -224,7 +224,7 @@ exports.getReplyCount = async function(board, id) {
 
 exports.getOldestThreadId = async function(board) {
   const oldest = await persistence.db.getOne({
-    sql: `SELECT postId as id FROM posts WHERE parent = 0 AND boardUrl = ? AND sticky = false
+    sql: `SELECT id as id FROM posts WHERE parent = 0 AND boardUid = ? AND sticky = false
             ORDER BY lastBump ASC LIMIT 1;`,
     values: [board]
   });
@@ -234,7 +234,7 @@ exports.getOldestThreadId = async function(board) {
 
 exports.bumpPost = async function(board, id) {
   const res = await persistence.db.query({
-    sql: "UPDATE posts SET lastBump = ? WHERE boardUrl = ? AND postId = ? AND parent = 0",
+    sql: "UPDATE posts SET lastBump = ? WHERE boardUid = ? AND id = ? AND parent = 0",
     values: [new Date(Date.now()), board, id]
   });
   if (!res || !res.affectedRows) {
@@ -257,12 +257,12 @@ exports.savePost = async function(post) {
 
     const insertedPost = await dbConnecton.query({
       sql: `INSERT INTO posts
-            SET postId = (SELECT id FROM boardids WHERE boardUrl = ? FOR UPDATE), ?`,
-      values: [post.boardUrl, post]
+            SET id = (SELECT id FROM boardids WHERE boardUid = ? FOR UPDATE), ?`,
+      values: [post.boardUid, post]
     });
     await dbConnecton.query({ 
-      sql: "UPDATE boardids SET id = id + 1 WHERE boardUrl = ?",
-      values: [post.boardUrl]
+      sql: "UPDATE boardids SET id = id + 1 WHERE boardUid = ?",
+      values: [post.boardUid]
     });
 
     if(!insertedPost.insertId) throw new Error("Failed to insert post into DB");
@@ -314,7 +314,7 @@ exports.deletePost = async(board, id) => {
   const files = await persistence.db.getAll({
     sql: `SELECT filename, thumbFilename
           FROM files INNER JOIN posts ON files.postUid = posts.uid
-          WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
+          WHERE boardUid = ? AND (id = ? OR parent = ?)`,
     values: [board, id, id]
   });
   let deletedFiles = 0;
@@ -334,7 +334,7 @@ exports.deletePost = async(board, id) => {
   const { affectedRows } = await persistence.db.query({
     sql: `DELETE posts, files FROM posts
           LEFT JOIN files ON files.postUid = posts.uid
-          WHERE boardUrl = ? AND (postId = ? OR parent = ?)`,
+          WHERE boardUid = ? AND (id = ? OR parent = ?)`,
     values: [board, id, id]
   });
   return { deletedPosts: affectedRows, deletedFiles };
@@ -342,7 +342,7 @@ exports.deletePost = async(board, id) => {
 
 exports.setSticky = async function(board, id, sticky = true) {
   const res = await persistence.db.query({
-    sql: "UPDATE posts SET sticky = ? WHERE boardUrl = ? AND postId = ? AND parent = 0",
+    sql: "UPDATE posts SET sticky = ? WHERE boardUid = ? AND id = ? AND parent = 0",
     values: [sticky, board, id]
   });
   if(!res.affectedRows) throw "Set sticky failed";
@@ -350,7 +350,7 @@ exports.setSticky = async function(board, id, sticky = true) {
 
 exports.setLocked = async function(board, id, locked = true) {
   const res = await persistence.db.query({
-    sql: "UPDATE posts SET locked = ? WHERE boardUrl = ? AND postId = ? AND parent = 0",
+    sql: "UPDATE posts SET locked = ? WHERE boardUid = ? AND id = ? AND parent = 0",
     values: [locked, board, id]
   });
   if(!res.affectedRows) throw "Set locked failed";
