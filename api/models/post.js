@@ -42,7 +42,7 @@ async function get(boardUid, id) {
 }
 
 async function getThreads(boardUid) {
-  const [threads] = await connection.db.query({
+  const [threads] = await connection.db.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND parent = 0 ${orderByDateSticky}`,
     values: [boardUid], nestTables: true
@@ -51,7 +51,7 @@ async function getThreads(boardUid) {
 }
 
 async function getThread(boardUid, id) {
-  const [thread] = await connection.db.query({
+  const [thread] = await connection.db.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND id = ? AND parent = 0 ${orderByDateSticky}`,
     values: [boardUid, id], nestTables: true
@@ -60,7 +60,7 @@ async function getThread(boardUid, id) {
 }
 
 async function getThreadReplies(boardUid, id) {
-  const [thread] = await connection.db.query({
+  const [thread] = await connection.db.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND parent = ? ${orderByDateSticky}`,
     values: [boardUid, id], nestTables: true
