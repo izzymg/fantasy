@@ -12,6 +12,7 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 * Automatic thread deletion on board cap
 * Thread bumps and bump limit
 * Optional tripcodes
+* Reports
 * Anonymous only posting, accounts only for administration
 * Secure administration, post deletion and bans
 * Exposed JSON API 
@@ -20,7 +21,6 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 * Designed with being run behind a reverse proxy in mind
 
 ##### TODO
-* Report system
 * Automatic antispam
 * More administration functions
 * Store MD5 hash of images
@@ -39,7 +39,7 @@ Install MariaDB (Postgres should work, but untested) and Redis. Create a databas
 
 Remove `.default` from files in `./config` directory and setup
 
-Make sure to disable the file server in production, set `proxy = true`, set your front facing URLs and CORS options correctly. Set the ports for all  servers to unexposed (not public facing) options.
+Make sure to disable the file server in production, set config.js `proxy: true`, set your front facing URLs and CORS options correctly. Set the ports for all  servers to unexposed (not public facing) options.
 
 Also be sure to set the final files directory to be served by your web server. Note the temp directory also.
 
@@ -47,13 +47,11 @@ Setup nginx or another web server to forward a traffic to the unexposed API port
 
 `npm install` to pull in dependencies, you may need `npm i node-gyp -g` if it fails on windows due to bcrypt or sharp
 
-## Frontend
-
-PHP SSR to come
+## Deploying
 
 [Get the Vue.JS frontend here](https://github.com/izzymg/zv)
 
-Grab a process manager like pm2 and put server.js under it.
+Grab a process manager like pm2 and put fantasy.js under it if that's your style, or roll with docker etc.
 
 ## API routes
 
@@ -76,6 +74,10 @@ GET    | /boards/mod                        | Returns all board you moderate
 GET    | /boards/:board/reports             | Returns all reports on :board                                         
 POST   | /auth/login                        | Expects { username, password }                                          
 GET    | /auth/session                      | Returns { username }                                                  
-POST   | /auth/changePassword              | Expected { currentPassword, newPassword, confirmationPassword }                                       
+POST   | /auth/changePassword               | Expected { currentPassword, newPassword, confirmationPassword }                                       
 GET    | /bans                              | Returns your IP bans                                                  
 POST   | /bans/:board/:post                 | Bans poster of :post from board                                         
+
+## License
+
+GPL-V3.0. Do what you want with this - it's specifically purposed towards my personal needs so forking and editing is a good idea.
