@@ -41,6 +41,24 @@ exports.getThreads = async function(boardUid) {
   return nestJoin(threads);
 };
 
+exports.getThread = async function(boardUid, id) {
+  const [thread] = await connection.db.query({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND id = ? AND parent = 0 ${orderByDateSticky}`,
+    values: [boardUid, id], nestTables: true
+  });
+  return singleNestJoin(thread);
+};
+
+exports.getThreadReplies = async function(boardUid, id) {
+  const [thread] = await connection.db.query({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND parent = ? ${orderByDateSticky}`,
+    values: [boardUid, id], nestTables: true
+  });
+  return nestJoin(thread);
+};
+
 exports.getPost = async function(boardUid, id) {
   const [post] = await connection.db.query({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}

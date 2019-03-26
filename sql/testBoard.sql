@@ -24,5 +24,5 @@ INSERT INTO files SET postUid = (SELECT uid FROM posts WHERE name = "TestPost"),
     filename = "fakeFile2.png", originalName = "fakeFile2.png", thumbFilename = "fake_thumb2.jpg";
 UPDATE boardids SET id = id + 1 WHERE boardUid = "test";
 INSERT INTO posts SET id = (SELECT id FROM boardids WHERE boardUid = "test" FOR UPDATE),
-    name = "TestPost2", content = "No files", subject = "Test", parent = 0, boardUid = "test";
+    name = "TestPost2", content = "No files", subject = "Test", parent = 1, boardUid = "test";
 UPDATE boardids SET id = id + 1 WHERE boardUid = "test";
