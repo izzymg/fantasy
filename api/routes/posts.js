@@ -8,7 +8,7 @@ router.get("/posts/:board/threads", async function(ctx) {
 });
 
 router.get("/posts/:board/:id", async function(ctx) {
-  ctx.body = await models.post.getPost(ctx.params.board, ctx.params.id);
+  ctx.body = await models.post.get(ctx.params.board, ctx.params.id);
   ctx.assert(ctx.body, 404, "No post found");
 });
 

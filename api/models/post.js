@@ -32,38 +32,45 @@ function singleNestJoin(row) {
   if(res) return res[0];
 }
 
-exports.getThreads = async function(boardUid) {
-  const [threads] = await connection.db.query({
-    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND parent = 0 ${orderByDateSticky}`,
-    values: [boardUid], nestTables: true
-  });
-  return nestJoin(threads);
-};
-
-exports.getThread = async function(boardUid, id) {
-  const [thread] = await connection.db.query({
-    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND id = ? AND parent = 0 ${orderByDateSticky}`,
-    values: [boardUid, id], nestTables: true
-  });
-  return singleNestJoin(thread);
-};
-
-exports.getThreadReplies = async function(boardUid, id) {
-  const [thread] = await connection.db.query({
-    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND parent = ? ${orderByDateSticky}`,
-    values: [boardUid, id], nestTables: true
-  });
-  return nestJoin(thread);
-};
-
-exports.getPost = async function(boardUid, id) {
+async function get(boardUid, id) {
   const [post] = await connection.db.query({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND id = ?`,
     values: [boardUid, id], nestTables: true
   });
   return singleNestJoin(post);
+}
+
+async function getThreads(boardUid) {
+  const [threads] = await connection.db.query({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND parent = 0 ${orderByDateSticky}`,
+    values: [boardUid], nestTables: true
+  });
+  return nestJoin(threads);
+}
+
+async function getThread(boardUid, id) {
+  const [thread] = await connection.db.query({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND id = ? AND parent = 0 ${orderByDateSticky}`,
+    values: [boardUid, id], nestTables: true
+  });
+  return singleNestJoin(thread);
+}
+
+async function getThreadReplies(boardUid, id) {
+  const [thread] = await connection.db.query({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND parent = ? ${orderByDateSticky}`,
+    values: [boardUid, id], nestTables: true
+  });
+  return nestJoin(thread);
+}
+
+module.exports = {
+  get,
+  getThread,
+  getThreads,
+  getThreadReplies,
 };

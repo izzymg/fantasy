@@ -10,31 +10,46 @@ after(async function() {
   await connection.end();
 })
 
-describe("models", function() {
+describe("threads", function() {
   let threads;
 
   describe("#getThreads", function() {
     it("should return all threads on board /test/", async function() {
       threads = await models.post.getThreads("test");
-      assert(threads && threads.length > 0, "Expected threads returned in array");
+      assert(threads && threads.length > 0, "Expected threads returned in array, got " + threads);
     });
   });
   describe("#getThread", function() {
     it("should return a thread on board /test/", async function() {
       const thread = await models.post.getThread("test", threads[0].id);
-      assert(thread && thread.id  === threads[0].id, "Expected thread with same ID as first in returned threads array");
+      assert(thread && thread.id  === threads[0].id, "Expected thread with same ID as first in returned threads array, got " + thread);
     });
   });
   describe("#getThreadReplies", function() {
     it("should return a thread's replies on board /test/", async function() {
       const replies = await models.post.getThreadReplies("test", threads[0].id);
-      assert(replies && replies.length > 0, "Expected replies to thread");
+      assert(replies && replies.length > 0, "Expected replies to thread, got " + replies);
     });
   });
-  describe("#getPost", function() {
+  describe("#get", function() {
     it("should return a single post on board /test/", async function() {
-      const post = await models.post.getPost("test", threads[0].id);
-      assert(post && post.id == threads[0].id, "Expected single post returned");
+      const post = await models.post.get("test", threads[0].id);
+      assert(post && post.id == threads[0].id, "Expected single post returned, got " + post);
+    });
+  });
+});
+
+describe("boards", function() {
+  describe("#get", function() {
+    it("should return a single board by uid 'test'", async function() {
+      const board = await models.board.get("test");
+      assert(board && board.uid == "test", "Expected board returned, got " + board);
+    });
+  });
+  describe("#getAll", function() {
+    it("should return all boards in an array", async function() {
+      const boards = await models.board.getAll();
+      assert(boards && boards.length > 0, "Expected boards returned in an array, got " + boards);
     });
   });
 });

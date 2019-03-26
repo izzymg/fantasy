@@ -59,6 +59,7 @@ server.use(async function(ctx, next) {
 });
 
 server.use(routes.posts);
+server.use(routes.boards);
 
 // Database connection must boot before server is started
 // TODO: better solution to this
