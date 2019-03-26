@@ -3,9 +3,8 @@ module.exports = {
   // Options: "production", "development"
   // You could also set this to process.env.NODE_ENV
   // then start the server as NODE_ENV=production node server.js
-  // Will default to production if null
   // Always set to production when deploying (enables caching, etc)
-  env: process.env.NODE_ENV,
+  env: process.env.NODE_ENV || "production",
 
   // Enable when behind a reverse proxy (which you should be)
   // Be sure to configure X-FORWARDED-FOR properly in your web server
@@ -13,22 +12,21 @@ module.exports = {
   // You can test this by setting the log level to "debug" on a particular API while behind a reverse proxy
   // and ensuring the IP prints the correct address
   proxy: true,
-  logRequestTime: false,
-  // Logs internal (500) errors
-  logErrors: false,
-  // Logs absolutely ever error, including bad request, forbidden etc
-  logAllErrors: false,
-  consoleErrors: false,
-  // Generic info and error/warning logs
-  infoLog: "/var/log/fantasy.log",
-  errorLog: "/var/log/fantasy.log",
+  // "info"/"error"/"fatal", or null for absolute silence
+  // "fatal": log crashes (good idea)
+  // "error": log 500 server errors (if your database goes down this will spam your logs every request)
+  // "info": log requests (if you're working on the code this can be useful)
+  // You could set this to process.env.LOG_LEVEL and start the server with LOG_LEVEL=fatal node fantasy.js
+  logLevel: process.env.LOG_LEVEL || "fatal",
+  logFile: "/var/log/fantasy.log",
+  // Send any "error" or "fatal" to stdout? (good for debugging)
+  consoleLogErrors: false,
 
   // A connection pool is used for all SQL queries
   // Read up on connection pools to understand these sections
 
   database: {
     // WARNING: this will print all SQL packets to stdout
-    // never enable on a site with any traffic
     debug: false,
     // The number of connections avaiable in the pool
     // Generally increase as you see more concurrent users
@@ -41,12 +39,6 @@ module.exports = {
     memStore: false,
   },
 
-  /* SERVERS */
-  // The "url" section is configured so the frontend links to this url instead of your host/port
-  // e.g. if you are reverse proxying https traffic from api.mysite.com to localhost:3100
-  // enter "https://api.mysite.com" as the url in api and disable https
-
-   // Serves JSON data, handles post submissions
   api: {
     port: 3000,
     host: "localhost",
