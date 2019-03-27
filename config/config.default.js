@@ -56,6 +56,8 @@ module.exports = {
     tmpDir: "/tmp",
     // Where to store files
     filesDir: "/var/www/files",
+    // Where to store thumbnails
+    thumbsDir: "/var/www/thumbnails",
     enableTripcodes: true,
     // https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options
     // Use openssl list -digest-algorithms

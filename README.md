@@ -31,6 +31,8 @@ Full usage documentation to come.
 
 ## Setup
 
+You need NodeJS 8.5.0 *minimum*, but it was written and tested predominantly on Node 10 and 11. Fantasy makes heavy usage of async/await and some newer methods provided by fs/util etc.
+
 Install MariaDB (Postgres should work, but untested) and Redis. Create a database in MariaDB called `fantasy`, and a user privileged to write, read and create tables on it.
 
 `cd sql` `mysql -u dbUser -p fantasy < setup.sql` will run a set of `CREATE x IF NOT EXISTS` commands. 

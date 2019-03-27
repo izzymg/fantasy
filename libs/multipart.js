@@ -80,7 +80,6 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
           if(!type) return resolve();
           res({
             filename: id + "." + type.extension,
-            thumbFilename: type.mimetype.indexOf("image") !== -1 ? id + "_thumb.jpg" : null,
             tempPath,
             mimetype: type.mimetype,
             size: tempWriteStream.bytesWritten,

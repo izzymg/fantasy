@@ -1,6 +1,8 @@
 const assert = require("assert");
 const models = require("../api/models");
 const connection = require("../api/db/connection");
+const uuid = require("uuid/v4");
+const path = require("path");
 
 before(async function() {
   await connection.start();
@@ -50,6 +52,34 @@ describe("boards", function() {
     it("should return all boards in an array", async function() {
       const boards = await models.board.getAll();
       assert(boards && boards.length > 0, "Expected boards returned in an array, got " + boards);
+    });
+  });
+  describe("#createPost", function() {
+    it("should create a post in the database including a jpg and gif", async function() {
+      const jpg = {
+        filename: uuid() + ".jpg",
+        mimetype: "image/jpeg",
+        originalName: "ferrets.jpg",
+        size: "666",
+        tempPath: path.join(__dirname, "ferrets.jpg"),
+      };
+      const gif = {
+        filename: uuid() + ".gif",
+        mimetype: "image/gif",
+        originalName: "paperclip_test.jpg",
+        size: "777",
+        tempPath: path.join(__dirname, "paperclip.gif"),
+      };
+      const { filesProcessed } = await models.post.createPost({
+        boardUid: "test",
+        parent: 0,
+        name: "Mocha unit test",
+        subject: "Test thread",
+        content: "This thread was submitted by a unit test",
+        ip: "127.0.0.1",
+        files: [ jpg, gif ]
+      });
+      assert(filesProcessed == 2, "Expected 2 processed files, got " + filesProcessed);
     });
   });
 });

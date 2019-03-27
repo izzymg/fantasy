@@ -10,7 +10,7 @@
     "lint": "eslint \"**/*.js\"",
     "fix-lint": "eslint \"**/*.js\" --fix",
     "start": "node server.js",
-    "test": "mocha"
+    "test": "mocha -s 0 --timeout 20000"
   },
   "dependencies": {
     "@koa/cors": "^2.2.3",
