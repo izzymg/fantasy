@@ -99,6 +99,20 @@ async function getThread(boardUid, id) {
 }
 
 /**
+ * Faster than doing getThread if files are unneeded
+ * @returns { Number } ID of thread
+ * @returns { false } if thread does not exist
+ */
+async function threadAllowsReplies(boardUid, id) {
+  const [thread] = await connection.db.execute({
+    sql: "SELECT id FROM posts WHERE boardUid = ? AND id = ? AND parent = 0 AND locked = false",
+    values: [boardUid, id]
+  });
+  if(thread[0] && thread[0].id) return thread.id;
+  return false;
+}
+
+/**
  * @returns { Array<Post> } 
 */
 async function getThreadReplies(boardUid, id) {
@@ -180,6 +194,7 @@ async function createPost(post) {
 module.exports = {
   get,
   getThread,
+  threadAllowsReplies,
   getThreads,
   getThreadReplies,
   createPost,

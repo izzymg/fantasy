@@ -23,9 +23,10 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 ##### TODO
 * Automatic antispam
 * More administration functions
-* Store MD5 hash of images
 * Support webms
 * Captchas
+* Performance improvements (faster sql file joins)
+* Store MD5 hash of images
 
 Full usage documentation to come.
 

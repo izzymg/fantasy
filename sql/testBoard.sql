@@ -16,7 +16,7 @@ INSERT INTO boards (
     false,
     1000,
     1000,
-    0
+    20
 );
 
 INSERT INTO posts SET id = (SELECT id FROM boardids WHERE boardUid = "test" FOR UPDATE),
