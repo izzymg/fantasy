@@ -36,5 +36,7 @@ async function getAll() {
   return boards;
 }
 
-exports.get = get;
-exports.getAll = getAll;
+module.exports = {
+  get,
+  getAll,
+};

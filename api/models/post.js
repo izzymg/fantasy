@@ -75,59 +75,9 @@ async function get(boardUid, id) {
 }
 
 /**
- * @returns { Array<Post> } 
-*/
-async function getThreads(boardUid) {
-  const [threads] = await connection.db.execute({
-    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND parent = 0 ${orderByDateSticky}`,
-    values: [boardUid], nestTables: true
-  });
-  return nestJoin(threads);
-}
-
-/**
- * @returns { Post } 
-*/
-async function getThread(boardUid, id) {
-  const [thread] = await connection.db.execute({
-    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND id = ? AND parent = 0 ${orderByDateSticky}`,
-    values: [boardUid, id], nestTables: true
-  });
-  return singleNestJoin(thread);
-}
-
-/**
- * Faster than doing getThread if files are unneeded
- * @returns { Number } ID of thread
- * @returns { false } if thread does not exist
- */
-async function threadAllowsReplies(boardUid, id) {
-  const [thread] = await connection.db.execute({
-    sql: "SELECT id FROM posts WHERE boardUid = ? AND id = ? AND parent = 0 AND locked = false",
-    values: [boardUid, id]
-  });
-  if(thread[0] && thread[0].id) return thread.id;
-  return false;
-}
-
-/**
- * @returns { Array<Post> } 
-*/
-async function getThreadReplies(boardUid, id) {
-  const [thread] = await connection.db.execute({
-    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND parent = ? ${orderByDateSticky}`,
-    values: [boardUid, id], nestTables: true
-  });
-  return nestJoin(thread);
-}
-
-/**
  * @param {Post} post
 */
-async function createPost(post) {
+async function create(post) {
   const poolConnection = await connection.db.getConnection();
   await poolConnection.beginTransaction();
   try {
@@ -191,11 +141,61 @@ async function createPost(post) {
   }
 }
 
+/**
+ * @returns { Array<Post> } 
+*/
+async function getThreads(boardUid) {
+  const [threads] = await connection.db.execute({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND parent = 0 ${orderByDateSticky}`,
+    values: [boardUid], nestTables: true
+  });
+  return nestJoin(threads);
+}
+
+/**
+ * @returns { Post } 
+*/
+async function getThread(boardUid, id) {
+  const [thread] = await connection.db.execute({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND id = ? AND parent = 0 ${orderByDateSticky}`,
+    values: [boardUid, id], nestTables: true
+  });
+  return singleNestJoin(thread);
+}
+
+/**
+ * Faster than doing getThread if files are unneeded
+ * @returns { Number } ID of thread
+ * @returns { false } if thread does not exist
+ */
+async function threadAllowsReplies(boardUid, id) {
+  const [thread] = await connection.db.execute({
+    sql: "SELECT id FROM posts WHERE boardUid = ? AND id = ? AND parent = 0 AND locked = false",
+    values: [boardUid, id]
+  });
+  if(thread[0] && thread[0].id) return thread[0].id;
+  return false;
+}
+
+/**
+ * @returns { Array<Post> } 
+*/
+async function getThreadReplies(boardUid, id) {
+  const [thread] = await connection.db.execute({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND parent = ? ${orderByDateSticky}`,
+    values: [boardUid, id], nestTables: true
+  });
+  return nestJoin(thread);
+}
+
 module.exports = {
   get,
+  create,
   getThread,
   threadAllowsReplies,
   getThreads,
   getThreadReplies,
-  createPost,
 };

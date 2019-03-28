@@ -41,6 +41,9 @@ exports.sanitize = function(str) {
 };
 
 exports.formatNameContent = function(name, tripAlg, tripSalt) {
+  if(!name || typeof name !== "string") {
+    return null;
+  }
   const tripIndex = name.indexOf("#");
   if(tripIndex !== -1) {
     const trip = crypto.createHmac(tripAlg, tripSalt);
@@ -53,11 +56,11 @@ exports.formatNameContent = function(name, tripAlg, tripSalt) {
   return name;
 };
 
-exports.formatPostContent = function(str) {
-  if (!str || typeof str !== "string") {
+exports.formatPostContent = function(content) {
+  if (!content || typeof content !== "string") {
     return null;
   }
-  str = str
+  content = content
     .replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm, 
       "<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>"
     )
@@ -67,5 +70,5 @@ exports.formatPostContent = function(str) {
     .replace(/(<br>){2,}/g, "<br><br>")
     .replace(/\n/g, "<br>")
     .replace(/&gt;([^<]+)/gm, "<span class='quote'>>$1</span>");
-  return str;
+  return content;
 };
