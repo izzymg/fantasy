@@ -35,13 +35,6 @@ router.post("/posts/:board/:parent?", async function(ctx) {
     ctx, config.posts.maxFiles, config.posts.maxFileSize, config.posts.tmpDir
   );
 
-  // Validate fields
-  try {
-    postData = schemas.post(fields, files);
-  } catch(error) {
-    if(error.status && error.status == 400) ctx.throw(400, error);
-    ctx.throw(error);
-  }
   // Ensure board and post exists
   let parent = 0;
   const board = await models.board.get(ctx.params.board);
@@ -63,6 +56,14 @@ router.post("/posts/:board/:parent?", async function(ctx) {
   );
   ctx.assert(!ban || ban.expires && ban.expires < new Date(Date.now()), 403, "You are banned");
     
+  // Validate fields
+  try {
+    postData = schemas.post(fields, files, Boolean(parent === 0));
+  } catch(error) {
+    if(error.status && error.status == 400) ctx.throw(400, error);
+    ctx.throw(error);
+  }
+
   // Ban must have expired
   if(ban) {
     await models.ban.deleteBan(ban.uid);
@@ -73,6 +74,7 @@ router.post("/posts/:board/:parent?", async function(ctx) {
     parent,
     boardUid: board.uid,
     ip: ctx.ip,
+    lastBump: parent ? null : new Date(Date.now())
   });
 
   // Put user back on cooldown
