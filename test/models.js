@@ -39,22 +39,7 @@ describe("threads", function() {
       assert(post && post.id == threads[0].id, "Expected single post returned, got " + post);
     });
   });
-});
-
-describe("boards", function() {
-  describe("#get", function() {
-    it("should return a single board by uid 'test'", async function() {
-      const board = await models.board.get("test");
-      assert(board && board.uid == "test", "Expected board returned, got " + board);
-    });
-  });
-  describe("#getAll", function() {
-    it("should return all boards in an array", async function() {
-      const boards = await models.board.getAll();
-      assert(boards && boards.length > 0, "Expected boards returned in an array, got " + boards);
-    });
-  });
-  describe("#createPost", function() {
+  describe("#create", function() {
     it("should create a post in the database including a jpg and gif", async function() {
       const jpg = {
         filename: uuid() + ".jpg",
@@ -70,16 +55,38 @@ describe("boards", function() {
         size: "777",
         tempPath: path.join(__dirname, "paperclip.gif"),
       };
-      const { filesProcessed } = await models.post.createPost({
+      const { filesProcessed } = await models.post.create({
         boardUid: "test",
         parent: 0,
+        lastBump: new Date(Date.now()),
         name: "Mocha unit test",
-        subject: "Test thread",
-        content: "This thread was submitted by a unit test",
+        subject: "Test reply",
+        content: "This reply was submitted by a unit test",
         ip: "127.0.0.1",
         files: [ jpg, gif ]
       });
       assert(filesProcessed == 2, "Expected 2 processed files, got " + filesProcessed);
+    });
+  });
+  describe("#removeWithReplies", function() {
+    it("should remove the post with all replies and files", async function() {
+      const { deletedFiles, deletedPosts } = await models.post.removeWithReplies("test", threads[0].id);
+      assert(deletedPosts == 2 && deletedFiles == 2, "Got incorrect number of deleted files and posts");
+    });
+  });
+});
+
+describe("boards", function() {
+  describe("#get", function() {
+    it("should return a single board by uid 'test'", async function() {
+      const board = await models.board.get("test");
+      assert(board && board.uid == "test", "Expected board returned, got " + board);
+    });
+  });
+  describe("#getAll", function() {
+    it("should return all boards in an array", async function() {
+      const boards = await models.board.getAll();
+      assert(boards && boards.length > 0, "Expected boards returned in an array, got " + boards);
     });
   });
 });

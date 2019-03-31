@@ -20,7 +20,7 @@ function post(fields, files = [], isThread = false) {
     }
   } else {
     if(config.posts.replies.requireContentOrFiles) {
-      if(!fields.content || (!files || files.length < 0)) {
+      if(!fields.content && (!files || files.length < 0)) {
         validationError("Replies must have content or files");
       }
     }
@@ -36,7 +36,9 @@ function post(fields, files = [], isThread = false) {
   if(lengthError) validationError(lengthError);
 
   // Sanitize, format
-  files.forEach((file) => file.originalName = libs.validation.sanitize(file.originalName));
+  if(files) {
+    files.forEach((file) => file.originalName = libs.validation.sanitize(file.originalName));
+  }
   const name = libs.validation.formatNameContent(
     libs.validation.sanitize(fields.name),
     config.posts.tripAlgorithm, config.posts.tripSalt
@@ -49,6 +51,44 @@ function post(fields, files = [], isThread = false) {
   };
 }
 
+function login(fields) {
+  const requiredMessage = "Username and password required";
+  if(!fields) validationError(requiredMessage);
+  if(!fields.username || !fields.password) validationError(requiredMessage);
+  return {
+    username: fields.username,
+    password: fields.password,
+  };
+}
+
+function passwordChange(fields) {
+  if(!fields) {
+    validationError("Expected new password, confirmation password and current password");
+  }
+
+  if(!fields.newPassword || typeof fields.newPassword !== "string") {
+    validationError("Expected new password");
+  }
+  if(!fields.confirmationPassword || typeof fields.confirmationPassword !== "string") {
+    validationError("Expected confirmation password");
+  }
+  if(!fields.currentPassword || typeof fields.currentPassword !== "string") {
+    validationError("Expected current password");
+  }
+  if(fields.newPassword.length < 8) {
+    validationError("Passwords must be over 8 characters");
+  }
+  if(fields.newPassword !== fields.confirmationPassword) {
+    validationError("New password and confirmation do not match");
+  }
+  return {
+    newPassword: fields.newPassword,
+    confirmationPassword: fields.confirmationPassword,
+    currentPassword: fields.currentPassword
+  };
+}
 module.exports = {
-  post
+  post,
+  login,
+  passwordChange,
 };

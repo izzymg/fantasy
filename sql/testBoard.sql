@@ -1,5 +1,6 @@
 DELETE FROM posts WHERE boardUid = "test";
 DELETE FROM boards WHERE uid = "test";
+DELETE FROM boardids WHERE boardUid = "test";
 
 INSERT INTO boards (
     uid,
@@ -20,7 +21,7 @@ INSERT INTO boards (
 );
 
 INSERT INTO posts SET id = (SELECT id FROM boardids WHERE boardUid = "test" FOR UPDATE),
-    name = "TestPost", content = "2 files", subject = "Test", parent = 0, boardUid = "test";
+    name = "TestPost", content = "2 files", subject = "Test", parent = 0, boardUid = "test",  lastBump = NOW();
 INSERT INTO files SET postUid = (SELECT uid FROM posts WHERE name = "TestPost"),
     filename = "fakeFile.png", originalName = "fakeFile.png";
 INSERT INTO files SET postUid = (SELECT uid FROM posts WHERE name = "TestPost"),

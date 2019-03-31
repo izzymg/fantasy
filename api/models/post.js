@@ -114,9 +114,7 @@ async function create(post) {
               thumbWidth: config.posts.thumbWidth }
           );
         } catch(error) {
-          const err = new Error(error);
-          err.code = "IMAGE";
-          throw err;
+          throw { status: 400, message: "Failed to process image", error: error };
         }
         // TODO: better parameters here too
         delete file.tempPath;
@@ -139,6 +137,36 @@ async function create(post) {
   } finally {
     if(poolConnection) poolConnection.release();
   }
+}
+
+/**
+ * Removes post and replies 
+ */
+async function removeWithReplies(boardUid, id) {
+  let deletedFiles = 0;
+  const [files] = await connection.db.execute({
+    sql: `SELECT filename FROM files
+      INNER JOIN posts on files.postUid = posts.uid
+      WHERE boardUid = ? AND (id = ? OR parent = ?)`,
+    values: [boardUid, id, id]
+  });
+  if(files && files.length  > 0) {
+    await Promise.all(files.map(async(file) => {
+      try {
+        await libs.files.unlink(path.join(config.posts.filesDir, file.filename));
+        await libs.files.unlink(path.join(config.posts.thumbsDir, file.filename));
+      } catch(error) {
+        // Ignore image not found errors
+        if(error.code !== "ENOENT") throw error;
+      }
+      deletedFiles++;
+    }));
+  }
+  const [{ affectedRows }] = await connection.db.execute({
+    sql: "DELETE from posts WHERE boardUid = ? AND (id = ? OR parent = ?)",
+    values: [boardUid, id, id]
+  });
+  return { deletedPosts: affectedRows, deletedFiles };
 }
 
 /**
@@ -191,6 +219,45 @@ async function getThreadReplies(boardUid, id) {
   return nestJoin(thread);
 }
 
+async function getThreadCount(boardUid) {
+  const [num] = await connection.db.execute({
+    sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUid = ? AND parent = 0",
+    values: [boardUid]
+  });
+  if(!num || !num[0].count) return 0;
+  return num[0].count;
+}
+
+async function getReplyCount(boardUid, id) {
+  const [num] = await connection.db.execute({
+    sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUid = ? AND parent = ?",
+    values: [boardUid, id]
+  });
+  if(!num || !num[0].count) return 0;
+  return num[0].count;
+}
+
+async function getOldestThreadId(boardUid) {
+  const oldest = await connection.db.execute({
+    sql: `SELECT id FROM posts WHERE parent = 0 AND boardUid = ? AND sticky = false
+        ORDER BY lastBump ASC LIMIT 1;`,
+    values: [boardUid]
+  });
+  if(!oldest || !oldest[0].id) return null;
+  return oldest[0].id;
+}
+
+async function bumpPost(boardUid, id) {
+  const [res] = await connection.db.query({
+    sql: "UPDATE posts SET lastBump = ? WHERE boardUid = ? AND id = ? AND parent = 0",
+    values: [new Date(Date.now()), boardUid, id]
+  });
+  if (!res || !res.affectedRows) {
+    throw "Bump failed";
+  }
+  return res.affectedRows;
+}
+
 module.exports = {
   get,
   create,
@@ -198,4 +265,9 @@ module.exports = {
   threadAllowsReplies,
   getThreads,
   getThreadReplies,
+  removeWithReplies,
+  getThreadCount,
+  getReplyCount,
+  getOldestThreadId,
+  bumpPost,
 };

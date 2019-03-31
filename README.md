@@ -81,6 +81,12 @@ POST   | /auth/changePassword               | Expected { currentPassword, newPas
 GET    | /bans                              | Returns your IP bans                                                  
 POST   | /bans/:board/:post                 | Bans poster of :post from board                                         
 
+## Unit Testing
+
+Run sql/testBoard.sql (warning, this will delete the board /test/ and all posts on it, then recreate it)
+
+`npm run test`
+
 ## License
 
 GPL-V3.0. Do what you want with this - it's specifically purposed towards my personal needs so forking and editing is a good idea.

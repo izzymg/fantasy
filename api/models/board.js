@@ -31,7 +31,7 @@ async function get(uid) {
 */
 async function getAll() {
   const [boards] = await connection.db.execute({
-    sql: `SELECT ${safeBoard} FROM boards`
+    sql: `SELECT * FROM boards`
   });
   return boards;
 }

@@ -16,6 +16,7 @@ const logger = pino({
 
 // Kill everything on unhandled rejection
 process.on("unhandledRejection", function(error) {
+  console.error("Unhandled Promise Rejection occured:", error);
   logger.fatal(error);
   process.exit(1);
 }); 
@@ -60,6 +61,7 @@ server.use(async function(ctx, next) {
 
 server.use(routes.posts);
 server.use(routes.boards);
+server.use(routes.auth);
 
 // Database connection must boot before server is started
 // TODO: better solution to this

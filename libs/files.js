@@ -1,7 +1,6 @@
 const fs = require("fs");
 const { promisify } = require("util");
 const sharp = require("sharp");
-const path = require("path");
 
 // Prevent sharp from keeping a lock on the file
 sharp.cache(false);
@@ -12,19 +11,14 @@ async function createThumbnail(inFp, outputFp, width, quality) {
   const image = sharp(inFp);
   const metadata = await image.metadata();
   // Transform filepath into (dir)/thumb-(fileid).jpg
-  const basename = path.basename(outputFp);
-  const thumbOutFp = path.join(
-    path.dirname(outputFp),
-    "thumb-" + basename.slice(0, basename.indexOf(".")) + ".jpg"
-  );
   // Don't resize if image is smaller than a thumbnail
   if (metadata.width > width) {
     await image
       .resize(150)
       .jpeg({ quality: quality, force: true })
-      .toFile(thumbOutFp);
+      .toFile(outputFp);
   } else {
-    await image.jpeg({ quality: quality, force: true }).toFile(thumbOutFp);
+    await image.jpeg({ quality: quality, force: true }).toFile(outputFp);
   }
 }
 
@@ -32,7 +26,8 @@ async function processPostFile(tempFp, outputFp, thumbOutputFp, mimetype,
   { thumbWidth, thumbQuality } = { thumbWidth: 150, thumbQuality: 40 }) {
   switch(mimetype) {
     // Process image and thumbnail through sharp
-    case ("image/jpeg" || "image/png"):
+    case "image/jpeg":
+    case "image/png":
       await Promise.all([
         sharp(tempFp).toFile(outputFp),
         createThumbnail(tempFp, thumbOutputFp, thumbWidth, thumbQuality)
