@@ -8,7 +8,8 @@ const safePost =
 const safeFile = 
   "filename, mimetype, originalName, size, hash";
 const joinPostFiles = "LEFT JOIN files ON files.postUid = posts.uid";
-const orderByDateSticky = "ORDER BY sticky DESC, lastBump DESC";
+const threadOrder = "ORDER BY sticky DESC, lastBump DESC";
+const replyOrder = "ORDER BY id ASC, createdAt ASC";
 
 /**
  * @typedef File
@@ -175,7 +176,7 @@ async function removeWithReplies(boardUid, id) {
 async function getThreads(boardUid) {
   const [threads] = await connection.db.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND parent = 0 ${orderByDateSticky}`,
+      WHERE boardUid = ? AND parent = 0 ${threadOrder}`,
     values: [boardUid], nestTables: true
   });
   return nestJoin(threads);
@@ -187,10 +188,22 @@ async function getThreads(boardUid) {
 async function getThread(boardUid, id) {
   const [thread] = await connection.db.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND id = ? AND parent = 0 ${orderByDateSticky}`,
+      WHERE boardUid = ? AND id = ? AND parent = 0`,
     values: [boardUid, id], nestTables: true
   });
   return singleNestJoin(thread);
+}
+
+/**
+ * @returns { Array<Post> } 
+*/
+async function getThreadReplies(boardUid, id) {
+  const [thread] = await connection.db.execute({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE boardUid = ? AND parent = ? ${replyOrder}`,
+    values: [boardUid, id], nestTables: true
+  });
+  return nestJoin(thread);
 }
 
 /**
@@ -205,18 +218,6 @@ async function threadAllowsReplies(boardUid, id) {
   });
   if(thread[0] && thread[0].id) return thread[0].id;
   return false;
-}
-
-/**
- * @returns { Array<Post> } 
-*/
-async function getThreadReplies(boardUid, id) {
-  const [thread] = await connection.db.execute({
-    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND parent = ? ${orderByDateSticky}`,
-    values: [boardUid, id], nestTables: true
-  });
-  return nestJoin(thread);
 }
 
 async function getThreadCount(boardUid) {
