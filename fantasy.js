@@ -61,6 +61,7 @@ server.use(async function(ctx, next) {
 
 server.use(routes.posts);
 server.use(routes.boards);
+server.use(routes.bans);
 server.use(routes.auth);
 
 // Database connection must boot before server is started
