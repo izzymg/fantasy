@@ -11,7 +11,7 @@ exports.start = async() => {
     host: secrets.database.host, port: secrets.database.port, database: "fantasy",
     connectTimeout: config.database.connectionTimeout,
     connectionLimit: config.database.connectionLimit,
-    debug: config.database.debug, trace: config.database.debug
+    debug: config.database.debug
   });
   if(config.database.memStore) {
     mem = exports.mem = libs.memstore.createClient();
