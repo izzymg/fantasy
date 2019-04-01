@@ -15,28 +15,42 @@ const connection = require("../db/connection");
 const safeBoard = "uid, title, about, sfw, bumpLimit, maxThreads, cooldown";
 
 /** 
- * @returns { Board } 
+ * @returns { Board } Board by UID
 */
 async function get(uid) {
   const [board] = await connection.db.execute({
     sql: `SELECT ${safeBoard} FROM boards WHERE uid = ?`,
     values: [uid]
   });
-  if(!board || board.length > 1) return null;
-  return board[0];
+  if(board && board.length) return board[0];
 }
 
 /**
- * @returns { Array<Board> }
+ * @returns { Array<Board> } Array of all boards
 */
 async function getAll() {
   const [boards] = await connection.db.execute({
-    sql: `SELECT * FROM boards`
+    sql: `SELECT ${safeBoard} FROM boards`
   });
   return boards;
+}
+
+/**
+ * @returns { Board } Moderated boards by username
+*/
+
+async function getModeratedByUser(username) {
+  const [boards] = await connection.db.execute({
+    sql: `SELECT ${safeBoard} FROM boards
+      INNER JOIN moderators ON moderators.boardUid = boards.uid
+      WHERE username = ?`,
+    values: [username]
+  });
+  if(boards && boards.length) return boards;
 }
 
 module.exports = {
   get,
   getAll,
+  getModeratedByUser
 };

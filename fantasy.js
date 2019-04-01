@@ -63,6 +63,7 @@ server.use(routes.posts);
 server.use(routes.boards);
 server.use(routes.bans);
 server.use(routes.auth);
+server.use(routes.mod);
 
 // Database connection must boot before server is started
 // TODO: better solution to this
