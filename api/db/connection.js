@@ -1,8 +1,7 @@
 const mysql = require("mysql2/promise");
 const config = require("../../config/config");
 const secrets = require("../../config/private");
-const redis = require("../../libs/redis");
-const memstore = require("../../libs/memstore");
+const libs = require("../../libs");
 let database;
 let mem;
 
@@ -15,9 +14,9 @@ exports.start = async() => {
     debug: config.database.debug, trace: config.database.debug
   });
   if(config.database.memStore) {
-    mem = exports.mem = memstore.createClient();
+    mem = exports.mem = libs.memstore.createClient();
   } else {
-    mem = exports.mem = await redis.createClient(secrets.redis);
+    mem = exports.mem = await libs.redis.createClient(secrets.redis);
   }
   return;
 };
