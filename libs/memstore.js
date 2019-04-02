@@ -1,10 +1,6 @@
 // 1-1 fill in for redis
 exports.createClient = () => {
   let client = {};
-  console.warn(
-    `WARNING: Server is configured to use memory instead of Redis.
-        This is not safe for production environments and is intended for development only.`
-  );
   return {
     open: () => client = { },
     close: () => client = null,

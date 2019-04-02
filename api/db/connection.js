@@ -15,6 +15,10 @@ exports.start = async() => {
     debug: config.database.debug, trace: config.database.debug
   });
   if(config.database.memStore) {
+    console.warn(
+      `WARNING: Fantasy is configured to use memory instead of Redis.
+          This is not safe for production environments and is intended for development only.`
+    );
     mem = exports.mem = memstore.createClient();
   } else {
     mem = exports.mem = await redis.createClient(secrets.redis);
