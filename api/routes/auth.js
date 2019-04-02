@@ -1,10 +1,12 @@
 const KoaRouter = require("koa-router");
 const router = new KoaRouter();
+const middleware = require("./middleware");
 const schemas = require("../schemas");
 const models = require("../models");
 const coBody = require("co-body");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid/v4");
+const crypto = require("crypto");
 
 // Login
 router.post("/auth/login", async function(ctx) {
@@ -39,7 +41,7 @@ router.post("/auth/login", async function(ctx) {
 router.get("/auth/session", async function(ctx) {
   const session = await models.session.get(ctx.cookies.get("id"));
   ctx.assert(session, 403, "No session found");
-  ctx.body = { username: session.username };
+  ctx.body = { username: session.username, isAdmin: session.isAdmin };
 });
 
 // Change password
@@ -69,5 +71,40 @@ router.post("/auth/changePassword", async function(ctx) {
   await models.session.remove(sessionId);
   ctx.body = "Changed password, please login again";
 });
+
+// Create user
+router.post("/auth/users",
+  middleware.requireAdmin(),
+  async function(ctx) {
+    const { username, isAdmin } = schemas.createUser(await coBody.json(ctx, { strict: true }));
+    const password = crypto.randomBytes(6).toString("hex");
+    const hashedPw = await bcrypt.hash(password, 15);
+    try {
+      await models.user.create({ username, password: hashedPw });
+    } catch(error) {
+      if(error.code == "ER_DUP_ENTRY") {
+        ctx.throw(400, "User already exists by that username");
+      }
+    }
+    if(isAdmin) {
+      await models.user.makeAdmin(username);
+    }
+    ctx.body = `User "${username}" created, provide password, hang on to this password: ${password}.
+    Instruct them to change it after they login`;
+  }
+);
+
+// Delete user
+router.delete("/auth/users/:user",
+  middleware.requireAdmin(),
+  async function(ctx) {
+    const { usersRemoved } = await models.user.remove(ctx.params.username);
+    if(usersRemoved > 0) {
+      ctx.body = `User "${ctx.params.username} removed"`;
+    } else {
+      ctx.body = "No users removed, check the username exists";
+    }
+  }
+);
 
 module.exports = router.routes();

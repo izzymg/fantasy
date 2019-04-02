@@ -7,6 +7,9 @@ const connection = require("../db/connection");
  * @property {Date} createdAt User created at
  */
 
+/**
+* @returns { User } 
+*/
 async function get(username) {
   const [user] = await connection.db.execute({
     sql: "SELECT username, createdAt FROM users WHERE username = ?",
@@ -16,6 +19,31 @@ async function get(username) {
   return user[0];
 }
 
+async function update(username, { newUsername, newPassword }) {
+  await connection.db.query({
+    sql: "UPDATE users SET ? WHERE username = ?",
+    values: [{ username: newUsername, password: newPassword }, username],
+  });
+}
+
+/**
+ * @param { User } user 
+ */
+async function create(user) {
+  await connection.db.query({
+    sql: "INSERT INTO users SET ?",
+    values: [user],
+  });
+}
+
+async function remove(username) {
+  const [{ affectedRows }] = await connection.db.query({
+    sql: "DELETE FROM users WHERE username = ?",
+    values: [username],
+  });
+  return { usersRemoved: affectedRows };
+}
+
 async function getPassword(username) {
   const [user] = await connection.db.execute({
     sql: "SELECT password FROM users WHERE username = ?",
@@ -23,13 +51,6 @@ async function getPassword(username) {
   });
   if(!user || user.length < 1) return null;
   return user[0].password;
-}
-
-async function update(username, { newUsername, newPassword }) {
-  await connection.db.query({
-    sql: "UPDATE users SET ? WHERE username = ?",
-    values: [{ username: newUsername, password: newPassword }, username],
-  });
 }
 
 async function canModerateBoard(boardUid, username) {
@@ -53,10 +74,20 @@ async function isAdmin(username) {
   return false;
 }
 
+async function makeAdmin(username) {
+  await connection.db.query({
+    sql: "INSERT INTO administrators SET username = ?",
+    values: [username],
+  });
+}
+
 module.exports = {
   get,
-  getPassword,
   update,
+  create,
+  remove,
+  getPassword,
   canModerateBoard,
   isAdmin,
+  makeAdmin,
 };

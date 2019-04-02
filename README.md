@@ -77,7 +77,9 @@ GET    | /boards/mod                        | Returns all board you moderate
 GET    | /boards/:board/reports             | Returns all reports on :board                                         
 POST   | /auth/login                        | Expects { username, password }                                          
 GET    | /auth/session                      | Returns { username }                                                  
-POST   | /auth/changePassword               | Expected { currentPassword, newPassword, confirmationPassword }                                       
+POST   | /auth/changePassword               | Expects { currentPassword, newPassword, confirmationPassword }                                       
+POST   | /auth/users                        | Expects { username, isAdmin: optional bool }, creates user
+DELETE | /auth/users                        | Self explanatory                                       
 GET    | /bans                              | Returns your IP bans                                                  
 POST   | /bans/:board/:post                 | Bans poster of :post from board                                         
 

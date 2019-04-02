@@ -15,8 +15,8 @@ exports.start = async() => {
   });
   if(config.database.memStore) {
     console.warn(
-      `WARNING: Fantasy is configured to use memory instead of Redis.
-          This is not safe for production environments and is intended for development only.`
+      "WARNING: Fantasy is configured to use memory instead of Redis.\n \
+        This is not safe for production environments and is intended for development only."
     );
     mem = exports.mem = libs.memstore.createClient();
   } else {

@@ -84,11 +84,34 @@ function passwordChange(fields) {
   return {
     newPassword: fields.newPassword,
     confirmationPassword: fields.confirmationPassword,
-    currentPassword: fields.currentPassword
+    currentPassword: fields.currentPassword,
   };
 }
+
+function createUser(fields) {
+  const requiredMessage = "Username required";
+  if(!fields || typeof fields.username !== "string") {
+    validationError(requiredMessage);
+  }
+  if(fields.username.length > 15) {
+    validationError("Username can't be over 15 characters");
+  }
+  fields.username = fields.username.trim();
+  if(!fields.username) {
+    validationError(requiredMessage);
+  }
+  if(/[^a-zA-Z0-9_]+/g.test(fields.username)) {
+    validationError("Username may only contain letters, numbers or underscores");
+  }
+  return {
+    username: fields.username,
+    isAdmin: Boolean(fields.administrator === true),
+  };
+}
+
 module.exports = {
   post,
   login,
   passwordChange,
+  createUser,
 };

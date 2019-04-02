@@ -24,5 +24,18 @@ module.exports = {
       }
       ctx.throw(403, "You don't have permission to do that");
     };
-  }
+  },
+  requireAdmin() {
+    return async function(ctx, next) {
+      const session = await models.session.get(ctx.cookies.get("id"));
+      if(session) {
+        const isAdmin = await models.user.isAdmin(session.username);
+        if(isAdmin === true) {
+          ctx.state.session = session;
+          return await next();
+        }
+      }
+      ctx.throw(403, "You don't have permission to do that");
+    };
+  },
 };
