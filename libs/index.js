@@ -1,13 +1,13 @@
 const files = require("./files");
 const multipart = require("./multipart");
 const redis = require("./redis");
-const sql = require("./sql");
+const memstore = require("./memstore");
 const validation = require("./validation");
 
 module.exports = {
   files,
   multipart,
   redis,
-  sql,
+  memstore,
   validation
 };

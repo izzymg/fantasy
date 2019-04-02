@@ -25,7 +25,8 @@ router.post("/auth/login", async function(ctx) {
     if(passwordMatches === true) {
       // Session creation
       const sessionId = uuid();
-      await models.session.create(sessionId, username);
+      const isAdmin = await models.user.isAdmin(username);
+      await models.session.create(sessionId, username, isAdmin);
       ctx.set("Set-Cookie", `id=${sessionId}; HttpOnly; path=/`);
       ctx.body = "Success";
       return;

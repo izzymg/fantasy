@@ -49,7 +49,7 @@ router.post("/posts/:board/:parent?", async function(ctx) {
   // IP must be off cooldown, and cannot be banned
   const [ cd, ban ] = await Promise.all([
     models.ip.getCooldown(ctx.ip, board.uid),
-    models.ban.getBoardBan(ctx.ip, board.uid)
+    models.ban.getByBoard(ctx.ip, board.uid)
   ]);
 
   ctx.assert(
@@ -60,7 +60,7 @@ router.post("/posts/:board/:parent?", async function(ctx) {
 
   // Ban must have expired
   if(ban) {
-    await models.ban.deleteBan(ban.uid);
+    await models.ban.remove(ban.uid);
   }  
   
   // Validate fields
