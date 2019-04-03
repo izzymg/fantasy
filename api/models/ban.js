@@ -10,7 +10,7 @@ const connection = require("../db/connection");
  * @property {string} reason
 */
 
-const safeBan = "ip, boardUid, allBoards, expires, reason";
+const safeBan = "uid, ip, boardUid, allBoards, expires, reason";
 
 /**
  * @returns { Ban } 
