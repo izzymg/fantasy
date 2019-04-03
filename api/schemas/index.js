@@ -63,17 +63,17 @@ function login(fields) {
 
 function passwordChange(fields) {
   if(!fields) {
-    validationError("Expected new password, confirmation password and current password");
+    validationError("New password, confirmation password and current password required");
   }
 
   if(!fields.newPassword || typeof fields.newPassword !== "string") {
-    validationError("Expected new password");
+    validationError("New password required");
   }
   if(!fields.confirmationPassword || typeof fields.confirmationPassword !== "string") {
-    validationError("Expected confirmation password");
+    validationError("Confirmation password required");
   }
   if(!fields.currentPassword || typeof fields.currentPassword !== "string") {
-    validationError("Expected current password");
+    validationError("Current password required");
   }
   if(fields.newPassword.length < 8) {
     validationError("Passwords must be over 8 characters");
@@ -105,7 +105,7 @@ function createUser(fields) {
   }
   return {
     username: fields.username,
-    isAdmin: Boolean(fields.administrator === true),
+    isAdmin: Boolean(fields.isAdmin === true),
   };
 }
 

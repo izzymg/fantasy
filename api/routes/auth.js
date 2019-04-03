@@ -89,8 +89,11 @@ router.post("/auth/users",
     if(isAdmin) {
       await models.user.makeAdmin(username);
     }
-    ctx.body = `User "${username}" created, provide password, hang on to this password: ${password}.
-    Instruct them to change it after they login`;
+    ctx.body = `User ${username} created, give them this password: ${password}.
+    Instruct them to change it after they login.`;
+    if(isAdmin) {
+      ctx.body += " This user is an administrator.";
+    }
   }
 );
 
