@@ -105,7 +105,7 @@ function createUser(fields) {
   }
   return {
     username: fields.username,
-    isAdmin: Boolean(fields.administrator === true),
+    isAdmin: Boolean(fields.isAdmin === true),
   };
 }
 
