@@ -19,6 +19,31 @@ async function get(username) {
   return user[0];
 }
 
+/**
+ * Be careful
+ * @returns { Array<User> } 
+*/
+
+async function getAll() {
+  const [users] = await connection.db.execute({
+    sql: "SELECT username, createdAt FROM users"
+  });
+  return users;
+}
+
+/**
+ * @returns { Array<User> } Users found matching this username
+ * @returns { null } If none found 
+ */
+async function search(username) {
+  const [users] = await connection.db.execute({
+    sql: "SELECT username, createdAt FROM users WHERE username LIKE ?",
+    values: [`%${username}%`]
+  });
+  if(users && users.length > 0) return users;
+  return null; 
+}
+
 async function update(username, { newUsername, newPassword }) {
   await connection.db.query({
     sql: "UPDATE users SET ? WHERE username = ?",
@@ -83,6 +108,8 @@ async function makeAdmin(username) {
 
 module.exports = {
   get,
+  getAll,
+  search,
   update,
   create,
   remove,

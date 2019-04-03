@@ -107,4 +107,16 @@ router.delete("/auth/users/:user",
   }
 );
 
+// User search
+router.get("/auth/users",
+  middleware.requireAdmin(),
+  async function(ctx) {
+    if(ctx.query.username) {
+      ctx.body = await models.user.search(ctx.query.username);
+    } else {
+      ctx.body = await models.user.getAll();
+    }
+  }
+);
+
 module.exports = router.routes();
