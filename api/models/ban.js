@@ -35,7 +35,7 @@ async function getByIp(ip) {
 }
 
 async function remove(uid) {
-  connection.db.query({
+  await connection.db.query({
     sql: "DELETE FROM bans WHERE uid = ?",
     values: [uid],
   });

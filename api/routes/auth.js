@@ -92,7 +92,7 @@ router.post("/auth/users",
     ctx.body = `User ${username} created, give them this password: ${password}.
     Instruct them to change it after they login.`;
     if(isAdmin) {
-      ctx.body += " This user is an administrator";
+      ctx.body += " This user is an administrator.";
     }
   }
 );
