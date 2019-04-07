@@ -20,13 +20,13 @@ async function get(username) {
 }
 
 /**
- * Be careful
- * @returns { Array<User> } 
+ * @returns { Array<User> }
 */
 
-async function getAll() {
+async function getPage(limit, page) {
   const [users] = await connection.db.execute({
-    sql: "SELECT username, createdAt FROM users"
+    sql: "SELECT username, createdAt FROM users ORDER BY users.username ASC LIMIT ? OFFSET ?",
+    values: [limit, limit * page -1]
   });
   return users;
 }
@@ -108,7 +108,7 @@ async function makeAdmin(username) {
 
 module.exports = {
   get,
-  getAll,
+  getPage,
   search,
   update,
   create,

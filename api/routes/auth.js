@@ -98,14 +98,14 @@ router.post("/auth/users",
 );
 
 // Delete user
-router.delete("/auth/users/:user",
+router.delete("/auth/users/:username",
   middleware.requireAdmin(),
   async function(ctx) {
     const { usersRemoved } = await models.user.remove(ctx.params.username);
     if(usersRemoved > 0) {
       ctx.body = `User "${ctx.params.username} removed"`;
     } else {
-      ctx.body = "No users removed, check the username exists";
+      ctx.throw(400, "No users removed, check the username exists");
     }
   }
 );
@@ -116,6 +116,9 @@ router.get("/auth/users",
   async function(ctx) {
     if(ctx.query.username) {
       ctx.body = await models.user.search(ctx.query.username);
+    } else if(ctx.query.page) {
+      ctx.assert(typeof ctx.query.count == "number", 400, "Malformed query");
+      ctx.body = await models.user.getPage(ctx.query.limit || 25, ctx.query.page);
     } else {
       ctx.body = await models.user.getAll();
     }
