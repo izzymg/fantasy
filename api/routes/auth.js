@@ -117,8 +117,10 @@ router.get("/auth/users",
     if(ctx.query.username) {
       ctx.body = await models.user.search(ctx.query.username);
     } else if(ctx.query.page) {
-      ctx.assert(typeof ctx.query.count == "number", 400, "Malformed query");
-      ctx.body = await models.user.getPage(ctx.query.limit || 25, ctx.query.page);
+      const page = parseInt(ctx.query.page);
+      const limit = parseInt(ctx.query.limit);
+      ctx.assert(page, 400, "Malformed query");
+      ctx.body = await models.user.getPage(limit || 25, page);
     } else {
       ctx.body = await models.user.getAll();
     }

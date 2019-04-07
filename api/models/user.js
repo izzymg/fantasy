@@ -24,9 +24,12 @@ async function get(username) {
 */
 
 async function getPage(limit, page) {
+  let offset = 0;
+  // Pages start at 1
+  if(page > 1) offset = limit * (page - 1) -1;
   const [users] = await connection.db.execute({
     sql: "SELECT username, createdAt FROM users ORDER BY users.username ASC LIMIT ? OFFSET ?",
-    values: [limit, limit * page -1]
+    values: [limit, offset]
   });
   return users;
 }
