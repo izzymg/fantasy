@@ -2,6 +2,7 @@ const connection = require("../db/connection");
 
 const safeReportJoin = "boardUid, postId, createdAt, ip, description \
   FROM reports INNER JOIN reportlevels ON reportlevels.level = reports.level";
+const reportOrder = "ORDER BY reports.createdAt DESC";
 
 /**
  * @typedef Report
@@ -42,7 +43,7 @@ async function create(report) {
 */
 async function getOnBoard(boardUid) {
   const [reports] = await connection.db.execute({
-    sql: `SELECT ${safeReportJoin} WHERE boardUid = ? ORDER BY createdAt`,
+    sql: `SELECT ${safeReportJoin} WHERE boardUid = ? ${reportOrder}`,
     values: [boardUid]
   });
   return reports;
@@ -58,7 +59,7 @@ async function getPageOnBoard(boardUid, limit, page) {
   if(page > 1) offset = limit * (page - 1) -1;
   const [reports] = await connection.db.execute({
     sql: `SELECT ${safeReportJoin} WHERE boardUid = ?
-      ORDER BY createdAt LIMIT ? OFFSET ?`,
+      ${reportOrder} LIMIT ? OFFSET ?`,
     values: [boardUid, limit, offset]
   });
   return reports;
@@ -69,7 +70,7 @@ async function getPageOnBoard(boardUid, limit, page) {
 */
 async function getLevel(level) {
   const [reportlevel] = await connection.db.execute({
-    sql: "SELECT description, level FROM reportlevels WHERE level = ?",
+    sql: "SELECT description, level FROM reportlevels WHERE level = ? ORDER BY level ASC",
     values: [level]
   });
   if(!reportlevel && !reportlevel.description) return null;
@@ -81,7 +82,7 @@ async function getLevel(level) {
 */
 async function getLevels() {
   const [reportlevels] = await connection.db.execute({
-    sql: "SELECT description, level FROM reportlevels",
+    sql: "SELECT description, level FROM reportlevels ORDER BY level ASC",
   });
   return reportlevels;
 }
