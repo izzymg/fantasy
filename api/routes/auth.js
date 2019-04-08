@@ -11,7 +11,7 @@ const crypto = require("crypto");
 // Login
 router.post("/auth/login", async function(ctx) {
   const { username, password } = schemas.login(await coBody.json(ctx, { strict: true }));
-  let { attempts, lastAttempt } = await models.ip.getLogins();
+  let { attempts, lastAttempt } = await models.ip.getLogins(ctx.ip);
   // Last  attempt was over 12 hours ago
   if(lastAttempt && lastAttempt > Date.now() - (12 * 60 * 60 * 1000)) {
     attempts = 0;

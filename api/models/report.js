@@ -13,13 +13,33 @@ const safeReportJoin = "boardUid, postId, createdAt, ip, description \
  * @property {number} level
 */
 
+/**
+ * @typedef ReportLevel
+ * @property {number} level
+ * @property {string} description 
+*/
+
+/** 
+ * @param { Report } report 
+*/
 async function create(report) {
-  await connection.db.execute({
-    sql: "INSERT INTO reports SET ?",
-    values: [report]
-  });
+  try {
+    await connection.db.query({
+      sql: "INSERT INTO reports SET ?",
+      values: [report]
+    });
+  } catch(error) {
+    if(error.code == "ER_NO_REFERENCED_ROW_2" || error.code == "ER_NO_REFERENCED_ROW") {
+      throw { status: 400, message: "Invalid report level" };
+    }
+    throw error;
+  }
 }
 
+/**
+ * 
+ * @returns { Array<Report> } 
+*/
 async function getOnBoard(boardUid) {
   const [reports] = await connection.db.execute({
     sql: `SELECT ${safeReportJoin} WHERE boardUid = ? ORDER BY createdAt`,
@@ -28,6 +48,10 @@ async function getOnBoard(boardUid) {
   return reports;
 }
 
+/**
+ * 
+ * @returns { Array<Report> } 
+*/
 async function getPageOnBoard(boardUid, limit, page) {
   let offset = 0;
   // Pages start at 1
@@ -40,8 +64,32 @@ async function getPageOnBoard(boardUid, limit, page) {
   return reports;
 }
 
+/**
+ * @returns { ReportLevel }
+*/
+async function getLevel(level) {
+  const [reportlevel] = await connection.db.execute({
+    sql: "SELECT description, level FROM reportlevels WHERE level = ?",
+    values: [level]
+  });
+  if(!reportlevel && !reportlevel.description) return null;
+  return reportlevel;
+}
+
+/**
+ * @returns { Array<ReportLevel> }
+*/
+async function getLevels() {
+  const [reportlevels] = await connection.db.execute({
+    sql: "SELECT description, level FROM reportlevels",
+  });
+  return reportlevels;
+}
+
 module.exports = {
   create,
   getOnBoard,
   getPageOnBoard,
+  getLevel,
+  getLevels,
 };

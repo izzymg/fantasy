@@ -110,5 +110,7 @@ CREATE TABLE IF NOT EXISTS reports (
         ON DELETE CASCADE,
     CONSTRAINT reportboard
         FOREIGN KEY (boardUid) REFERENCES boards (uid)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT reportlevel
+        FOREIGN KEY (level) REFERENCES reportlevels (level)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

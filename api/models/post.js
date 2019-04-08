@@ -239,13 +239,28 @@ async function getReplyCount(boardUid, id) {
 }
 
 async function getOldestThreadId(boardUid) {
-  const oldest = await connection.db.execute({
+  const [oldest] = await connection.db.execute({
     sql: `SELECT id FROM posts WHERE parent = 0 AND boardUid = ? AND sticky = false
         ORDER BY lastBump ASC LIMIT 1;`,
     values: [boardUid]
   });
-  if(!oldest || !oldest[0].id) return null;
-  return oldest[0].id;
+  if(!oldest || !oldest.id) return null;
+  return oldest.id;
+}
+
+/**
+ * @param boardUid Unique board ID
+ * @param postId Non-unique post ID
+ * @returns { number } Unique ID of post
+ * @returns { null } If not found
+*/
+async function getUid(boardUid, postId) {
+  const [rows] = await connection.db.execute({
+    sql: "SELECT uid FROM posts WHERE id = ? AND boardUid = ?",
+    values: [postId, boardUid]
+  });
+  if(!rows || !rows.length) return null;
+  return rows[0].uid;
 }
 
 async function bumpPost(boardUid, id) {
@@ -270,5 +285,6 @@ module.exports = {
   getThreadCount,
   getReplyCount,
   getOldestThreadId,
+  getUid,
   bumpPost,
 };
