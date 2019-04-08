@@ -37,6 +37,7 @@ router.post("/reports/:board/:post", async function(ctx) {
     boardUid: ctx.params.board,
     ip: ctx.ip,
   });
+  await models.ip.setLastReport(ctx.ip, Date.now());
   ctx.body = "Post reported";
 });
 
