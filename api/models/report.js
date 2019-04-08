@@ -1,14 +1,13 @@
 const connection = require("../db/connection");
 
-const safeReportJoin = "boardUid, postId, createdAt, ip, description \
+const reportJoin = "reports.postUid, reports.createdAt, reports.ip, reportlevels.description \
   FROM reports INNER JOIN reportlevels ON reportlevels.level = reports.level";
 const reportOrder = "ORDER BY reports.createdAt DESC";
+const postsJoin = "LEFT JOIN posts ON posts.uid = reports.postUid";
 
 /**
  * @typedef Report
- * @property {string} boardUid
  * @property {number} postUid
- * @property {number} postId
  * @property {Date} createdAt
  * @property {string} ip
  * @property {number} level
@@ -43,7 +42,8 @@ async function create(report) {
 */
 async function getOnBoard(boardUid) {
   const [reports] = await connection.db.execute({
-    sql: `SELECT ${safeReportJoin} WHERE boardUid = ? ${reportOrder}`,
+    sql: `SELECT ${reportJoin} ${postsJoin}
+      WHERE posts.boardUid = ? ${reportOrder}`,
     values: [boardUid]
   });
   return reports;
@@ -58,7 +58,7 @@ async function getPageOnBoard(boardUid, limit, page) {
   // Pages start at 1
   if(page > 1) offset = limit * (page - 1) -1;
   const [reports] = await connection.db.execute({
-    sql: `SELECT ${safeReportJoin} WHERE boardUid = ?
+    sql: `SELECT ${reportJoin} ${postsJoin} WHERE boardUid = ?
       ${reportOrder} LIMIT ? OFFSET ?`,
     values: [boardUid, limit, offset]
   });

@@ -76,6 +76,18 @@ async function get(boardUid, id) {
 }
 
 /**
+ * @returns { Post } 
+*/
+async function getByUid(uid) {
+  const [post] = await connection.db.query({
+    sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
+      WHERE uid = ?`,
+    values: [uid], nestTables: true
+  });
+  return singleNestJoin(post);
+}
+
+/**
  * @param {Post} post
 */
 async function create(post) {
@@ -276,6 +288,7 @@ async function bumpPost(boardUid, id) {
 
 module.exports = {
   get,
+  getByUid,
   create,
   getThread,
   threadAllowsReplies,

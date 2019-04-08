@@ -99,17 +99,12 @@ CREATE TABLE IF NOT EXISTS reportlevels(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS reports (
-    boardUid varchar(20) NOT NULL,
     postUid integer NOT NULL,
-    postId integer NOT NULL,
     level integer NOT NULL,
     ip varchar(29) NOT NULL,
     createdAt datetime DEFAULT now(),
     CONSTRAINT reportpost
         FOREIGN KEY (postUid) REFERENCES posts (uid)
-        ON DELETE CASCADE,
-    CONSTRAINT reportboard
-        FOREIGN KEY (boardUid) REFERENCES boards (uid)
         ON DELETE CASCADE,
     CONSTRAINT reportlevel
         FOREIGN KEY (level) REFERENCES reportlevels (level)

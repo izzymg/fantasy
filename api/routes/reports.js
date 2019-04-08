@@ -2,9 +2,7 @@ const KoaRouter = require("koa-router");
 const router = new KoaRouter();
 const config = require("../../config/config");
 const middleware = require("./middleware");
-const schemas = require("../schemas");
 const models = require("../models");
-const coBody = require("co-body");
 
 router.get("/reports", async function(ctx) {
   ctx.body = await models.report.getLevels();
@@ -33,8 +31,6 @@ router.post("/reports/:board/:post", async function(ctx) {
   await models.report.create({
     level: reportLevel,
     postUid,
-    postId: ctx.params.post,
-    boardUid: ctx.params.board,
     ip: ctx.ip,
   });
   await models.ip.setLastReport(ctx.ip, Date.now());

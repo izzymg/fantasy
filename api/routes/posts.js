@@ -13,6 +13,20 @@ router.get("/posts/:board/threads",
   }
 );
 
+// New post fetch
+// TODO phase this style in site wide
+router.get("/posts/:id", async function(ctx) {
+  if(ctx.query.uid) {
+    ctx.body = await models.post.getByUid(ctx.query.uid);
+  } else {
+    const postId = ctx.query.id || ctx.params.id;
+    const boardUid = ctx.query.board;
+    ctx.assert(postId && boardUid, 400, "Expected id and board");
+    ctx.body = await models.post.get(ctx.params.board, ctx.params.id);
+  }
+  ctx.assert(ctx.body, 404, "No post found");
+});
+
 // Fetch single post
 router.get("/posts/:board/:id", async function(ctx) {
   ctx.body = await models.post.get(ctx.params.board, ctx.params.id);
