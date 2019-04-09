@@ -51,7 +51,7 @@ async function create(report) {
 */
 async function getOnBoard(boardUid) {
   const [reports] = await connection.db.execute({
-    sql: `SELECT posts.id ${reportJoin} ${postsJoin}
+    sql: `SELECT posts.id, ${reportJoin} ${postsJoin}
       WHERE posts.boardUid = ? ${reportOrder}`,
     values: [boardUid]
   });
@@ -67,7 +67,7 @@ async function getPageOnBoard(boardUid, limit, page) {
   // Pages start at 1
   if(page > 1) offset = limit * (page - 1) -1;
   const [reports] = await connection.db.execute({
-    sql: `SELECT posts.id ${reportJoin} ${postsJoin} WHERE boardUid = ?
+    sql: `SELECT posts.id, ${reportJoin} ${postsJoin} WHERE posts.boardUid = ?
       ${reportOrder} LIMIT ? OFFSET ?`,
     values: [boardUid, limit, offset]
   });
