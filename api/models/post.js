@@ -286,6 +286,15 @@ async function bumpPost(boardUid, id) {
   return res.affectedRows;
 }
 
+async function getIp(boardUid, id) {
+  const [res] = await connection.db.execute({
+    sql: "SELECT ip FROM posts WHERE boardUid = ? AND id = ?",
+    values: [boardUid, id]
+  });
+  if(!res || !res.length) return null;
+  return res[0].ip;
+}
+
 module.exports = {
   get,
   getByUid,
@@ -300,4 +309,5 @@ module.exports = {
   getOldestThreadId,
   getUid,
   bumpPost,
+  getIp,
 };
