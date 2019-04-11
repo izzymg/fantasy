@@ -35,9 +35,23 @@ async function getPage(limit, page) {
 }
 
 /**
+ * @returns { Array<User> } 
+*/
+
+async function getBoardModerators(boardUid) {
+  const [users] = await connection.db.execute({
+    sql: `SELECT users.username, moderators.createdAt FROM users
+    INNER JOIN moderators ON moderators.username = users.username
+    WHERE moderators.boardUid = ?`,
+    values: [boardUid]
+  });
+  return users;
+}
+
+/**
  * @returns { Array<User> } Users found matching this username
  * @returns { null } If none found 
- */
+*/
 async function search(username) {
   const [users] = await connection.db.execute({
     sql: "SELECT username, createdAt FROM users WHERE username LIKE ?",
@@ -93,6 +107,20 @@ async function canModerateBoard(boardUid, username) {
   return false;
 }
 
+async function makeModerator(boardUid, username) {
+  await connection.db.query({
+    sql: "INSERT INTO moderators SET ?",
+    values: [username, boardUid]
+  });
+}
+
+async function removeModerator(boardUid, username) {
+  await connection.db.query({
+    sql: "DELETE FROM moderators WHERE username = ? AND boardUid = ?",
+    values: [username, boardUid]
+  });
+}
+
 async function isAdmin(username) {
   const [res] = await connection.db.execute({
     sql: "SELECT username, createdAt FROM administrators WHERE username = ?",
@@ -112,12 +140,15 @@ async function makeAdmin(username) {
 module.exports = {
   get,
   getPage,
+  getBoardModerators,
   search,
   update,
   create,
   remove,
   getPassword,
   canModerateBoard,
+  makeModerator,
+  removeModerator,
   isAdmin,
   makeAdmin,
 };

@@ -10,6 +10,7 @@ router.get("/bans", async function(ctx) {
   ctx.body = await models.ban.getByIp(ctx.ip) || null;
 });
 
+// Ban user
 router.post("/bans/:board/:post",
   async(ctx, next) => await middleware.requireBoardModerator(ctx.params.board)(ctx, next),
   async function(ctx) {
