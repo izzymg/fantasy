@@ -23,20 +23,20 @@ describe("posts", function() {
   });
   describe("#getThread", function() {
     it("should return a thread on board /test/", async function() {
-      const thread = await models.post.getThread("test", threads[0].id);
-      assert(thread && thread.id  === threads[0].id, "Expected thread with same ID as first in returned threads array, got " + thread);
+      const thread = await models.post.getThread("test", threads[0].number);
+      assert(thread && thread.number  === threads[0].number, "Expected thread with same number as first in returned threads array, got " + thread);
     });
   });
   describe("#getThreadReplies", function() {
     it("should return a thread's replies on board /test/", async function() {
-      const replies = await models.post.getThreadReplies("test", threads[0].id);
+      const replies = await models.post.getThreadReplies("test", threads[0].number);
       assert(replies && replies.length > 0, "Expected replies to thread, got " + replies);
     });
   });
   describe("#get", function() {
     it("should return a single post on board /test/", async function() {
-      const post = await models.post.get("test", threads[0].id);
-      assert(post && post.id == threads[0].id, "Expected single post returned, got " + post);
+      const post = await models.post.get("test", threads[0].number);
+      assert(post && post.number == threads[0].number, "Expected single post returned, got " + post);
     });
   });
   describe("#create", function() {
@@ -70,7 +70,7 @@ describe("posts", function() {
   });
   describe("#removeWithReplies", function() {
     it("should remove the post with all replies and files", async function() {
-      const { deletedFiles, deletedPosts } = await models.post.removeWithReplies("test", threads[0].id);
+      const { deletedFiles, deletedPosts } = await models.post.removeWithReplies("test", threads[0].number);
       assert(deletedPosts == 2 && deletedFiles == 2, "Got incorrect number of deleted files and posts");
     });
   });

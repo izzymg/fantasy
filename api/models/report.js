@@ -25,7 +25,7 @@ const postsJoin = "LEFT JOIN posts ON posts.uid = reports.postUid";
  * @property {Date} createdAt
  * @property {string} ip
  * @property {number} level
- * @property {number} id Post ID
+ * @property {number} number Post number
 */
 
 /** 
@@ -51,7 +51,7 @@ async function create(report) {
 */
 async function getOnBoard(boardUid) {
   const [reports] = await connection.db.execute({
-    sql: `SELECT posts.id, ${reportJoin} ${postsJoin}
+    sql: `SELECT posts.number, ${reportJoin} ${postsJoin}
       WHERE posts.boardUid = ? ${reportOrder}`,
     values: [boardUid]
   });
@@ -67,7 +67,7 @@ async function getPageOnBoard(boardUid, limit, page) {
   // Pages start at 1
   if(page > 1) offset = limit * (page - 1) -1;
   const [reports] = await connection.db.execute({
-    sql: `SELECT posts.id, ${reportJoin} ${postsJoin} WHERE posts.boardUid = ?
+    sql: `SELECT posts.number, ${reportJoin} ${postsJoin} WHERE posts.boardUid = ?
       ${reportOrder} LIMIT ? OFFSET ?`,
     values: [boardUid, limit, offset]
   });

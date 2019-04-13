@@ -4,12 +4,12 @@ const config = require("../../config/config");
 const path = require("path");
 
 const safePost = 
-  "id, boardUid, parent, createdAt, lastBump, name, subject, content, sticky, locked";
+  "number, boardUid, parent, createdAt, lastBump, name, subject, content, sticky, locked";
 const safeFile = 
   "filename, mimetype, originalName, size, hash";
 const joinPostFiles = "LEFT JOIN files ON files.postUid = posts.uid";
 const threadOrder = "ORDER BY sticky DESC, lastBump DESC";
-const replyOrder = "ORDER BY id ASC, createdAt ASC";
+const replyOrder = "ORDER BY number ASC, createdAt ASC";
 
 /**
  * @typedef File
@@ -25,7 +25,7 @@ const replyOrder = "ORDER BY id ASC, createdAt ASC";
 /**
  * @typedef {object} Post
  * @property {number} uid Unique ID of post
- * @property {number} id Board-unique ID of post
+ * @property {number} number Post number on board
  * @property {string} boardUid Board post is on
  * @property {number} parent 0 if thread post or ID of replied-to thread
  * @property {Date} lastBump Date the post was last bumped
@@ -45,7 +45,7 @@ function nestJoin(rows = []) {
   rows.forEach((row) => {
     const lastPost = posts[posts.length - 1];
     // Push new file data onto existent post data
-    if(lastPost && lastPost.id == row.posts.id && row.files.filename) {
+    if(lastPost && lastPost.number == row.posts.number && row.files.filename) {
       lastPost.files.push(row.files);
     // Push new post and file data
     } else {
@@ -66,11 +66,11 @@ function singleNestJoin(row) {
 /**
  * @returns { Post } 
 */
-async function get(boardUid, id) {
+async function get(boardUid, number) {
   const [post] = await connection.db.query({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND id = ?`,
-    values: [boardUid, id], nestTables: true
+      WHERE boardUid = ? AND number = ?`,
+    values: [boardUid, number], nestTables: true
   });
   return singleNestJoin(post);
 }
@@ -102,16 +102,9 @@ async function create(post) {
     const postFiles = post.files;
     delete post.files;
 
-    // Insert post with board's current post id
     const [{ insertId }] = await poolConnection.query({
-      sql: `INSERT INTO posts
-        SET id = (SELECT id FROM boardids WHERE boardUid = ? FOR UPDATE), ?`,
-      values: [post.boardUid, post]
-    });
-    // Update board's current post id
-    await poolConnection.query({
-      sql: "UPDATE boardids SET id = id + 1 WHERE boardUid = ?",
-      values: [post.boardUid]
+      sql: "INSERT INTO posts SET ?",
+      values: [post]
     });
 
     // File processing and database records
@@ -155,13 +148,13 @@ async function create(post) {
 /**
  * Removes post and replies 
  */
-async function removeWithReplies(boardUid, id) {
+async function removeWithReplies(boardUid, number) {
   let deletedFiles = 0;
   const [files] = await connection.db.execute({
     sql: `SELECT filename FROM files
       INNER JOIN posts on files.postUid = posts.uid
-      WHERE boardUid = ? AND (id = ? OR parent = ?)`,
-    values: [boardUid, id, id]
+      WHERE boardUid = ? AND (number = ? OR parent = ?)`,
+    values: [boardUid, number, number]
   });
   if(files && files.length  > 0) {
     await Promise.all(files.map(async(file) => {
@@ -176,8 +169,8 @@ async function removeWithReplies(boardUid, id) {
     }));
   }
   const [{ affectedRows }] = await connection.db.execute({
-    sql: "DELETE from posts WHERE boardUid = ? AND (id = ? OR parent = ?)",
-    values: [boardUid, id, id]
+    sql: "DELETE from posts WHERE boardUid = ? AND (number = ? OR parent = ?)",
+    values: [boardUid, number, number]
   });
   return { deletedPosts: affectedRows, deletedFiles };
 }
@@ -197,11 +190,11 @@ async function getThreads(boardUid) {
 /**
  * @returns { Post } 
 */
-async function getThread(boardUid, id) {
+async function getThread(boardUid, number) {
   const [thread] = await connection.db.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
-      WHERE boardUid = ? AND id = ? AND parent = 0`,
-    values: [boardUid, id], nestTables: true
+      WHERE boardUid = ? AND number = ? AND parent = 0`,
+    values: [boardUid, number], nestTables: true
   });
   return singleNestJoin(thread);
 }
@@ -209,26 +202,27 @@ async function getThread(boardUid, id) {
 /**
  * @returns { Array<Post> } 
 */
-async function getThreadReplies(boardUid, id) {
+async function getThreadReplies(boardUid, number) {
   const [thread] = await connection.db.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND parent = ? ${replyOrder}`,
-    values: [boardUid, id], nestTables: true
+    values: [boardUid, number], nestTables: true
   });
   return nestJoin(thread);
 }
 
 /**
  * Faster than doing getThread if files are unneeded
- * @returns { Number } ID of thread
+ * @returns { Number } Number of thread
  * @returns { false } if thread does not exist
  */
-async function threadAllowsReplies(boardUid, id) {
+async function threadAllowsReplies(boardUid, number) {
   const [thread] = await connection.db.execute({
-    sql: "SELECT id FROM posts WHERE boardUid = ? AND id = ? AND parent = 0 AND locked = false",
-    values: [boardUid, id]
+    sql: `SELECT number FROM posts
+      WHERE boardUid = ? AND number = ? AND parent = 0 AND locked = false`,
+    values: [boardUid, number]
   });
-  if(thread[0] && thread[0].id) return thread[0].id;
+  if(thread[0] && thread[0].number) return thread[0].number;
   return false;
 }
 
@@ -241,44 +235,38 @@ async function getThreadCount(boardUid) {
   return num[0].count;
 }
 
-async function getReplyCount(boardUid, id) {
+async function getReplyCount(boardUid, number) {
   const [num] = await connection.db.execute({
     sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUid = ? AND parent = ?",
-    values: [boardUid, id]
+    values: [boardUid, number]
   });
   if(!num || !num[0].count) return 0;
   return num[0].count;
 }
 
-async function getOldestThreadId(boardUid) {
+async function getOldestThreadNumber(boardUid) {
   const [oldest] = await connection.db.execute({
-    sql: `SELECT id FROM posts WHERE parent = 0 AND boardUid = ? AND sticky = false
+    sql: `SELECT number FROM posts WHERE parent = 0 AND boardUid = ? AND sticky = false
         ORDER BY lastBump ASC LIMIT 1;`,
     values: [boardUid]
   });
-  if(!oldest || !oldest.id) return null;
-  return oldest.id;
+  if(!oldest || !oldest.number) return null;
+  return oldest.number;
 }
 
-/**
- * @param boardUid Unique board ID
- * @param postId Non-unique post ID
- * @returns { number } Unique ID of post
- * @returns { null } If not found
-*/
-async function getUid(boardUid, postId) {
+async function getUid(boardUid, number) {
   const [rows] = await connection.db.execute({
-    sql: "SELECT uid FROM posts WHERE id = ? AND boardUid = ?",
-    values: [postId, boardUid]
+    sql: "SELECT uid FROM posts WHERE number = ? AND boardUid = ?",
+    values: [number, boardUid]
   });
   if(!rows || !rows.length) return null;
   return rows[0].uid;
 }
 
-async function bumpPost(boardUid, id) {
+async function bumpPost(boardUid, number) {
   const [res] = await connection.db.query({
-    sql: "UPDATE posts SET lastBump = ? WHERE boardUid = ? AND id = ? AND parent = 0",
-    values: [new Date(Date.now()), boardUid, id]
+    sql: "UPDATE posts SET lastBump = ? WHERE boardUid = ? AND number = ? AND parent = 0",
+    values: [new Date(Date.now()), boardUid, number]
   });
   if (!res || !res.affectedRows) {
     throw "Bump failed";
@@ -297,7 +285,7 @@ module.exports = {
   removeWithReplies,
   getThreadCount,
   getReplyCount,
-  getOldestThreadId,
+  getOldestThreadNumber,
   getUid,
   bumpPost,
 };

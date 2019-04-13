@@ -14,16 +14,16 @@ router.get("/posts/:board/threads",
 );
 
 // Fetch single post
-router.get("/posts/:board/:id", async function(ctx) {
-  ctx.body = await models.post.get(ctx.params.board, ctx.params.id);
+router.get("/posts/:board/:number", async function(ctx) {
+  ctx.body = await models.post.get(ctx.params.board, ctx.params.number);
   ctx.assert(ctx.body, 404, "No post found");
 });
 
 // Fetch thread and reply data
-router.get("/posts/:board/threads/:id", async function(ctx) {
+router.get("/posts/:board/threads/:number", async function(ctx) {
   const [ thread, replies ] = await Promise.all([
-    models.post.getThread(ctx.params.board, ctx.params.id),
-    models.post.getThreadReplies(ctx.params.board, ctx.params.id),
+    models.post.getThread(ctx.params.board, ctx.params.number),
+    models.post.getThreadReplies(ctx.params.board, ctx.params.number),
   ]);
   ctx.assert(thread, 404, "No thread found");
   ctx.body = { thread, replies };
@@ -81,7 +81,7 @@ router.post("/posts/:board/:parent?", async function(ctx) {
     // Delete oldest thread if max threads has been reached
     const threadCount = await models.post.getThreadCount(board.uid);
     if (threadCount > board.maxThreads) {
-      const oldestThreadId = await models.post.getOldestThreadId(board.uid);
+      const oldestThreadId = await models.post.getOldestThreadNumber(board.uid);
       await models.post.deletePost(board.uid, oldestThreadId);
     }
   } else {
@@ -102,12 +102,12 @@ router.post("/posts/:board/:parent?", async function(ctx) {
 });
 
 // Delete post
-router.del("/posts/:board/:post",
+router.del("/posts/:board/:number",
   async(ctx, next) =>  await middleware.requireBoardModerator(ctx.params.board)(ctx, next),
   async function(ctx) {
     const {
       deletedPosts, deletedFiles
-    } = await models.post.removeWithReplies(ctx.params.board, ctx.params.post);
+    } = await models.post.removeWithReplies(ctx.params.board, ctx.params.number);
   
     if(!deletedPosts) {
       ctx.body = "Didn't delete any posts, check the board is correct and the post is still up";

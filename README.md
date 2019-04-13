@@ -58,33 +58,6 @@ Setup nginx or another web server to forward a traffic to the unexposed API port
 
 Grab a process manager like pm2 and put fantasy.js under it if that's your style, or roll with docker etc.
 
-## API routes
-
-This is a list of routes the API exposes.
-
-Method | URL                                | Info (all content types JSON unless stated otherwise)                 
------- | ---------------------------------- | --------------------------------------------------------------------- 
-GET    | /posts/:board/:post                | Returns a single post at :post                                          
-POST   | /posts/:board/                     | Multipart: Create thread, { name, subject, content, any file fields } 
-POST   | /posts/:board/:post                | Multipart: Create reply to :post, ignores subject                       
-GET    | /posts/:board/threads              | Returns all threads at :board                                         
-GET    | /posts/:board/threads/:post        | Returns { thread, replies }                                           
-DELETE | /posts/:board/:post                | Deletes post :post on :board
-POST   | /posts/report/:board/:post         | Reports post
-PUT    | /posts/stick/:board/:post          | Sticks post
-PUT    | /posts/unstick/:board/:post        | Unsticks post
-GET    | /boards                            | Returns all boards                                                    
-GET    | /boards/:board                     | Returns board :post information                                         
-GET    | /boards/mod                        | Returns all board you moderate                                        
-GET    | /boards/:board/reports             | Returns all reports on :board                                         
-POST   | /auth/login                        | Expects { username, password }                                          
-GET    | /auth/session                      | Returns { username }                                                  
-POST   | /auth/changePassword               | Expects { currentPassword, newPassword, confirmationPassword }                                       
-POST   | /auth/users                        | Expects { username, isAdmin: optional bool }, creates user
-DELETE | /auth/users                        | Self explanatory                                       
-GET    | /bans                              | Returns your IP bans                                                  
-POST   | /bans/:board/:post                 | Bans poster of :post from board                                         
-
 ## Unit Testing
 
 Run sql/testBoard.sql (warning, this will delete the board /test/ and all posts on it, then recreate it)

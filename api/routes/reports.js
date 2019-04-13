@@ -19,15 +19,15 @@ router.get("/reports/:board",
   }
 );
 
-router.post("/reports/:board/:post", async function(ctx) {
+router.post("/reports/:board/:number", async function(ctx) {
   const lastReport = await models.ip.getLastReport(ctx.ip);
   if(lastReport && lastReport + config.posts.reportCooldown > Date.now()) {
     ctx.throw(400, "Please wait before you do that again");
   }
-  const postUid = await models.post.getUid(ctx.params.board, ctx.params.post);
+  const postUid = await models.post.getUid(ctx.params.board, ctx.params.number);
   ctx.assert(postUid, 404, "No post found");
   const reportLevel = parseInt(ctx.query.level);
-  ctx.assert(typeof reportLevel == "number", 400, "Invalid report level");
+  ctx.assert(reportLevel, 400, "Invalid report level");
   await models.report.create({
     level: reportLevel,
     postUid,
