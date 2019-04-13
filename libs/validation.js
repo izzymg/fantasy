@@ -62,10 +62,10 @@ exports.formatPostContent = function(content) {
   }
   content = content
     .replace(/&gt;&gt;([0-9]*)\/([0-9]*)/gm, 
-      "<a class='quotelink' data-id='$2' href='../threads/$2#$3'>>>$2/$3</a>"
+      "<a class='quotelink' data-number='$2' href='../threads/$2#$3'>>>$2/$3</a>"
     )
     .replace(/&gt;&gt;([0-9]*)/gm, 
-      "<a class='quotelink' data-id='$1' href='#$1'>>>$1</a>"
+      "<a class='quotelink' data-number='$1' href='#$1'>>>$1</a>"
     )
     .replace(/(<br>){2,}/g, "<br><br>")
     .replace(/\n/g, "<br>")
