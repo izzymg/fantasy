@@ -27,7 +27,7 @@ router.post("/reports/:board/:number", async function(ctx) {
   const postUid = await models.post.getUid(ctx.params.board, ctx.params.number);
   ctx.assert(postUid, 404, "No post found");
   const reportLevel = parseInt(ctx.query.level);
-  ctx.assert(reportLevel, 400, "Invalid report level");
+  ctx.assert(!isNaN(reportLevel), 400, "Invalid report level");
   await models.report.create({
     level: reportLevel,
     postUid,
