@@ -36,9 +36,11 @@ You need NodeJS 8.5.0 *minimum*, but it was written and tested predominantly on 
 
 Install MariaDB (Postgres should work, but untested) and Redis. Create a database in MariaDB called `fantasy`, and a user privileged to write, read and create tables on it.
 
-`cd sql` `mysql -u dbUser -p fantasy < setup.sql` will run a set of `CREATE x IF NOT EXISTS` commands. 
+`cd sql` `mysql -u dbUser -p fantasy < schema.sql` will run a set of `CREATE x IF NOT EXISTS` commands. 
 
-`admin.sql` will create a user called admin, with the password of 'admin', and place them in the administrators table.
+Do the same with `setup.sql` to generate an administrator, boards, report levels and so on.
+
+Warning: The username/password is admin/admin, obviously you need to change this before your site goes live.
 
 Remove `.default` from files in `./config` directory and setup
 

@@ -1,111 +1,59 @@
-CREATE TABLE IF NOT EXISTS boards (
-    uid varchar(20) PRIMARY KEY,
-    title tinytext NOT NULL,
-    about text,
-    sfw boolean DEFAULT true,
-    bumpLimit integer DEFAULT 200,
-    maxThreads integer DEFAULT 30,
-    cooldown smallint DEFAULT 60,
-    createdAt datetime DEFAULT now()
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Some nice defaults for Fantasy
 
-CREATE TABLE IF NOT EXISTS posts (
-    uid integer PRIMARY KEY AUTO_INCREMENT,
-    id integer NOT NULL,
-    boardUid varchar(20) NOT NULL,
-    parent integer NOT NULL DEFAULT 0,
-    createdAt datetime NOT NULL DEFAULT now(),
-    lastBump datetime,
-    name text,
-    subject text,
-    content text,
-    sticky boolean DEFAULT false,
-    locked boolean DEFAULT false,
-    ip varchar(39),
-    CONSTRAINT postboard
-        FOREIGN KEY (boardUid) REFERENCES boards (uid)
-        ON DELETE CASCADE,
-    UNIQUE KEY boardpost (boardUid, id)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+----------------------------------------------------------------------
+----------------------------------------------------------------------
 
-CREATE INDEX IF NOT EXISTS postId ON posts (id);
-CREATE INDEX IF NOT EXISTS postBoardUid ON posts (boardUid);
+-- Adds an administrator with username and password "admin" (bcrypt generated)
+INSERT INTO users(username, password) VALUES (
+    "admin", 
+    "$2b$15$Cd1aAqg9UEBj7u6Kzh8AIeadd9RNKZ2ilC6p9GTCEorSXtAO4qBZu"
+);
 
-CREATE TABLE IF NOT EXISTS boardids (
-    boardUid varchar(20) NOT NULL,
-    id integer NOT NULL,
-    CONSTRAINT idboard
-        FOREIGN KEY (boardUid) REFERENCES boards (uid)
-        ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO administrators(username) VALUES ("admin");
 
-CREATE TRIGGER IF NOT EXISTS updateboardids
-    AFTER INSERT ON boards
-    FOR EACH ROW
-    INSERT INTO boardids SET boardUid = new.uid, id = 1;
+----------------------------------------------------------------------
+----------------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS files (
-    postUid integer NOT NULL,
-    filename varchar(100) PRIMARY KEY,
-    mimetype tinytext,
-    originalName text,
-    size integer,
-    hash text,
-    CONSTRAINT filepost
-        FOREIGN KEY (postUid) REFERENCES posts (uid)
-        ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Some default report levels
+INSERT INTO reportlevels SET level = 0, description = "Breaks the rules";
+INSERT INTO reportlevels SET level = 1, description = "Spam/unintelligible";
+INSERT INTO reportlevels SET level = 2, description = "Impersonation";
+INSERT INTO reportlevels SET level = 3, description = "Illegal content";
 
-CREATE TABLE IF NOT EXISTS users (
-    username varchar(100) PRIMARY KEY,
-    password text,
-    createdAt datetime DEFAULT now()
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+----------------------------------------------------------------------
+----------------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS administrators (
-    username varchar(100) UNIQUE,
-    createdAt datetime NOT NULL DEFAULT now(),
-    CONSTRAINT adminuser
-        FOREIGN KEY (username) REFERENCES users (username)
-        ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Test board
+DELETE FROM posts WHERE boardUid = "test";
+DELETE FROM boards WHERE uid = "test";
 
-CREATE TABLE IF NOT EXISTS moderators (
-    username varchar(100) NOT NULL,
-    boardUid varchar(20) NOT NULL,
-    createdAt datetime NOT NULL DEFAULT now(),
-    CONSTRAINT moduser
-        FOREIGN KEY (username) REFERENCES users (username)
-        ON DELETE CASCADE,
-    CONSTRAINT modboard
-        FOREIGN KEY (boardUid) REFERENCES boards (uid)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO boards SET uid = "test", title = "Test board", about = "Test board",
+    sfw = false, bumpLimit = 500, maxThreads = 30, cooldown = 30;
 
-CREATE TABLE IF NOT EXISTS bans (
-    uid integer PRIMARY KEY AUTO_INCREMENT,
-    ip varchar(39) NOT NULL,
-    boardUid varchar(20) NOT NULL,
-    allBoards boolean DEFAULT FALSE,
-    expires datetime,
-    reason text,
-    constraint banboard
-        FOREIGN KEY (boardUid) REFERENCES boards (uid)
-        ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Some test posts with fake files
+INSERT INTO posts SET
+    name = "TestPost",
+    content = "2 files",
+    subject = "Test",
+    parent = 0,
+    boardUid = "test",
+    lastBump = NOW();
 
-CREATE TABLE IF NOT EXISTS reportlevels(
-    level integer PRIMARY KEY,
-    description text
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO files SET
+    postUid = (SELECT uid FROM posts WHERE name = "TestPost"),
+    filename = "fakeFile.png",
+    originalName = "fakeFile.png";
+INSERT INTO files SET
+    postUid = (SELECT uid FROM posts WHERE name = "TestPost"),
+    filename = "fakeFile2.png",
+    originalName = "fakeFile2.png";
 
-CREATE TABLE IF NOT EXISTS reports (
-    postUid integer NOT NULL,
-    level integer NOT NULL,
-    ip varchar(29) NOT NULL,
-    createdAt datetime DEFAULT now(),
-    CONSTRAINT reportpost
-        FOREIGN KEY (postUid) REFERENCES posts (uid)
-        ON DELETE CASCADE,
-    CONSTRAINT reportlevel
-        FOREIGN KEY (level) REFERENCES reportlevels (level)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO posts SET
+    name = "TestPost2",
+    content = "No files",
+    subject = "Test",
+    parent = 1,
+    boardUid = "test";
+    
+----------------------------------------------------------------------
+----------------------------------------------------------------------
