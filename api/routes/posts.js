@@ -66,7 +66,7 @@ router.post("/posts/:board/:parent?", async function(ctx) {
   // Validate fields
   postData = schemas.post(fields, files, Boolean(parent === 0));
 
-  const { filesProcessed } = await models.post.create({
+  const { filesProcessed, postNumber } = await models.post.create({
     ...postData,
     parent,
     boardUid: board.uid,
@@ -96,9 +96,11 @@ router.post("/posts/:board/:parent?", async function(ctx) {
     }
   }
   ctx.log.info(`Post submitted to /${board.uid}/`);
-  ctx.body = `Submitted post to /${board.uid}/, uploaded ${
-    filesProcessed} ${filesProcessed == 1 ? "file." : "files."
-  }`;
+  ctx.body = {
+    boardUid: board.uid,
+    filesProcessed,
+    postNumber,
+  };
 });
 
 // Delete post

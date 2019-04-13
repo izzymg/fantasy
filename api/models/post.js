@@ -116,6 +116,11 @@ async function create(post) {
       values: [post]
     });
 
+    const [insertedPost] = await poolConnection.query({
+      sql: "SELECT number FROM posts WHERE uid = ?",
+      values: [insertId]
+    });
+
     // File processing and database records
     if(postFiles) {
       await Promise.all(postFiles.map(async(file) => {
@@ -143,7 +148,7 @@ async function create(post) {
 
     // Bop
     await poolConnection.commit();
-    return { filesProcessed };
+    return { filesProcessed, postNumber: insertedPost[0].number };
   } catch(error) {
     /* Files that may have been processed are untouched
     because the file processing may have caused the error itself */
