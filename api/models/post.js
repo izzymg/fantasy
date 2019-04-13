@@ -259,8 +259,8 @@ async function getOldestThreadNumber(boardUid) {
         ORDER BY lastBump ASC LIMIT 1;`,
     values: [boardUid]
   });
-  if(!oldest || !oldest.number) return null;
-  return oldest.number;
+  if(!oldest.length || !oldest[0].number) return null;
+  return oldest[0].number;
 }
 
 async function getUid(boardUid, number) {

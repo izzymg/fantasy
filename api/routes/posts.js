@@ -81,8 +81,8 @@ router.post("/posts/:board/:parent?", async function(ctx) {
     // Delete oldest thread if max threads has been reached
     const threadCount = await models.post.getThreadCount(board.uid);
     if (threadCount > board.maxThreads) {
-      const oldestThreadId = await models.post.getOldestThreadNumber(board.uid);
-      await models.post.deletePost(board.uid, oldestThreadId);
+      const oldestThreadNumber = await models.post.getOldestThreadNumber(board.uid);
+      await models.post.removeWithReplies(board.uid, oldestThreadNumber);
     }
   } else {
     // Bump OP as long as bump limit hasn't been reached
