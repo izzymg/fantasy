@@ -103,7 +103,7 @@ router.delete("/auth/users/:username",
   async function(ctx) {
     const { usersRemoved } = await models.user.remove(ctx.params.username);
     if(usersRemoved > 0) {
-      ctx.body = `User "${ctx.params.username} removed"`;
+      ctx.body = `User "${ctx.params.username}" removed`;
     } else {
       ctx.throw(400, "No users removed, check the username exists");
     }
