@@ -4,7 +4,7 @@ const connection = require("../db/connection");
  * @typedef Ban
  * @property {number} uid
  * @property {string} ip
- * @property {string} boardUrl
+ * @property {string} boardUid
  * @property {boolean} allBoards
  * @property {Date} expires
  * @property {string} reason
@@ -34,6 +34,16 @@ async function getByIp(ip) {
   if(bans && bans.length) return bans;
 }
 
+/**
+ * @param { Ban } ban 
+ */
+async function create(ban) {
+  await connection.db.query({
+    sql: "INSERT INTO bans SET ?",
+    values: [ban],
+  });
+}
+
 async function remove(uid) {
   await connection.db.query({
     sql: "DELETE FROM bans WHERE uid = ?",
@@ -44,5 +54,6 @@ async function remove(uid) {
 module.exports = {
   getByBoard,
   getByIp,
-  remove
+  create,
+  remove,
 };

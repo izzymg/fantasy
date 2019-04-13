@@ -87,6 +87,15 @@ async function getByUid(uid) {
   return singleNestJoin(post);
 }
 
+async function getIp(boardUid, number) {
+  const [res] = await connection.db.execute({
+    sql: "SELECT ip FROM posts WHERE boardUid = ? AND number = ?",
+    values: [boardUid, number]
+  });
+  if(!res || !res.length) return null;
+  return res[0].ip;
+}
+
 /**
  * @param {Post} post
 */
@@ -277,6 +286,7 @@ async function bumpPost(boardUid, number) {
 module.exports = {
   get,
   getByUid,
+  getIp,
   create,
   getThread,
   threadAllowsReplies,

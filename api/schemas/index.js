@@ -109,9 +109,33 @@ function createUser(fields) {
   };
 }
 
+function createBan(fields) {
+  if(!fields) validationError("Reason for ban required");
+  const hours = Number(fields.hours) || 0;
+  const days = Number(fields.days) || 0;
+  const reason = libs.validation.sanitize(fields.reason);
+  if(!reason) {
+    validationError("Reason for ban required");
+  }
+  let expires = null;
+  if(hours || days) {
+    const currentTime = Date.now();
+    expires = new Date(currentTime + (hours * 60 * 60 * 1000) + (days * 24 * 60 * 60 * 1000));
+    if(expires < currentTime) {
+      validationError("Ban expires in the past");
+    }
+  }
+  return {
+    reason,
+    expires,
+    allBoards: Boolean(fields.allBoards),
+  };
+}
+
 module.exports = {
   post,
   login,
   passwordChange,
   createUser,
+  createBan,
 };
