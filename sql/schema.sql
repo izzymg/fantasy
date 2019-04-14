@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS boards (
     about           text,
     sfw             boolean DEFAULT true,
     bumpLimit       integer DEFAULT 200,
+    fileLimit      integer DEFAULT 200,
     maxThreads      integer DEFAULT 30,
     cooldown        smallint DEFAULT 60,
     createdAt       datetime DEFAULT now()
@@ -63,6 +64,8 @@ CREATE TABLE IF NOT EXISTS files (
         FOREIGN KEY (postUid) REFERENCES posts (uid)
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX IF NOT EXISTS filePostUid ON files (postUid);
 
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------

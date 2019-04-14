@@ -7,12 +7,13 @@ const connection = require("../db/connection");
  * @property {string} about
  * @property {boolean} sfw
  * @property {number} bumpLimit
+ * @property {number} fileLimit
  * @property {number} maxThreads
  * @property {number} cooldown
  * @property {Date} createdAt
  */
 
-const safeBoard = "uid, title, about, sfw, bumpLimit, maxThreads, cooldown";
+const safeBoard = "uid, title, about, sfw, fileLimit, bumpLimit, maxThreads, cooldown";
 
 /** 
  * @returns { Board } Board by UID

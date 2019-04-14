@@ -247,6 +247,16 @@ async function threadAllowsReplies(boardUid, number) {
   return false;
 }
 
+async function getThreadFileCount(boardUid, number) {
+  const [thread] = await connection.db.execute({
+    sql: `SELECT count(postUid) AS count FROM files
+    INNER JOIN posts on posts.uid = files.postUid
+    WHERE boardUid = ? AND (posts.parent = ? OR posts.number = ?)`,
+    values: [boardUid, number, number]
+  });
+  return thread[0].count;
+}
+
 async function getThreadCount(boardUid) {
   const [num] = await connection.db.execute({
     sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUid = ? AND parent = 0",
@@ -302,6 +312,7 @@ module.exports = {
   create,
   getThread,
   threadAllowsReplies,
+  getThreadFileCount,
   getThreads,
   getThreadReplies,
   removeWithReplies,

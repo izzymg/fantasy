@@ -46,6 +46,15 @@ router.post("/posts/:board/:parent?", async function(ctx) {
   }
   ctx.assert(board && board.uid, 404, "No such board");
 
+  // Ensure file limit hasn't been reached
+  if(parent && files) {
+    const fileCount = await models.post.getThreadFileCount(board.uid, parent);
+    ctx.assert(
+      !fileCount || fileCount <= board.fileLimit, 400,
+      "You no longer make file replies to this thread"
+    );
+  }
+
   // IP must be off cooldown, and cannot be banned
   const [ cd, ban ] = await Promise.all([
     models.ip.getCooldown(ctx.ip, board.uid),
