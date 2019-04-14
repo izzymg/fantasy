@@ -26,12 +26,11 @@ if(config.proxy) server.proxy = true;
 
 // Global middlewares
 
-if(config.logLevel) {
-  server.use(async function(ctx, next) {
-    ctx.log = logger;
-    await next();
-  });
-}
+server.use(async function(ctx, next) {
+  ctx.log = logger;
+  await next();
+});
+
 if(config.api.allowCors) {
   server.use(cors({ origin: config.api.allowCors, credentials: config.api.allowCorsCredentials }));
 }
