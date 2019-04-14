@@ -75,3 +75,31 @@ describe("posts", function() {
     });
   });
 });
+
+describe("users", function() {
+  describe("#isAdmin", function() {
+    it("should return true for user 'admin', false for 'dog'", async function() {
+      const [adminIsAdmin, dogIsAdmin] = await Promise.all([
+        models.user.isAdmin("admin"),
+        models.user.isAdmin("dog"),
+      ]);
+      assert(adminIsAdmin === true, "Expected adminIsAdmin === true, got " + adminIsAdmin);
+      assert(dogIsAdmin === false, "Expected dogIsAdmin === false, got " + dogIsAdmin);
+    });
+  });
+});
+
+describe("boards", function() {
+  describe("#get", function() {
+    it("should return a single board by uid 'test'", async function() {
+      const board = await models.board.get("test");
+      assert(board && board.uid == "test", "Expected board returned, got " + board);
+    });
+  });
+  describe("#getAll", function() {
+    it("should return all boards in an array", async function() {
+      const boards = await models.board.getAll();
+      assert(boards && boards.length > 0, "Expected boards returned in an array, got " + boards);
+    });
+  });
+});

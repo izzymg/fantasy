@@ -25,4 +25,8 @@ exports.start = async() => {
   return;
 };
 
-exports.end = async() => await Promise.all([database.end(), mem.close()]);
+exports.end = async() => {
+  await database.end();
+  await mem.close();
+  return;
+};

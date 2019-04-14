@@ -16,29 +16,21 @@ CREATE TABLE IF NOT EXISTS boards (
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
--- Post number count for boards
-
-CREATE TABLE IF NOT EXISTS boardpostnumbers (
-    boardUid        varchar(20) NOT NULL,
-    number          integer NOT NULL,
-    CONSTRAINT boardpostnumberboarduid
+CREATE TABLE IF NOT EXISTS postnumbers (
+    boardUid        varchar(20),
+    number          integer NOT NULL DEFAULT 1,
+    CONSTRAINT postnumberboard
         FOREIGN KEY (boardUid) REFERENCES boards (uid)
         ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Add entry when a  board is inserted
-
-CREATE TRIGGER IF NOT EXISTS insertboardpostnumber
-    AFTER INSERT ON boards
+CREATE TRIGGER newboard AFTER INSERT ON boards
     FOR EACH ROW
-    INSERT INTO boardpostnumbers SET boardUid = new.uid, number = 1;
-
-----------------------------------------------------------------------
-----------------------------------------------------------------------
+    INSERT INTO postnumbers SET boardUid = new.uid;
 
 CREATE TABLE IF NOT EXISTS posts (
     uid             integer PRIMARY KEY AUTO_INCREMENT,
-    number          integer NOT NULL,
+    number          integer,
     boardUid        varchar(20) NOT NULL,
     parent          integer NOT NULL DEFAULT 0,
     createdAt       datetime NOT NULL DEFAULT now(),
@@ -55,23 +47,8 @@ CREATE TABLE IF NOT EXISTS posts (
     UNIQUE KEY boardpost (boardUid, number)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX IF NOT EXISTS postNumber ON posts (number);
+CREATE INDEX IF NOT EXISTS postUid ON posts (uid);
 CREATE INDEX IF NOT EXISTS postBoardUid ON posts (boardUid);
-
--- Set post number on every insert
-CREATE TRIGGER IF NOT EXISTS setpostnumber
-    BEFORE INSERT ON posts
-    FOR EACH ROW
-    SET new.number =
-        (SELECT number 
-        FROM boardpostnumbers WHERE boardUid = new.boardUid);
-
--- Update board post number after every insert
-CREATE TRIGGER IF NOT EXISTS updateboardpostnumber
-    AFTER INSERT ON posts
-    FOR EACH ROW
-        UPDATE boardpostnumbers
-        SET number = number + 1 WHERE boardUid = new.boardUid;
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 

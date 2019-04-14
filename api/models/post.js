@@ -112,8 +112,15 @@ async function create(post) {
     delete post.files;
 
     const [{ insertId }] = await poolConnection.query({
-      sql: "INSERT INTO posts SET ?",
-      values: [post]
+      sql: `INSERT INTO posts 
+        SET number = (SELECT number from postnumbers WHERE boardUid = ? FOR UPDATE),
+        ?`,
+      values: [post.boardUid, post]
+    });
+
+    await poolConnection.query({
+      sql: "UPDATE postnumbers SET number = number + 1 WHERE boardUid = ?",
+      values: [post.boardUid]
     });
 
     const [insertedPost] = await poolConnection.query({
