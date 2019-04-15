@@ -33,7 +33,8 @@ const getAcceptedMimetype = function(buffer) {
 };
 
 
-module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
+module.exports = function(
+  ctx, maxFiles, maxFileSize = 4096 * 1000, tmp, checkMimetype = true) {
   return new Promise((resolve, reject) => {
 
     let files = [];
@@ -57,7 +58,7 @@ module.exports = function(ctx, maxFiles, maxFileSize = 4096 * 1000, tmp) {
       let type;
 
       incoming.on("data", (data) => {
-        if(!type) {
+        if(checkMimetype && !type) {
           type = getAcceptedMimetype(data);
           if(!type) reject({
             status: 400, message: "Unnaccepted filetype"
