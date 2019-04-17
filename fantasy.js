@@ -74,6 +74,7 @@ dbConnection.start().then(() => {
       }
     });
 }).catch((error) => {
+  console.error("Fatal error, could not start database connection:", error);
   logger.fatal(error);
   process.exit(1);
 });
