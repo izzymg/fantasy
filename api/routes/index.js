@@ -1,9 +1,9 @@
-const posts = require("./posts");
-const boards = require("./boards");
-const reports = require("./reports");
-const bans = require("./bans");
-const mod = require("./mod");
-const auth = require("./auth");
+const posts = require("./posts.route");
+const boards = require("./boards.route");
+const reports = require("./reports.route");
+const bans = require("./bans.route");
+const mod = require("./mod.route");
+const auth = require("./auth.route");
 
 module.exports = {
   posts,

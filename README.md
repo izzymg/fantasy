@@ -1,6 +1,6 @@
 # Fantasy
 
-#### RESTful Imageboard/BBS with NodeJS, MariaDB and Redis
+#### Imageboard/BBS API with NodeJS, MariaDB and Redis
 
 Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 
