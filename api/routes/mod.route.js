@@ -5,8 +5,8 @@ const models = require("../models");
 
 // Get boards moderated by user
 router.get("/mod/boards",
-  middleware.requireLogin(),
   async function(ctx) {
+    await middleware.requireLogin()(ctx),
     ctx.body = await models.board.getModeratedByUser(ctx.state.session.username);
   }
 );

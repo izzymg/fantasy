@@ -45,6 +45,16 @@ router.get("/posts/:number",
   }
 );
 
+router.delete("/posts/:number",
+  async function deletePost(ctx) {
+    const { board: boardUid } = ctx.query;
+    const postNo = parseInt(ctx.params.number);
+    ctx.assert(boardUid && postNo, 400);
+    await middleware.requireBoardModerator(boardUid)(ctx);
+    ctx.body = await models.post.removeWithReplies(boardUid, postNo);
+  }
+);
+
 router.post("/posts/:board/:parent?",
   async function createPost(ctx) {
     let postData;
@@ -126,25 +136,6 @@ router.post("/posts/:board/:parent?",
       filesProcessed,
       postNumber,
     };
-  });
-
-router.del("/posts/:number",
-  async(ctx, next) =>  await middleware.requireBoardModerator(ctx.query.board)(ctx, next),
-  async function deletePost(ctx) {
-    const { board: boardUid } = ctx.query;
-
-    const {
-      deletedPosts, deletedFiles
-    } = await models.post.removeWithReplies(boardUid, ctx.params.number);
-  
-    if(!deletedPosts) {
-      ctx.body = "Didn't delete any posts, check the board is correct and the post is still up";
-      return;
-    }
-    ctx.body = `Deleted ${deletedPosts} ${deletedPosts == 1 ? "post" : "posts"}`;
-    if(deletedFiles) {
-      ctx.body += ` and ${deletedFiles} ${deletedFiles == 1 ? "file" : "files"}`;
-    }
   }
 );
 

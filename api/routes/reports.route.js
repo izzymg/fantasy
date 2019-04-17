@@ -9,8 +9,8 @@ router.get("/reports", async function(ctx) {
 });
 
 router.get("/reports/:board",
-  async(ctx, next) =>  await middleware.requireBoardModerator(ctx.params.board)(ctx, next),
   async function(ctx) {
+    await middleware.requireBoardModerator(ctx.params.board)(ctx);
     const page = parseInt(ctx.query.page) || 1;
     const limit = parseInt(ctx.query.limit) || 10;
     ctx.body = await models.report.getPageOnBoard(

@@ -6,26 +6,27 @@ const schemas = require("../schemas");
 const middleware = require("./middleware");
 
 // Get bans
-router.get("/bans", async(ctx) => 
-  ctx.body = (await models.ban.getByIp(ctx.ip) || null)
+router.get("/bans",
+  async function getBan(ctx) {
+    ctx.body = await models.ban.getByIp(ctx.ip);
+  }
 );
 
-// Create ban
-router.post("/bans/:board/:number",
-  async(ctx, next) => await middleware.requireBoardModerator(ctx.params.board)(ctx, next),
-  async function(ctx) {
+router.post("/bans",
+  async function createBan(ctx) {
+    const { board: boardUid, number: postNo } = ctx.query;
+    ctx.assert(boardUid && parseInt(postNo), 400);
+    
+    await middleware.requireBoardModerator(boardUid)(ctx);
     const ban = schemas.createBan(await coBody.json(ctx, { strict: true }));
-    const postIp = await models.post.getIp(ctx.params.board, ctx.params.number);
-    ctx.assert(postIp, 404, "No IP associated with post, ensure the post exists.");
-    await models.ban.create({
-      ...ban,
-      ip: postIp,
-      boardUid: ctx.params.board,
-    });
-    ctx.body = `Banned user from ${
-      ban.allBoards ? "all boards" : `/${ctx.params.board}/`} for post ${
-      ctx.params.number}. ${
-      ban.banExpiry ? `Expires ${ban.banExpiry.toLocaleString()}.` : "This ban is permanent."}`;
+    const ip = await models.post.getIp(boardUid, postNo);
+    ctx.assert(ip, 404, "No IP associated with post, ensure the post exists.");
+    await models.ban.create({ ...ban, ip, boardUid, });
+
+    ctx.body = {
+      allBoards: ban.allBoards,
+      expires: ban.expires,
+    };
   }
 );
 
