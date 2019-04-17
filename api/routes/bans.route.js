@@ -5,7 +5,6 @@ const models = require("../models");
 const schemas = require("../schemas");
 const middleware = require("./middleware");
 
-// Get bans
 router.get("/bans",
   async function getBan(ctx) {
     ctx.body = await models.ban.getByIp(ctx.ip);

@@ -8,7 +8,6 @@ const bcrypt = require("bcrypt");
 const uuid = require("uuid/v4");
 const crypto = require("crypto");
 
-// Login
 router.post("/auth/login",
   async function login(ctx) {
     const { username, password } = schemas.login(await coBody.json(ctx, { strict: true }));
@@ -39,7 +38,6 @@ router.post("/auth/login",
   }
 );
 
-// Session info
 router.get("/auth/session",
   async function getSessionInfo(ctx) {
     const session = await models.session.get(ctx.cookies.get("id"));
@@ -91,7 +89,6 @@ router.get("/auth/users",
   }
 );
 
-// Create user
 router.post("/auth/users",
   async function createUser(ctx) {
     await middleware.requireAdmin()(ctx);
