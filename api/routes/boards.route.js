@@ -2,13 +2,17 @@ const KoaRouter = require("koa-router");
 const router = new KoaRouter();
 const models = require("../models");
 
-router.get("/boards", async function(ctx) {
-  ctx.body = await models.board.getAll();
-});
+router.get("/boards",
+  async function getBoards(ctx) {
+    ctx.body = await models.board.getAll();
+  }
+);
 
-router.get("/boards/:id", async function(ctx) {
-  ctx.body = await models.board.get(ctx.params.id);
-  ctx.assert(ctx.body, 404, "No board found");
-});
+router.get("/boards/:uid",
+  async function getBoard(ctx) {
+    ctx.body = await models.board.get(ctx.params.uid);
+    ctx.assert(ctx.body, 404, "No board found");
+  }
+);
 
 module.exports = router.routes();
