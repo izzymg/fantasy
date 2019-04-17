@@ -58,10 +58,6 @@ Setup nginx or another web server to forward a traffic to the unexposed API port
 
 Grab a process manager like pm2 and put fantasy.js under it if that's your style, or roll with docker etc.
 
-## Unit Testing
-
-Run sql/testBoard.sql (warning, this will delete the board /test/ and all posts on it, then recreate it)
-
 `npm run test`
 
 ## License
