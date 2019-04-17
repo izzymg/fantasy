@@ -1,7 +1,7 @@
 const mysql = require("mysql2/promise");
-const config = require("../../config/config");
-const secrets = require("../../config/private");
-const libs = require("../../libs");
+const config = require("../config/config");
+const secrets = require("../config/private");
+const libs = require("../libs");
 let database;
 let mem;
 

@@ -1,4 +1,4 @@
-const connection = require("../db/connection");
+const connection = require("../../db/connection");
 
 const reportJoin = "reports.postUid, reports.createdAt, reports.ip, reportlevels.description \
   FROM reports INNER JOIN reportlevels ON reportlevels.level = reports.level";
