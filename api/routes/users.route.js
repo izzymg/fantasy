@@ -1,5 +1,4 @@
 const KoaRouter = require("koa-router");
-const router = new KoaRouter();
 const middleware = require("./middleware");
 const crypto = require("crypto");
 const schemas = require("../schemas");
@@ -7,8 +6,11 @@ const models = require("../models");
 const coBody = require("co-body");
 const bcrypt = require("bcrypt");
 
+const router = new KoaRouter({
+  prefix: "/users",
+});
 
-router.get("/users",
+router.get("/",
   async function getUsers(ctx) {
     await middleware.requireAdmin()(ctx);
     const { username, page, limit } = ctx.query;
@@ -21,7 +23,7 @@ router.get("/users",
   }
 );
 
-router.get("/users/:username",
+router.get("/:username",
   async function getUserInfo(ctx) {
     await middleware.requireAdmin()(ctx);
     const moderatedBoards = await models.board.getModeratedByUser(ctx.params.username);
@@ -31,7 +33,7 @@ router.get("/users/:username",
   }
 );
 
-router.delete("/users/:username",
+router.delete("/:username",
   async function deleteUser(ctx) {
     await middleware.requireAdmin()(ctx);
     const { usersRemoved } = await models.user.remove(ctx.params.username);
@@ -43,7 +45,7 @@ router.delete("/users/:username",
   }
 );
 
-router.post("/users",
+router.post("/",
   async function createUser(ctx) {
     await middleware.requireAdmin()(ctx);
     const { username, isAdmin } = schemas.createUser(await coBody.json(ctx, { strict: true }));

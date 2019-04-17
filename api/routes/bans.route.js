@@ -1,17 +1,20 @@
 const KoaRouter = require("koa-router");
-const router = new KoaRouter();
 const coBody = require("co-body");
 const models = require("../models");
 const schemas = require("../schemas");
 const middleware = require("./middleware");
 
-router.get("/bans",
+const router = new KoaRouter({
+  prefix: "/bans",
+});
+
+router.get("/",
   async function getBan(ctx) {
     ctx.body = await models.ban.getByIp(ctx.ip);
   }
 );
 
-router.post("/bans",
+router.post("/",
   async function createBan(ctx) {
     const { board: boardUid, number: postNo } = ctx.query;
     ctx.assert(boardUid && parseInt(postNo), 400);

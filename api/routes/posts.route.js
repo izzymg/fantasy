@@ -1,12 +1,15 @@
 const KoaRouter = require("koa-router");
-const router = new KoaRouter();
 const middleware = require("./middleware");
 const models = require("../models");
 const schemas = require("../schemas");
 const config = require("../../config/config");
 const libs = require("../../libs");
 
-router.get("/posts",
+const router = new KoaRouter({
+  prefix: "/posts",
+});
+
+router.get("/",
   async function getPosts(ctx) {
     const { board: boardUid, thread: threadNo } = ctx.query;
     ctx.assert(boardUid, 404, "No post found");
@@ -30,7 +33,7 @@ router.get("/posts",
   }
 );
 
-router.get("/posts/:number",
+router.get("/:number",
   async function getPost(ctx) {
     const postNo = parseInt(ctx.params.number);
     const { board: boardUid } = ctx.query;
@@ -45,7 +48,7 @@ router.get("/posts/:number",
   }
 );
 
-router.delete("/posts/:number",
+router.delete("/:number",
   async function deletePost(ctx) {
     const { board: boardUid } = ctx.query;
     const postNo = parseInt(ctx.params.number);
@@ -55,7 +58,7 @@ router.delete("/posts/:number",
   }
 );
 
-router.post("/posts/:board/:parent?",
+router.post("/:board/:parent?",
   async function createPost(ctx) {
     let postData;
     ctx.assert(ctx.is("multipart/form-data"), 400, "Invalid content type");

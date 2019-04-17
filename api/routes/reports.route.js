@@ -1,16 +1,19 @@
 const KoaRouter = require("koa-router");
-const router = new KoaRouter();
 const config = require("../../config/config");
 const middleware = require("./middleware");
 const models = require("../models");
 
-router.get("/reports",
+const router = new KoaRouter({
+  prefix: "/reports",
+});
+
+router.get("/",
   async function getLevels(ctx) {
     ctx.body = await models.report.getLevels();
   }
 );
 
-router.get("/reports/:board",
+router.get("/:board",
   async function getBoardReports(ctx) {
     await middleware.requireBoardModerator(ctx.params.board)(ctx);
     const page = parseInt(ctx.query.page) || 1;
@@ -21,7 +24,7 @@ router.get("/reports/:board",
   }
 );
 
-router.post("/reports/:number",
+router.post("/:number",
   async function createReport(ctx) {
     const number = parseInt(ctx.params.number);
     const board = ctx.query.board;

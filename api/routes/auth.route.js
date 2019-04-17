@@ -1,12 +1,15 @@
 const KoaRouter = require("koa-router");
-const router = new KoaRouter();
 const schemas = require("../schemas");
 const models = require("../models");
 const coBody = require("co-body");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid/v4");
 
-router.post("/auth/login",
+const router = new KoaRouter({
+  prefix: "/auth",
+});
+
+router.post("/login",
   async function login(ctx) {
     const { username, password } = schemas.login(await coBody.json(ctx, { strict: true }));
     let { attempts, lastAttempt } = await models.ip.getLogins(ctx.ip);
@@ -36,7 +39,7 @@ router.post("/auth/login",
   }
 );
 
-router.get("/auth/session",
+router.get("/session",
   async function getSessionInfo(ctx) {
     const session = await models.session.get(ctx.cookies.get("id"));
     ctx.assert(session, 403, "No session found");
@@ -44,7 +47,7 @@ router.get("/auth/session",
   }
 );
 
-router.post("/auth/changePassword",
+router.post("/changePassword",
   async function changePassword(ctx) {
     // User must have a valid session to change their password
     const sessionId = ctx.cookies.get("id");
@@ -73,7 +76,7 @@ router.post("/auth/changePassword",
   }
 );
 
-router.get("/auth/boards",
+router.get("/boards",
   async function getModeratedUserBoards(ctx) {
     const sessionId = ctx.cookies.get("id");
     const session = await models.session.get(sessionId);
