@@ -52,13 +52,9 @@ Setup nginx or another web server to forward a traffic to the unexposed API port
 
 `npm install` to pull in dependencies, you may need `npm i node-gyp -g` if it fails on windows due to bcrypt or sharp
 
-## Deploying
+## Documentation
 
-[Get the Vue.JS frontend here](https://github.com/izzymg/zv)
-
-Grab a process manager like pm2 and put fantasy.js under it if that's your style, or roll with docker etc.
-
-`npm run test`
+[API Routes](docs/routes.md)
 
 ## License
 
