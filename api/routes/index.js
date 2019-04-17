@@ -2,7 +2,7 @@ const posts = require("./posts.route");
 const boards = require("./boards.route");
 const reports = require("./reports.route");
 const bans = require("./bans.route");
-const mod = require("./mod.route");
+const users = require("./users.route");
 const auth = require("./auth.route");
 
 module.exports = {
@@ -10,6 +10,6 @@ module.exports = {
   boards,
   reports,
   bans,
-  mod,
+  users,
   auth,
 };

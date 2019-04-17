@@ -6,7 +6,7 @@ const router = new KoaRouter();
 router.use(routes.auth);
 router.use(routes.bans);
 router.use(routes.boards);
-router.use(routes.mod);
+router.use(routes.users);
 router.use(routes.posts);
 router.use(routes.reports);
 

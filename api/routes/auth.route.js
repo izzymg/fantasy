@@ -1,12 +1,10 @@
 const KoaRouter = require("koa-router");
 const router = new KoaRouter();
-const middleware = require("./middleware");
 const schemas = require("../schemas");
 const models = require("../models");
 const coBody = require("co-body");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid/v4");
-const crypto = require("crypto");
 
 router.post("/auth/login",
   async function login(ctx) {
@@ -75,53 +73,12 @@ router.post("/auth/changePassword",
   }
 );
 
-router.get("/auth/users",
-  async function getUsers(ctx) {
-    await middleware.requireAdmin()(ctx);
-    if(ctx.query.username) {
-      ctx.body = await models.user.search(ctx.query.username);
-    } else if(ctx.query.page) {
-      const page = parseInt(ctx.query.page);
-      const limit = parseInt(ctx.query.limit);
-      ctx.assert(page, 400, "Malformed query");
-      ctx.body = await models.user.getPage(limit || 25, page);
-    }
-  }
-);
-
-router.post("/auth/users",
-  async function createUser(ctx) {
-    await middleware.requireAdmin()(ctx);
-    const { username, isAdmin } = schemas.createUser(await coBody.json(ctx, { strict: true }));
-    const password = crypto.randomBytes(6).toString("hex");
-    const hashedPw = await bcrypt.hash(password, 15);
-    try {
-      await models.user.create({ username, password: hashedPw });
-    } catch(error) {
-      if(error.code == "ER_DUP_ENTRY") {
-        ctx.throw(400, "User already exists by that username");
-      }
-    }
-    if(isAdmin) {
-      await models.user.makeAdmin(username);
-    }
-    ctx.body = `User ${username} created, give them this password: ${password}.
-    Instruct them to change it after they login.`;
-    if(isAdmin) {
-      ctx.body += " This user is an administrator.";
-    }
-  }
-);
-
-router.delete("/auth/users/:username",
-  async function deleteUser(ctx) {
-    await middleware.requireAdmin()(ctx);
-    const { usersRemoved } = await models.user.remove(ctx.params.username);
-    if(usersRemoved > 0) {
-      ctx.body = `User "${ctx.params.username}" removed`;
-    } else {
-      ctx.throw(400, "No users removed, check the username exists");
-    }
+router.get("/auth/boards",
+  async function getModeratedUserBoards(ctx) {
+    const sessionId = ctx.cookies.get("id");
+    const session = await models.session.get(sessionId);
+    ctx.assert(session, 403, "You aren't logged in");
+    ctx.body = await models.board.getModeratedByUser(session.username);
   }
 );
 
