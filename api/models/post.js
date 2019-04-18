@@ -132,7 +132,7 @@ async function create(post) {
     if(postFiles) {
       await Promise.all(postFiles.map(async(file) => {
         try {
-          await libs.files.processPostFile(
+          await libs.filer.processPostFile(
             file.tempPath,
             path.join(config.posts.filesDir, file.filename),
             path.join(config.posts.thumbsDir, file.filename),
@@ -180,8 +180,8 @@ async function removeWithReplies(boardUid, number) {
   if(files && files.length  > 0) {
     await Promise.all(files.map(async(file) => {
       try {
-        await libs.files.unlink(path.join(config.posts.filesDir, file.filename));
-        await libs.files.unlink(path.join(config.posts.thumbsDir, file.filename));
+        await libs.filer.unlink(path.join(config.posts.filesDir, file.filename));
+        await libs.filer.unlink(path.join(config.posts.thumbsDir, file.filename));
       } catch(error) {
         // Ignore image not found errors
         if(error.code !== "ENOENT") throw error;
