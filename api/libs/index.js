@@ -5,7 +5,7 @@ const memstore = require("./memstore");
 const validation = require("./validation");
 
 module.exports = {
-  files: filer,
+  filer,
   multipart,
   redis,
   memstore,

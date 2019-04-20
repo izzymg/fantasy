@@ -1,5 +1,5 @@
-const connection = require("../../db/connection");
-const libs = require("../../libs");
+const connection = require("../db/connection");
+const libs = require("../libs");
 const config = require("../../config/config");
 const path = require("path");
 

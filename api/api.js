@@ -3,9 +3,9 @@
 const Koa = require("koa");
 const http = require("http");
 const cors = require("@koa/cors");
-const config = require("./config/config");
+const config = require("../config/config");
 const dbConnection = require("./db/connection");
-const api = require("./api");
+const router = require("./router");
 const pino = require("pino");
 
 let httpServer;
@@ -59,7 +59,7 @@ server.use(async function(ctx, next) {
 });
 
 // API exported router
-server.use(api);
+server.use(router);
 
 // Database connection must boot before server is started
 // TODO: better solution to this

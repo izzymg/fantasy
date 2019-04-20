@@ -1,5 +1,5 @@
 const config = require("../../config/config");
-const libs = require("../../libs");
+const libs = require("../libs");
 
 function validationError(message) {
   throw { status: 400, message };
