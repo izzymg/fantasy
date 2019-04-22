@@ -2,8 +2,6 @@ const KoaRouter = require("koa-router");
 const middleware = require("./middleware");
 const models = require("../models");
 const schemas = require("../schemas");
-const config = require("../../config/config");
-const libs = require("../libs");
 
 const router = new KoaRouter({
   prefix: "/posts",
