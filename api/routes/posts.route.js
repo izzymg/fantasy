@@ -60,24 +60,22 @@ router.delete("/:number",
 
 router.post("/:board/:parent?",
   async function createPost(ctx) {
-    let postData;
     ctx.assert(ctx.is("multipart/form-data"), 400, "Invalid content type");
-    const { fields, files } = await libs.multipart(
-      ctx, config.posts.maxFiles, config.posts.maxFileSize, config.posts.tmpDir
-    );
 
     // Ensure board and post exists
-    let parent = 0;
+    let parentNo = 0;
     const board = await models.board.get(ctx.params.board);
     if(ctx.params.parent) {
-      parent = await models.post.threadAllowsReplies(ctx.params.board, ctx.params.parent);
-      ctx.assert(parent !== false , 400, "You cannot reply to this thread");
+      parentNo = await models.post.threadAllowsReplies(ctx.params.board, ctx.params.parent);
+      ctx.assert(parentNo !== false , 400, "You cannot reply to this thread");
     }
     ctx.assert(board && board.uid, 404, "No such board");
 
+    const post = await schemas.createPostRequest(ctx, parentNo);
+
     // Ensure file limit hasn't been reached
-    if(parent && files) {
-      const fileCount = await models.post.getThreadFileCount(board.uid, parent);
+    if(parentNo && post.files) {
+      const fileCount = await models.post.getThreadFileCount(board.uid, parentNo);
       ctx.assert(
         !fileCount || fileCount <= board.fileLimit, 400,
         "You no longer make file replies to this thread"
@@ -101,21 +99,12 @@ router.post("/:board/:parent?",
       await models.ban.remove(ban.uid);
     }  
   
-    // Validate fields
-    postData = schemas.post(fields, files, Boolean(parent === 0));
-
-    const { filesProcessed, postNumber } = await models.post.create({
-      ...postData,
-      parent,
-      boardUid: board.uid,
-      ip: ctx.ip,
-      lastBump: parent ? null : new Date(Date.now())
-    });
+    const { filesProcessed, postNumber } = await models.post.create(board.uid, post);
 
     // Put user back on cooldown
     if(board.cooldown) models.ip.createCooldown(ctx.ip, board.uid, board.cooldown);
 
-    if (parent == 0) {
+    if (parentNo == 0) {
     // Delete oldest thread if max threads has been reached
       const threadCount = await models.post.getThreadCount(board.uid);
       if (threadCount > board.maxThreads) {
@@ -124,10 +113,10 @@ router.post("/:board/:parent?",
       }
     } else {
     // Bump OP as long as bump limit hasn't been reached
-      const replyCount = await models.post.getReplyCount(board.uid, parent);
+      const replyCount = await models.post.getReplyCount(board.uid, parentNo);
       if (replyCount <= board.bumpLimit) {
         try {
-          await models.post.bumpPost(board.uid, parent);
+          await models.post.bumpPost(board.uid, parentNo);
         } catch (error) {
           return ctx.throw(409, "Bumping thread failed, OP may have been deleted?");
         }

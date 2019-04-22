@@ -1,5 +1,8 @@
+// Request processing
+
 const config = require("../../config/config");
 const libs = require("../libs");
+const createPostRequest = require("./post");
 
 function validationError(message) {
   throw { status: 400, message };
@@ -133,6 +136,7 @@ function createBan(fields) {
 }
 
 module.exports = {
+  createPostRequest,
   post,
   login,
   passwordChange,

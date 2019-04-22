@@ -99,7 +99,7 @@ async function getIp(boardUid, number) {
 /**
  * @param {Post} post
 */
-async function create(post) {
+async function create(boardUid, post) {
   const poolConnection = await connection.db.getConnection();
   await poolConnection.beginTransaction();
   try {
@@ -114,13 +114,13 @@ async function create(post) {
     const [{ insertId }] = await poolConnection.query({
       sql: `INSERT INTO posts 
         SET number = (SELECT number from postnumbers WHERE boardUid = ? FOR UPDATE),
-        ?`,
-      values: [post.boardUid, post]
+        boardUid = ?, ?`,
+      values: [boardUid, boardUid, post]
     });
 
     await poolConnection.query({
       sql: "UPDATE postnumbers SET number = number + 1 WHERE boardUid = ?",
-      values: [post.boardUid]
+      values: [boardUid]
     });
 
     const [insertedPost] = await poolConnection.query({
