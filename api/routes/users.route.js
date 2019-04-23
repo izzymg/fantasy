@@ -1,7 +1,7 @@
 const KoaRouter = require("koa-router");
 const middleware = require("./middleware");
 const crypto = require("crypto");
-const schemas = require("../schemas");
+const requests = require("../requests");
 const models = require("../models");
 const bcrypt = require("bcrypt");
 
@@ -47,7 +47,7 @@ router.delete("/:username",
 router.post("/",
   async function createUser(ctx) {
     await middleware.requireAdmin()(ctx);
-    const { username, isAdmin } = await schemas.createUser(ctx);
+    const { username, isAdmin } = await requests.user.create(ctx);
     const password = crypto.randomBytes(6).toString("hex");
     const hashedPw = await bcrypt.hash(password, 15);
     try {

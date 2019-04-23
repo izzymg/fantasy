@@ -1,7 +1,7 @@
 const KoaRouter = require("koa-router");
 const middleware = require("./middleware");
 const models = require("../models");
-const schemas = require("../schemas");
+const requests = require("../requests");
 
 const router = new KoaRouter({
   prefix: "/posts",
@@ -69,7 +69,7 @@ router.post("/:board/:parent?",
     }
     ctx.assert(board && board.uid, 404, "No such board");
 
-    const post = await schemas.createPostRequest(ctx, parentNo);
+    const post = await requests.post.create(ctx, parentNo);
 
     // Ensure file limit hasn't been reached
     if(parentNo && post.files) {

@@ -1,7 +1,7 @@
 const coBody = require("co-body");
 const REQUIRED_MESSAGE = "Username required";
 
-async function createUser(ctx) {
+async function create(ctx) {
   const fields = await coBody.json(ctx, { strict: true });
   ctx.assert(fields && typeof fields.username === "string", 400, REQUIRED_MESSAGE);
   fields.username = fields.username.trim();
@@ -19,5 +19,5 @@ async function createUser(ctx) {
 }
 
 module.exports = {
-  createUser
+  create,
 };

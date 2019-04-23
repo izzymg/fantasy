@@ -1,7 +1,7 @@
 const libs = require("../libs");
 const config = require("../../config/config");
 
-async function createPostRequest(ctx, parent) {
+async function create(ctx, parent) {
 
   const { fields, files } = await libs.multipart(ctx,
     config.posts.maxFiles, config.posts.maxFileSize, config.posts.tmpDir
@@ -54,5 +54,5 @@ async function createPostRequest(ctx, parent) {
 }
 
 module.exports = {
-  createPostRequest,
+  create,
 };

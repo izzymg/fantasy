@@ -1,7 +1,7 @@
 const coBody = require("co-body");
 const requiredMessage = "Username and password required";
 
-async function loginRequest(ctx) {
+async function login(ctx) {
   const fields = await coBody.json(ctx, { strict: true });
   ctx.assert(fields && fields.username && fields.password, 400, requiredMessage);
   return {
@@ -10,7 +10,7 @@ async function loginRequest(ctx) {
   };
 }
 
-async function passwordChange(ctx) {
+async function changePassword(ctx) {
   const fields = await coBody.json(ctx, { strict: true });
 
   ctx.assert(fields, 400, "New password, confirmation password and current password required");
@@ -40,6 +40,6 @@ async function passwordChange(ctx) {
 }
 
 module.exports = {
-  loginRequest,
-  passwordChange
+  login,
+  changePassword
 };
