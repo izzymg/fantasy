@@ -2,46 +2,10 @@
 
 const libs = require("../libs");
 const createPostRequest = require("./post");
+const auth = require("./auth");
 
 function validationError(message) {
   throw { status: 400, message };
-}
-
-function login(fields) {
-  const requiredMessage = "Username and password required";
-  if(!fields) validationError(requiredMessage);
-  if(!fields.username || !fields.password) validationError(requiredMessage);
-  return {
-    username: fields.username,
-    password: fields.password,
-  };
-}
-
-function passwordChange(fields) {
-  if(!fields) {
-    validationError("New password, confirmation password and current password required");
-  }
-
-  if(!fields.newPassword || typeof fields.newPassword !== "string") {
-    validationError("New password required");
-  }
-  if(!fields.confirmationPassword || typeof fields.confirmationPassword !== "string") {
-    validationError("Confirmation password required");
-  }
-  if(!fields.currentPassword || typeof fields.currentPassword !== "string") {
-    validationError("Current password required");
-  }
-  if(fields.newPassword.length < 8) {
-    validationError("Passwords must be over 8 characters");
-  }
-  if(fields.newPassword !== fields.confirmationPassword) {
-    validationError("New password and confirmation do not match");
-  }
-  return {
-    newPassword: fields.newPassword,
-    confirmationPassword: fields.confirmationPassword,
-    currentPassword: fields.currentPassword,
-  };
 }
 
 function createUser(fields) {
@@ -90,9 +54,8 @@ function createBan(fields) {
 
 module.exports = {
   createPostRequest,
-  post,
-  login,
-  passwordChange,
+  loginRequest: auth.login,
+  passwordChange: auth.passwordChange,
   createUser,
   createBan,
 };

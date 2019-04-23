@@ -11,7 +11,7 @@ const router = new KoaRouter({
 
 router.post("/login",
   async function login(ctx) {
-    const { username, password } = schemas.login(await coBody.json(ctx, { strict: true }));
+    const { username, password } = await schemas.loginRequest(ctx);
     let { attempts, lastAttempt } = await models.ip.getLogins(ctx.ip);
     // Last  attempt was over 12 hours ago
     if(lastAttempt && lastAttempt > Date.now() - (12 * 60 * 60 * 1000)) {
@@ -56,7 +56,7 @@ router.post("/changePassword",
 
     const {
       newPassword, currentPassword,
-    } = schemas.passwordChange(await coBody.json(ctx, { strict: true }));
+    } = await schemas.passwordChange(ctx);
     
     // Ensure current password matches user password
     const userPassword = await models.user.getPassword(session.username);
