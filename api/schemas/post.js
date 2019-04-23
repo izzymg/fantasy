@@ -50,7 +50,9 @@ async function createPostRequest(ctx, parent) {
   const ip = ctx.ip;
 
 
-  return { name, subject, content, files, parent, lastBump, ip, files };
+  return { name, subject, content, files, parent, lastBump, ip };
 }
 
-module.exports = createPostRequest;
+module.exports = {
+  createPostRequest,
+};

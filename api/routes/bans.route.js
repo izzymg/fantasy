@@ -1,5 +1,4 @@
 const KoaRouter = require("koa-router");
-const coBody = require("co-body");
 const models = require("../models");
 const schemas = require("../schemas");
 const middleware = require("./middleware");
@@ -17,13 +16,13 @@ router.get("/",
 router.post("/",
   async function createBan(ctx) {
     const { board: boardUid, number: postNo } = ctx.query;
-    ctx.assert(boardUid && parseInt(postNo), 400);
+    ctx.assert(boardUid && parseInt(postNo), 400, "Expected board and post number");
     
     await middleware.requireBoardModerator(boardUid)(ctx);
-    const ban = schemas.createBan(await coBody.json(ctx, { strict: true }));
+    const ban = await schemas.createBan(ctx);
     const ip = await models.post.getIp(boardUid, postNo);
     ctx.assert(ip, 404, "No IP associated with post, ensure the post exists.");
-    await models.ban.create({ ...ban, ip, boardUid, });
+    await models.ban.create({ ...ban, boardUid, });
 
     ctx.body = {
       allBoards: ban.allBoards,

@@ -1,7 +1,6 @@
 const KoaRouter = require("koa-router");
 const schemas = require("../schemas");
 const models = require("../models");
-const coBody = require("co-body");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid/v4");
 
