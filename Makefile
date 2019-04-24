@@ -3,7 +3,8 @@
 all: server
 
 server:
-	npm i --depth=0 
+	cd server
+	npm i --depth=0
 
 clean:
 	rm -r build/**
