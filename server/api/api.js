@@ -5,7 +5,7 @@ const http = require("http");
 const cors = require("@koa/cors");
 const config = require("../config/config");
 const dbConnection = require("./db/connection");
-const router = require("./router");
+const routing = require("./routing");
 const libs = require("./libs");
 
 let _httpServer;
@@ -46,7 +46,7 @@ function init() {
     }
   });
 
-  fantasy.use(router);
+  fantasy.use(routing);
 
   _httpServer = http.createServer(fantasy.callback())
     .listen(config.api.port, config.api.host, function() {
