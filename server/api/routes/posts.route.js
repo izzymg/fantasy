@@ -133,7 +133,6 @@ router.post("/:board/:parent?",
         }
       }
     }
-    ctx.log.info(`Post submitted to /${board.uid}/`);
     ctx.body = {
       boardUid: board.uid,
       filesProcessed,

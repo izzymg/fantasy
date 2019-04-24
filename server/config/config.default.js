@@ -12,7 +12,6 @@ module.exports = {
   // You can test this by setting the log level to "debug" on a particular API while behind a reverse proxy
   // and ensuring the IP prints the correct address
   proxy: true,
-  // "info"/"error"/"fatal", or null for absolute silence
   // "fatal": log crashes (good idea)
   // "error": log 500 server errors (if your database goes down this will spam your logs every request)
   // "info": log requests (if you're working on the code this can be useful)

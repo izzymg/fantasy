@@ -13,17 +13,11 @@ function waitConnect(client) {
 }
 
 exports.createClient = async({ host, port, password, }) => {
-  console.log(`Starting redis connection on ${host}:${port}`);
   let opts = {
     host: host,
     port: port,
     string_numbers: false,
-    retry_strategy: function(retry) {
-      if(retry.attempt < 2) {
-        console.error(retry.error);
-      }
-      console.log("Redis disconnected, attempting to reconnect in 15s.");
-      console.log(`Disconnected for: ${retry.total_retry_time / 1000} seconds`);
+    retry_strategy: function() {
       return 15 * 1000;
     }
   };
@@ -38,15 +32,9 @@ exports.createClient = async({ host, port, password, }) => {
     throw "Redis failure", error;
   });
         
-  client.on("quit", () => console.log("Redis disconnecting"));
-  client.on("connect", () => console.log(`Redis connected on ${host}:${port}`));
-
   await waitConnect(client);
   return {
-    close: async() => {
-      console.log("Closing redis connection");
-      return await close();
-    },
+    close: async() => await close(),
     del: promisify(client.del).bind(client),
     hDel: promisify(client.hdel).bind(client),
     hGet: promisify(client.hget).bind(client),

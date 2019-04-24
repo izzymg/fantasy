@@ -6,95 +6,82 @@ const cors = require("@koa/cors");
 const config = require("../config/config");
 const dbConnection = require("./db/connection");
 const router = require("./router");
-const pino = require("pino");
+const libs = require("./libs");
 
-let httpServer;
-const server = new Koa();
-const logger = pino({
-  level: config.logLevel,
-}, pino.destination(config.logFile));
+let _httpServer;
+const fantasy = new Koa();
 
-// Kill everything on unhandled rejection
-process.on("unhandledRejection", function(error) {
-  console.error("Unhandled Promise Rejection occured:", error);
-  logger.fatal(error);
-  process.exit(1);
-}); 
+function init() {
+  // Proxy option must be set for Koa to recognise X-Forwarded-For IP address
+  if(config.proxy) fantasy.proxy = true;
 
-// Proxy option must be set for Koa to recognise X-Forwarded-For IP address
-if(config.proxy) server.proxy = true;
+  // Allow cors
+  if(config.api.allowCors) {
+    fantasy.use(cors({
+      origin: config.api.allowCors,
+      credentials: config.api.allowCorsCredentials
+    }));
+  }
 
-// Global middlewares
-
-server.use(async function(ctx, next) {
-  ctx.log = logger;
-  await next();
-});
-
-if(config.api.allowCors) {
-  server.use(cors({ origin: config.api.allowCors, credentials: config.api.allowCorsCredentials }));
-}
-
-server.use(async function(ctx, next) {
-  try {
-    ctx.log.info(ctx.request);
-    await next();
-  } catch(error) {
-    const status = error.status || 500;
-    if(status !== 500) {
-      ctx.log.info(error);
-      ctx.status = error.status;
-      ctx.body = error.message || `Status ${error.status}`;
+  // Error handling
+  fantasy.use(async function(ctx, next) {
+    libs.logger.log.info(ctx.request);
+    try {
+      await next();
+    } catch(error) {
+      const status = error.status || 500;
+      if(status !== 500) {
+        ctx.status = error.status;
+        ctx.body = error.message || `Status ${error.status}`;
+        return;
+      }
+      if(config.consoleLogErrors) {
+        console.error(error);
+      }
+      libs.logger.log.error(error);
+      // Never expose 500 errors
+      ctx.body = "Internal server error, status 500";
+      ctx.status = 500;
       return;
     }
-    if(config.consoleLogErrors) {
-      console.error(error);
-    }
-    ctx.log.error(error);
-    // Never expose 500 errors
-    ctx.body = "Internal server error, status 500";
-    ctx.status = 500;
-    return;
-  }
-});
+  });
 
-// API exported router
-server.use(router);
+  fantasy.use(router);
 
-// Database connection must boot before server is started
-// TODO: better solution to this
-dbConnection.start().then(() => {
-  httpServer = http.createServer(server.callback())
+  _httpServer = http.createServer(fantasy.callback())
     .listen(config.api.port, config.api.host, function() {
       const started = `Fantasy listening on ${config.api.host}:${config.api.port}`;
-      logger.info(started);
-      // Don't even console log if fantasy is silent
-      if(config.logLevel) {
-        console.log(started);
-      }
+      console.log(started);
+      libs.logger.log.info(started);
     });
-}).catch((error) => {
-  console.error("Fatal error, could not start database connection:", error);
-  logger.fatal(error);
-  process.exit(1);
-});
+}
 
+// Try to gracefully end database conn and http server
 function end() {
   dbConnection.end().then(() => {
-    httpServer.close();
-    const ended = "Fantasy exited successfully";
-    logger.info(ended);
-    if(config.logLevel) {
-      console.log(ended);
-    }
+    _httpServer.close();
+    process.exit(0);
   }).catch((error) => {
-    logger.fatal(error);
-    if(config.logLevel) {
-      console.error(error);
-    }
+    console.error(error);
+    process.exit(1);
   });
   return;
 }
 
-process.on("SIGINT", end);
-process.on("SIGTERM", end);
+console.log("Fantasy started, establishing DB connections");
+// Initialise database and logger
+dbConnection.start().then(() => {
+  console.log("DB connection started");
+  libs.logger.init(config.logLevel, config.logFile);
+  init();
+  // Kill everything on unhandled rejection
+  process.on("unhandledRejection", function(error) {
+    console.error("Fatal: Unhandled Promise Rejection:", error);
+    process.exit(1);
+  }); 
+  process.on("SIGINT", end);
+  process.on("SIGTERM", end);
+}).catch((error) => {
+  console.error("Fatal: Failed to initialise db:", error);
+  process.exit(1);
+});
