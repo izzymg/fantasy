@@ -40,7 +40,7 @@ module.exports = {
   },
 
   api: {
-    port: 3000,
+    port: 8080,
     host: "localhost",
     // Important: This sets the Access-Control-Allow-Origin header, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     // Javascript post submissions will not work without CORS enabled so set this to the URL of the site server

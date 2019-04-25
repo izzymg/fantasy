@@ -1,0 +1,8 @@
+test/
+node_modules/
+npm-debug.log
+Makefile
+jsconfig.json
+.eslint*
+docs/
+sql/
