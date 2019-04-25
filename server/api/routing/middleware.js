@@ -2,6 +2,24 @@
 
 const models = require("../models");
 module.exports = {
+  requireIpCanPost(boardUid) {
+    return async function(ctx) {
+      // Check user IP cooldown
+      const cd = await models.ip.getCooldown(ctx.ip, boardUid);
+      ctx.assert(
+        !cd || cd < Date.now(), 400,
+        `You must wait ${Math.floor((cd - Date.now()) / 1000)} seconds before posting again`
+      );
+
+      // Check user ban status
+      const ban = await models.ban.getByBoard(ctx.ip, boardUid);
+      ctx.assert(!ban || ban.expires && ban.expires < new Date(Date.now()), 403, "You are banned");
+      // Ban must have expired
+      if(ban) {
+        await models.ban.remove(ban.uid);
+      }
+    };
+  },
   requireBoardModerator(boardUid) {
     return async function(ctx) {
       const session = await models.session.get(ctx.cookies.get("id"));

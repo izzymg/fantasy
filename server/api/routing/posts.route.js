@@ -63,12 +63,18 @@ router.post("/:board/:parent?",
     // Ensure board and post exists
     let parentNo = 0;
     const board = await models.board.get(ctx.params.board);
+
+    // Ensure user can post to this board
+    await middleware.requireIpCanPost(board.uid)(ctx);
+
+    // Thread must exist and not be locked
     if(ctx.params.parent) {
       parentNo = await models.post.threadAllowsReplies(ctx.params.board, ctx.params.parent);
       ctx.assert(parentNo !== false , 400, "You cannot reply to this thread");
     }
     ctx.assert(board && board.uid, 404, "No such board");
 
+    // Post request data
     const post = await requests.post.create(ctx, parentNo);
 
     // Ensure file limit hasn't been reached
@@ -80,23 +86,7 @@ router.post("/:board/:parent?",
       );
     }
 
-    // IP must be off cooldown, and cannot be banned
-    const [ cd, ban ] = await Promise.all([
-      models.ip.getCooldown(ctx.ip, board.uid),
-      models.ban.getByBoard(ctx.ip, board.uid)
-    ]);
-
-    ctx.assert(
-      !cd || cd < Date.now(), 400,
-      `You must wait ${Math.floor((cd - Date.now()) / 1000)} seconds before posting again`
-    );
-    ctx.assert(!ban || ban.expires && ban.expires < new Date(Date.now()), 403, "You are banned");
-
-    // Ban must have expired
-    if(ban) {
-      await models.ban.remove(ban.uid);
-    }  
-  
+    // Insert post to database
     const { filesProcessed, postNumber } = await models.post.create(board.uid, post);
 
     // Put user back on cooldown
@@ -110,7 +100,7 @@ router.post("/:board/:parent?",
         await models.post.removeWithReplies(board.uid, oldestThreadNumber);
       }
     } else {
-    // Bump OP as long as bump limit hasn't been reached
+      // Bump OP as long as bump limit hasn't been reached
       const replyCount = await models.post.getReplyCount(board.uid, parentNo);
       if (replyCount <= board.bumpLimit) {
         try {
