@@ -1,11 +1,17 @@
 const libs = require("../libs");
 const config = require("../../config/config");
 
+const libMultipart = libs.multipart({
+  checkMimetype: true,
+  maxFileSize: config.posts.maxFileSize,
+  maxFiles: config.posts.maxFiles,
+  md5: config.posts.md5,
+  tempDirectory: config.posts.tmpDir,
+});
+
 async function create(ctx, parent) {
 
-  const { fields, files } = await libs.multipart(ctx,
-    config.posts.maxFiles, config.posts.maxFileSize, config.posts.tmpDir
-  );
+  const { fields, files } = await libMultipart(ctx.req);
 
   // Check field existence
   if(!fields) ctx.throw(400, "Got no fields");

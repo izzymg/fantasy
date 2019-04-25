@@ -5,7 +5,7 @@ const uuid = require("uuid/v4");
 const path = require("path");
 const fs = require("fs");
 
-const fileSignatures = {
+const MAGICS_MIMES = {
   "89504E470D0A1A0A": "image/png",
   // There are two potential accepted gif types
   "474946383761": "image/gif",
@@ -13,28 +13,34 @@ const fileSignatures = {
   "FFD8": "image/jpeg",
 };
 
-const extensions = {
+const MIME_EXTENSIONS = {
   "image/png": "png",
   "image/gif": "gif",
   "image/jpeg": "jpg",
 };
 
-const getAcceptedMimetype = function(buffer) {
-  // Remove listener once called once
+let _opts = {
+  maxFiles: 3,
+  maxFileSize: 4096 * 1000,
+  tempDirectory: require("os").tmpdir(),
+  checkMimetype: true,
+  md5: true,
+};
+
+function getAcceptedMimetype(buffer) {
   const chunkString = buffer.toString("hex");
-  for (const sig in fileSignatures) {
+  for (const sig in MAGICS_MIMES) {
     if(sig === chunkString.slice(0, sig.length).toUpperCase()) {
       // Signature found in data chunk
-      let mimetype = fileSignatures[sig];
-      return { mimetype, extension: extensions[mimetype] };
+      let mimetype = MAGICS_MIMES[sig];
+      return { mimetype, extension: MIME_EXTENSIONS[mimetype] };
     }
   }
   return null;
-};
+}
 
 
-module.exports = function(
-  ctx, maxFiles, maxFileSize = 4096 * 1000, tmp, checkMimetype = true) {
+function multipartRequest(req) {
   return new Promise((resolve, reject) => {
 
     let files = [];
@@ -42,10 +48,10 @@ module.exports = function(
 
     // New busboy instance
     const busboy = new Busboy({
-      headers: ctx.req.headers,
+      headers: req.headers,
       limits: {
-        files: maxFiles,
-        fileSize: maxFileSize,
+        files: _opts.maxFiles,
+        fileSize: _opts.maxFileSize,
         fields: 10,
       }
     });
@@ -58,7 +64,7 @@ module.exports = function(
       let type;
 
       incoming.on("data", (data) => {
-        if(checkMimetype && !type) {
+        if(_opts.checkMimetype && !type) {
           type = getAcceptedMimetype(data);
           if(!type) reject({
             status: 400, message: "Unnaccepted filetype"
@@ -68,12 +74,12 @@ module.exports = function(
 
       incoming.on("limit", () => reject({
         status: 400,
-        message: `File too large, max ${maxFileSize}`
+        message: `File too large, max ${_opts.maxFileSize}`
       }));
 
       files.push(new Promise((res, rej) => {
         let id = uuid();
-        let tempPath = path.join(tmp, id);
+        let tempPath = path.join(_opts.tempDirectory, id);
         let tempWriteStream = fs.createWriteStream(tempPath);
         incoming.pipe(tempWriteStream);
         tempWriteStream.on("error", rej);
@@ -102,7 +108,7 @@ module.exports = function(
 
     busboy.on("filesLimit", () => reject({
       status: 400,
-      message: `Too many files, max ${maxFiles}`
+      message: `Too many files, max ${_opts.maxFiles}`
     }));
 
     busboy.on("error", (error) => reject({
@@ -117,6 +123,20 @@ module.exports = function(
     });
 
     // Pipe request into busboy after events established
-    ctx.req.pipe(busboy);
+    req.pipe(busboy);
   });
+}
+
+module.exports = function({
+  maxFiles, maxFileSize, tempDirectory, md5, checkMimetype
+} = { md5: true, checkMimetype: true }) {
+  _opts = {
+    ..._opts,
+    maxFiles,
+    maxFileSize,
+    tempDirectory,
+    md5,
+    checkMimetype,
+  };
+  return multipartRequest;
 };
