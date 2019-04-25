@@ -6,12 +6,11 @@ let _database;
 let _mem;
 
 exports.start = async() => {
-  _database = exports.db = mysql.createPool(secrets.database);
-  if(config.database.pingOnStart) {
-    const conn = await _database.getConnection();
-    await conn.ping();
-  }
-  if(config.database.memStore) {
+  _database = exports.db = mysql.createPool({
+    ...secrets.database,
+    ...config.database,
+  });
+  if(config.noRedis) {
     console.warn(
       "WARNING: Fantasy is configured to use memory instead of Redis.\n \
         This is not safe for production environments and is intended for development only."

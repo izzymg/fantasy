@@ -18,28 +18,25 @@ module.exports = {
   // You could set this to process.env.LOG_LEVEL and start the server with LOG_LEVEL=fatal node fantasy.js
   logLevel: process.env.LOG_LEVEL || "fatal",
   logFile: "/var/log/fantasy.log",
+
   // Send any "error" or "fatal" to stdout? (good for debugging)
   consoleLogErrors: false,
+
+  // Check db connection and server health on start
+  healthCheck: true,
+
+  // Dev option
+  noRedis: false,
 
   // A connection pool is used for all SQL queries
   // Read up on connection pools to understand these sections
 
   database: {
-    // Database name
-    database: "fantasy",
-    // This will cause fantasy to crash if it can't connect to the db immediately
-    pingOnStart: true,
     // WARNING: this will print all SQL packets to stdout
     debug: false,
     // The number of connections avaiable in the pool
     // Generally increase as you see more concurrent users
     connectionLimit: 5,
-    // How long until a waiting connection should timeout (ms)
-    connectionTimeout: 6000,
-    // Timeout waiting to obtain a connection from the pool (ms)
-    acquireTimeout: 10000,
-    // Use memory instead of redis - for development /only/
-    memStore: false,
   },
 
   api: {
