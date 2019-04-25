@@ -25,6 +25,8 @@ module.exports = {
   // Read up on connection pools to understand these sections
 
   database: {
+    // Database name
+    database: "fantasy",
     // This will cause fantasy to crash if it can't connect to the db immediately
     pingOnStart: true,
     // WARNING: this will print all SQL packets to stdout

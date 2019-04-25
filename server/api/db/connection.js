@@ -6,13 +6,7 @@ let _database;
 let _mem;
 
 exports.start = async() => {
-  _database = exports.db = mysql.createPool({
-    user: secrets.database.user, password: secrets.database.password, 
-    host: secrets.database.host, port: secrets.database.port, database: "fantasy",
-    connectTimeout: config.database.connectionTimeout,
-    connectionLimit: config.database.connectionLimit,
-    debug: config.database.debug
-  });
+  _database = exports.db = mysql.createPool(secrets.database);
   if(config.database.pingOnStart) {
     const conn = await _database.getConnection();
     await conn.ping();
