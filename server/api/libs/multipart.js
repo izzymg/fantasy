@@ -4,6 +4,7 @@ const Busboy = require("busboy");
 const uuid = require("uuid/v4");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 
 const MAGICS_MIMES = {
   "89504E470D0A1A0A": "image/png",
@@ -62,8 +63,12 @@ function multipartRequest(req) {
       if(!filename) return incoming.resume();
 
       let type;
+      let hash = crypto.createHash("md5");
 
       incoming.on("data", (data) => {
+        if(_opts.md5) {
+          hash.update(data);
+        }
         if(_opts.checkMimetype && !type) {
           type = getAcceptedMimetype(data);
           if(!type) reject({
@@ -91,7 +96,8 @@ function multipartRequest(req) {
               filename: id + "." + type.extension,
               mimetype: type.mimetype,
               size: tempWriteStream.bytesWritten,
-              originalName: filename
+              originalName: filename,
+              hash: _opts.md5 ? hash.digest("hex") : null
             }
           });
         });
