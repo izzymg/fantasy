@@ -7,6 +7,7 @@ const config = require("../config/config");
 const dbConnection = require("./db/connection");
 const routing = require("./routing");
 const libs = require("./libs");
+const healthCheck = require("./tools/healthCheck");
 
 let _httpServer;
 const fantasy = new Koa();
@@ -68,20 +69,25 @@ function end() {
   return;
 }
 
-console.log("Fantasy started, establishing DB connections");
-// Initialise database and logger
-dbConnection.start().then(() => {
-  console.log("DB connection started");
-  libs.logger.init(config.logLevel, config.logFile);
-  init();
-  // Kill everything on unhandled rejection
+async function boot() {
+  console.log("Fantasy started");
+  await dbConnection.start();
+  await libs.logger.init(config.logLevel, config.logFile);
+  if(config.healthCheck) {
+    await healthCheck(console.log, console.warn, console.error);
+  }
   process.on("unhandledRejection", function(error) {
     console.error("Fatal: Unhandled Promise Rejection:", error);
     process.exit(1);
   }); 
   process.on("SIGINT", end);
   process.on("SIGTERM", end);
+  init();
+}
+
+boot().then(() => {
+
 }).catch((error) => {
-  console.error("Fatal: Failed to initialise db:", error);
+  console.error(`Fantasy failed to start: ${error}`);
   process.exit(1);
 });
