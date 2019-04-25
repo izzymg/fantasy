@@ -5,11 +5,14 @@ const bans = require("./bans.route");
 const users = require("./users.route");
 const auth = require("./auth.route");
 
-module.exports = {
-  posts,
-  boards,
-  reports,
-  bans,
-  users,
-  auth,
-};
+const KoaRouter = require("koa-router");
+
+const router = new KoaRouter();
+router.use(auth);
+router.use(bans);
+router.use(boards);
+router.use(users);
+router.use(posts);
+router.use(reports);
+
+module.exports = router.routes();
