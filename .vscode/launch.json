@@ -8,7 +8,11 @@
       "type": "node",
       "request": "launch",
       "name": "Production server",
+<<<<<<< HEAD
       "program": "${workspaceFolder}/server/api/api.js",
+=======
+      "program": "${workspaceFolder}\\server\\api\\api.js",
+>>>>>>> ae93ccf8190b4e949b0f727362ed09a0596e6eec
       "env": {
         "NODE_ENV": "production",
         "LOG_LEVEL": "fatal"
@@ -18,7 +22,11 @@
       "type": "node",
       "request": "launch",
       "name": "Debug server",
+<<<<<<< HEAD
       "program": "${workspaceFolder}/server/api/api.js",
+=======
+      "program": "${workspaceFolder}\\server\\api\\api.js",
+>>>>>>> ae93ccf8190b4e949b0f727362ed09a0596e6eec
       "env": {
         "NODE_ENV": "development",
         "LOG_LEVEL": "info"
