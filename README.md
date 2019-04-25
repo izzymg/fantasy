@@ -24,6 +24,7 @@ Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
 * Support webms
 * Captchas
 * Secondary image processor
+* Support Postgres
 
 Full usage documentation to come.
 
@@ -31,7 +32,7 @@ Full usage documentation to come.
 
 Install NodeJS 10+
 
-Install MariaDB (Postgres should work, but untested) and Redis.
+Install MariaDB (MySQL should work, however it is untested. PostgreSQL is unsupported currently.) and Redis.
 
 Create a database in MariaDB called `fantasy`, and a user privileged to write, read and create tables on it.
 

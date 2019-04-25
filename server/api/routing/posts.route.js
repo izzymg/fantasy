@@ -87,7 +87,14 @@ router.post("/:board/:parent?",
     }
 
     // Insert post to database
-    const { filesProcessed, postNumber } = await models.post.insert(board.uid, post);
+    const { postNumber, postUid } = await models.post.insert(board.uid, post.post);
+
+    // Insert all files
+    if(post.files) {
+      await Promise.all(post.files.map((file) =>
+        models.post.insertFile(postUid, file.tempPath, file.info)
+      ));
+    }
 
     // Put user back on cooldown
     if(board.cooldown) models.ip.createCooldown(ctx.ip, board.uid, board.cooldown);
@@ -112,7 +119,7 @@ router.post("/:board/:parent?",
     }
     ctx.body = {
       boardUid: board.uid,
-      filesProcessed,
+      filesProcessed: post.files ? post.files.length : 0,
       postNumber,
     };
   }

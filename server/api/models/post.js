@@ -3,6 +3,13 @@ const libs = require("../libs");
 const config = require("../../config/config");
 const path = require("path");
 
+const libImager = libs.imager({
+  filesDirectory: config.posts.filesDir,
+  thumbsDirectory: config.posts.thumbsDir,
+  thumbWidth: config.posts.thumbWidth,
+  thumbQuality: config.posts.thumbQuality,
+});
+
 const safePost = 
   "number, boardUid, parent, createdAt, lastBump, name, subject, content, sticky, locked";
 const safeFile = 
@@ -20,7 +27,7 @@ const replyOrder = "ORDER BY number ASC, createdAt ASC";
  * @property {number} size
  * @property {string} hash
  * @property {string} tempPath
- */
+*/
 
 /**
  * @typedef {object} Post
@@ -104,13 +111,6 @@ async function insert(boardUid, post) {
   await poolConnection.beginTransaction();
   try {
 
-    let filesProcessed = 0;
-
-    // Workaround files column not existing
-    // TODO: figure out better parameter escaping
-    const postFiles = post.files;
-    delete post.files;
-
     const [{ insertId }] = await poolConnection.query({
       sql: `INSERT INTO posts 
         SET number = (SELECT number from postnumbers WHERE boardUid = ? FOR UPDATE),
@@ -124,38 +124,12 @@ async function insert(boardUid, post) {
     });
 
     const [insertedPost] = await poolConnection.query({
-      sql: "SELECT number FROM posts WHERE uid = ?",
+      sql: "SELECT uid, number FROM posts WHERE uid = last_insert_id()",
       values: [insertId]
     });
-
-    // File processing and database records
-    if(postFiles) {
-      await Promise.all(postFiles.map(async(file) => {
-        try {
-          await libs.filer.processPostFile(
-            file.tempPath,
-            path.join(config.posts.filesDir, file.filename),
-            path.join(config.posts.thumbsDir, file.filename),
-            file.mimetype,
-            { thumbQuality: config.posts.thumbQuality,
-              thumbWidth: config.posts.thumbWidth }
-          );
-        } catch(error) {
-          throw { status: 400, message: "Failed to process image", error: error };
-        }
-        // TODO: better parameters here too
-        delete file.tempPath;
-        await poolConnection.query({
-          sql: "INSERT INTO files SET postUid = ?, ?",
-          values: [insertId, file]
-        });
-        filesProcessed++;
-      }));
-    }
-
     // Bop
     await poolConnection.commit();
-    return { filesProcessed, postNumber: insertedPost[0].number };
+    return { postNumber: insertedPost[0].number, postUid: insertedPost[0].uid };
   } catch(error) {
     /* Files that may have been processed are untouched
     because the file processing may have caused the error itself */
@@ -167,8 +141,20 @@ async function insert(boardUid, post) {
 }
 
 /**
+ * Writes file out to disk and inserts into DB 
+*/
+async function insertFile(postUid, tempPath, { filename, mimetype, size, originalName, hash, }) {
+  await libImager(tempPath, filename, mimetype),
+  await connection.db.query({
+    sql: "INSERT INTO files SET ?",
+    values: [{ postUid, filename, mimetype, originalName, size, hash, }]
+  });
+  await libs.files.unlink(tempPath);
+}
+
+/**
  * Removes post and replies 
- */
+*/
 async function removeWithReplies(boardUid, number) {
   let deletedFiles = 0;
   const [files] = await connection.db.execute({
@@ -180,8 +166,8 @@ async function removeWithReplies(boardUid, number) {
   if(files && files.length  > 0) {
     await Promise.all(files.map(async(file) => {
       try {
-        await libs.filer.unlink(path.join(config.posts.filesDir, file.filename));
-        await libs.filer.unlink(path.join(config.posts.thumbsDir, file.filename));
+        await libs.files.unlink(path.join(config.posts.filesDir, file.filename));
+        await libs.files.unlink(path.join(config.posts.thumbsDir, file.filename));
       } catch(error) {
         // Ignore image not found errors
         if(error.code !== "ENOENT") throw error;
@@ -236,7 +222,7 @@ async function getThreadReplies(boardUid, number) {
  * Faster than doing getThread if files are unneeded
  * @returns { Number } Number of thread
  * @returns { false } if thread does not exist
- */
+*/
 async function threadAllowsReplies(boardUid, number) {
   const [thread] = await connection.db.execute({
     sql: `SELECT number FROM posts
@@ -310,6 +296,7 @@ module.exports = {
   getByUid,
   getIp,
   insert,
+  insertFile,
   getThread,
   threadAllowsReplies,
   getThreadFileCount,

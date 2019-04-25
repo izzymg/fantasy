@@ -38,7 +38,11 @@ async function create(ctx, parent) {
 
   // Sanitize and format
   if(files) {
-    files.forEach((file) => file.originalName = libs.validation.sanitize(file.originalName));
+    files.forEach((file) => {
+      // Truncate filenames
+      file.info.originalName = file.info.originalName.substr(0, 100);
+      file.info.originalName = libs.validation.sanitize(file.info.originalName);
+    });
   }
   const name = libs.validation.formatNameContent(
     libs.validation.sanitize(fields.name),
@@ -49,8 +53,7 @@ async function create(ctx, parent) {
   const lastBump = parent == 0 ? new Date(Date.now()) : null;
   const ip = ctx.ip;
 
-
-  return { name, subject, content, files, parent, lastBump, ip };
+  return { post: { name, subject, content, parent, lastBump, ip }, files };
 }
 
 module.exports = {

@@ -80,11 +80,13 @@ module.exports = function(
         tempWriteStream.on("finish", () => {
           if(!type) return resolve();
           res({
-            filename: id + "." + type.extension,
-            tempPath,
-            mimetype: type.mimetype,
-            size: tempWriteStream.bytesWritten,
-            originalName: filename
+            tempPath: tempPath,
+            info: {
+              filename: id + "." + type.extension,
+              mimetype: type.mimetype,
+              size: tempWriteStream.bytesWritten,
+              originalName: filename
+            }
           });
         });
       }));
