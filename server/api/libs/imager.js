@@ -31,11 +31,11 @@ async function thumb(inputFilepath, outputFilepath) {
   if (metadata.width > _opts.thumbWidth) {
     await image
       .resize(150)
-      .jpeg({ quality: _opts.thumbQuality, force: true })
+      .jpeg({ quality: _opts.thumbQuality, force: true, })
       .toFile(outputFilepath);
   } else {
     await image
-      .jpeg({ quality: _opts.thumbQuality, force: true })
+      .jpeg({ quality: _opts.thumbQuality, force: true, })
       .toFile(outputFilepath);
   }
 }

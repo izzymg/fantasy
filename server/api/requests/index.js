@@ -9,5 +9,5 @@ module.exports = {
   post,
   auth,
   user,
-  ban
+  ban,
 };

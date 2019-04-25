@@ -1,6 +1,6 @@
 // Redis promise wrapper
 
-const { promisify } = require("util");
+const { promisify, } = require("util");
 const redis = require("redis");
 
 function waitConnect(client) {
@@ -19,7 +19,7 @@ exports.createClient = async({ host, port, password, }) => {
     string_numbers: false,
     retry_strategy: function() {
       return 15 * 1000;
-    }
+    },
   };
   if(password) {
     opts.password = password;

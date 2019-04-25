@@ -12,7 +12,7 @@ const router = new KoaRouter({
 router.get("/",
   async function getUsers(ctx) {
     await middleware.requireAdmin()(ctx);
-    const { username, page, limit } = ctx.query;
+    const { username, page, limit, } = ctx.query;
     ctx.assert(username || parseInt(page), 404, "No user found");
     if(username) {
       ctx.body = await models.user.search(username);
@@ -35,7 +35,7 @@ router.get("/:username",
 router.delete("/:username",
   async function deleteUser(ctx) {
     await middleware.requireAdmin()(ctx);
-    const { usersRemoved } = await models.user.remove(ctx.params.username);
+    const { usersRemoved, } = await models.user.remove(ctx.params.username);
     if(usersRemoved > 0) {
       ctx.body = `User "${ctx.params.username}" removed`;
     } else {
@@ -47,11 +47,11 @@ router.delete("/:username",
 router.post("/",
   async function createUser(ctx) {
     await middleware.requireAdmin()(ctx);
-    const { username, isAdmin } = await requests.user.create(ctx);
+    const { username, isAdmin, } = await requests.user.create(ctx);
     const password = crypto.randomBytes(6).toString("hex");
     const hashedPw = await bcrypt.hash(password, 15);
     try {
-      await models.user.insert({ username, password: hashedPw });
+      await models.user.insert({ username, password: hashedPw, });
     } catch(error) {
       if(error.code == "ER_DUP_ENTRY") {
         ctx.throw(400, "User already exists by that username");

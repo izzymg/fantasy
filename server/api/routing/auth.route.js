@@ -10,8 +10,8 @@ const router = new KoaRouter({
 
 router.post("/login",
   async function login(ctx) {
-    const { username, password } = await requests.auth.login(ctx);
-    let { attempts, lastAttempt } = await models.ip.getLogins(ctx.ip);
+    const { username, password, } = await requests.auth.login(ctx);
+    let { attempts, lastAttempt, } = await models.ip.getLogins(ctx.ip);
     // Last  attempt was over 12 hours ago
     if(lastAttempt && lastAttempt > Date.now() - (12 * 60 * 60 * 1000)) {
       attempts = 0;
@@ -42,7 +42,7 @@ router.get("/session",
   async function getSessionInfo(ctx) {
     const session = await models.session.get(ctx.cookies.get("id"));
     ctx.assert(session, 403, "No session found");
-    ctx.body = { username: session.username, isAdmin: session.isAdmin };
+    ctx.body = { username: session.username, isAdmin: session.isAdmin, };
   }
 );
 
@@ -67,7 +67,7 @@ router.post("/changePassword",
     ctx.assert(passwordMatch === true, 403, "Invalid current password");
     const newHash = await bcrypt.hash(newPassword, 15);
     await models.user.update(session.username, {
-      newUsername: session.username, newPassword: newHash
+      newUsername: session.username, newPassword: newHash,
     });
     // Force user to login again with new credentials
     await models.session.remove(sessionId);

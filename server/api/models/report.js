@@ -35,11 +35,11 @@ async function insert(report) {
   try {
     await connection.db.query({
       sql: "INSERT INTO reports SET ?",
-      values: [report]
+      values: [report],
     });
   } catch(error) {
     if(error.code == "ER_NO_REFERENCED_ROW_2" || error.code == "ER_NO_REFERENCED_ROW") {
-      throw { status: 400, message: "Invalid report level" };
+      throw { status: 400, message: "Invalid report level", };
     }
     throw error;
   }
@@ -53,7 +53,7 @@ async function getOnBoard(boardUid) {
   const [reports] = await connection.db.execute({
     sql: `SELECT posts.number, ${reportJoin} ${postsJoin}
       WHERE posts.boardUid = ? ${reportOrder}`,
-    values: [boardUid]
+    values: [boardUid],
   });
   return reports;
 }
@@ -69,7 +69,7 @@ async function getPageOnBoard(boardUid, limit, page) {
   const [reports] = await connection.db.execute({
     sql: `SELECT posts.number, ${reportJoin} ${postsJoin} WHERE posts.boardUid = ?
       ${reportOrder} LIMIT ? OFFSET ?`,
-    values: [boardUid, limit, offset]
+    values: [boardUid, limit, offset],
   });
   return reports;
 }
@@ -80,7 +80,7 @@ async function getPageOnBoard(boardUid, limit, page) {
 async function getLevel(level) {
   const [reportlevel] = await connection.db.execute({
     sql: "SELECT description, level FROM reportlevels WHERE level = ? ORDER BY level ASC",
-    values: [level]
+    values: [level],
   });
   if(!reportlevel && !reportlevel.description) return null;
   return reportlevel;

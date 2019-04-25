@@ -34,7 +34,7 @@ function getAcceptedMimetype(buffer) {
     if(sig === chunkString.slice(0, sig.length).toUpperCase()) {
       // Signature found in data chunk
       let mimetype = MAGICS_MIMES[sig];
-      return { mimetype, extension: MIME_EXTENSIONS[mimetype] };
+      return { mimetype, extension: MIME_EXTENSIONS[mimetype], };
     }
   }
   return null;
@@ -54,7 +54,7 @@ function multipartRequest(req) {
         files: _opts.maxFiles,
         fileSize: _opts.maxFileSize,
         fields: 10,
-      }
+      },
     });
 
     busboy.on("file", async(fieldname, incoming, filename) => {
@@ -72,14 +72,14 @@ function multipartRequest(req) {
         if(_opts.checkMimetype && !type) {
           type = getAcceptedMimetype(data);
           if(!type) reject({
-            status: 400, message: "Unnaccepted filetype"
+            status: 400, message: "Unnaccepted filetype",
           });
         }
       });
 
       incoming.on("limit", () => reject({
         status: 400,
-        message: `File too large, max ${_opts.maxFileSize}`
+        message: `File too large, max ${_opts.maxFileSize}`,
       }));
 
       files.push(new Promise((res, rej) => {
@@ -97,8 +97,8 @@ function multipartRequest(req) {
               mimetype: type.mimetype,
               size: tempWriteStream.bytesWritten,
               originalName: filename,
-              hash: _opts.md5 ? hash.digest("hex") : null
-            }
+              hash: _opts.md5 ? hash.digest("hex") : null,
+            },
           });
         });
       }));
@@ -109,22 +109,22 @@ function multipartRequest(req) {
     busboy.on("field", async(name, value) => fields[name] = value);
 
     busboy.on("fieldsLimit", () => reject({
-      status: 400, message: "Too many fields" 
+      status: 400, message: "Too many fields", 
     }));
 
     busboy.on("filesLimit", () => reject({
       status: 400,
-      message: `Too many files, max ${_opts.maxFiles}`
+      message: `Too many files, max ${_opts.maxFiles}`,
     }));
 
     busboy.on("error", (error) => reject({
       status: 500,
-      message: error
+      message: error,
     }));
 
     busboy.on("finish", () => {
       Promise.all(files)
-        .then((files) => resolve({ files: files.length > 0 ? files : null, fields }))
+        .then((files) => resolve({ files: files.length > 0 ? files : null, fields, }))
         .catch(reject);
     });
 
@@ -134,8 +134,8 @@ function multipartRequest(req) {
 }
 
 module.exports = function({
-  maxFiles, maxFileSize, tempDirectory, md5, checkMimetype
-} = { md5: true, checkMimetype: true }) {
+  maxFiles, maxFileSize, tempDirectory, md5, checkMimetype,
+} = { md5: true, checkMimetype: true, }) {
   _opts = {
     ..._opts,
     maxFiles,

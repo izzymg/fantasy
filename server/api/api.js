@@ -20,7 +20,7 @@ function init() {
   if(config.api.allowCors) {
     fantasy.use(cors({
       origin: config.api.allowCors,
-      credentials: config.api.allowCorsCredentials
+      credentials: config.api.allowCorsCredentials,
     }));
   }
 

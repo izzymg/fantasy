@@ -11,7 +11,7 @@ const libMultipart = libs.multipart({
 
 async function create(ctx, parent) {
 
-  const { fields, files } = await libMultipart(ctx.req);
+  const { fields, files, } = await libMultipart(ctx.req);
 
   // Check field existence
   if(!fields) ctx.throw(400, "Got no fields");
@@ -59,7 +59,7 @@ async function create(ctx, parent) {
   const lastBump = parent == 0 ? new Date(Date.now()) : null;
   const ip = ctx.ip;
 
-  return { post: { name, subject, content, parent, lastBump, ip }, files };
+  return { post: { name, subject, content, parent, lastBump, ip, }, files, };
 }
 
 module.exports = {

@@ -9,7 +9,7 @@ const router = new KoaRouter({
 
 router.get("/",
   async function getPosts(ctx) {
-    const { board: boardUid, thread: threadNo } = ctx.query;
+    const { board: boardUid, thread: threadNo, } = ctx.query;
     ctx.assert(boardUid, 404, "No post found");
 
     // Fetch thread and reply data
@@ -20,7 +20,7 @@ router.get("/",
         models.post.getThreadReplies(boardUid, threadNo),
       ]);
       ctx.assert(thread, 404, "No thread found");
-      ctx.body = { thread, replies };
+      ctx.body = { thread, replies, };
       return;
     }
 
@@ -34,7 +34,7 @@ router.get("/",
 router.get("/:number",
   async function getPost(ctx) {
     const postNo = parseInt(ctx.params.number);
-    const { board: boardUid } = ctx.query;
+    const { board: boardUid, } = ctx.query;
 
     ctx.assert(boardUid, 404, "No post found");
     ctx.assert(postNo, 400);
@@ -48,7 +48,7 @@ router.get("/:number",
 
 router.delete("/:number",
   async function deletePost(ctx) {
-    const { board: boardUid } = ctx.query;
+    const { board: boardUid, } = ctx.query;
     const postNo = parseInt(ctx.params.number);
     ctx.assert(boardUid && postNo, 400);
     await middleware.requireBoardModerator(boardUid)(ctx);
@@ -87,7 +87,7 @@ router.post("/:board/:parent?",
     }
 
     // Insert post to database
-    const { postNumber, postUid } = await models.post.insert(board.uid, post.post);
+    const { postNumber, postUid, } = await models.post.insert(board.uid, post.post);
 
     // Insert all files
     if(post.files) {

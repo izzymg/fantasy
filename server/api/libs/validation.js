@@ -1,6 +1,6 @@
 const jEncoding = require("encoding-japanese");
 const crypto = require("crypto");
-const validationError = (message) => ({ status: 400, message });
+const validationError = (message) => ({ status: 400, message, });
 
 // Misc string validation functions
 exports.lengthCheck = function(str, max, name) {

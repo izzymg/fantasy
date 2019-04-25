@@ -15,7 +15,7 @@ router.get("/",
 
 router.post("/",
   async function createBan(ctx) {
-    const { board: boardUid, number: postNo } = ctx.query;
+    const { board: boardUid, number: postNo, } = ctx.query;
     ctx.assert(boardUid && parseInt(postNo), 400, "Expected board and post number");
     
     await middleware.requireBoardModerator(boardUid)(ctx);

@@ -27,6 +27,6 @@ exports.createClient = () => {
         client[key][field] = val;
       }
     },
-    expire: (key, seconds) => setTimeout(() => client[key] = null, seconds * 1000)
+    expire: (key, seconds) => setTimeout(() => client[key] = null, seconds * 1000),
   };
 };

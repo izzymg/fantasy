@@ -3,7 +3,7 @@ const libs = require("../libs");
 const REQUIRED_MESSAGE = "Reason for ban required";
 
 async function create(ctx) {
-  const fields = await coBody.json(ctx, { strict: true });
+  const fields = await coBody.json(ctx, { strict: true, });
   ctx.assert(fields, 400, REQUIRED_MESSAGE);
   const hours = Number(fields.hours) || 0;
   const days = Number(fields.days) || 0;

@@ -10,7 +10,7 @@ exports.get = async function(id) {
     connection.mem.hGet(id || "", "isAdmin"),
   ]);
   if(!username) return null;
-  return { username, isAdmin };
+  return { username, isAdmin, };
 };
 
 exports.insert = async function(id, username, isAdmin = false) {

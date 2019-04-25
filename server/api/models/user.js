@@ -29,7 +29,7 @@ async function getPage(limit, page) {
   if(page > 1) offset = limit * (page - 1) -1;
   const [users] = await connection.db.execute({
     sql: "SELECT username, createdAt FROM users ORDER BY users.username ASC LIMIT ? OFFSET ?",
-    values: [limit, offset]
+    values: [limit, offset],
   });
   return users;
 }
@@ -41,16 +41,16 @@ async function getPage(limit, page) {
 async function search(username) {
   const [users] = await connection.db.execute({
     sql: "SELECT username, createdAt FROM users WHERE username LIKE ?",
-    values: [`%${username}%`]
+    values: [`%${username}%`],
   });
   if(users && users.length > 0) return users;
   return null; 
 }
 
-async function update(username, { newUsername, newPassword }) {
+async function update(username, { newUsername, newPassword, }) {
   await connection.db.query({
     sql: "UPDATE users SET ? WHERE username = ?",
-    values: [{ username: newUsername, password: newPassword }, username],
+    values: [{ username: newUsername, password: newPassword, }, username],
   });
 }
 
@@ -65,11 +65,11 @@ async function create(user) {
 }
 
 async function remove(username) {
-  const [{ affectedRows }] = await connection.db.query({
+  const [{ affectedRows, }] = await connection.db.query({
     sql: "DELETE FROM users WHERE username = ?",
     values: [username],
   });
-  return { usersRemoved: affectedRows };
+  return { usersRemoved: affectedRows, };
 }
 
 async function getPassword(username) {

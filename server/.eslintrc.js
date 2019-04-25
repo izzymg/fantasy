@@ -21,6 +21,13 @@ module.exports = {
         "no-console": "off",
         "max-len": ["error", {"code": 100}],
         "no-unused-vars": ["warn"],
-        "object-curly-spacing": ["warn", "always"]
+        "object-curly-spacing": ["warn", "always"],
+        "comma-dangle": ["warn", {
+            "arrays": "ignore",
+            "functions": "ignore",
+            "exports": "always",
+            "imports": "always",
+            "objects": "always",
+        }],
     },
 };

@@ -21,7 +21,7 @@ const safeBoard = "uid, title, about, sfw, fileLimit, bumpLimit, maxThreads, coo
 async function get(uid) {
   const [board] = await connection.db.execute({
     sql: `SELECT ${safeBoard} FROM boards WHERE uid = ?`,
-    values: [uid]
+    values: [uid],
   });
   if(board && board.length) return board[0];
 }
@@ -31,7 +31,7 @@ async function get(uid) {
 */
 async function getAll() {
   const [boards] = await connection.db.execute({
-    sql: `SELECT ${safeBoard} FROM boards`
+    sql: `SELECT ${safeBoard} FROM boards`,
   });
   return boards;
 }
@@ -45,7 +45,7 @@ async function getModeratedByUser(username) {
     sql: `SELECT ${safeBoard} FROM boards
       INNER JOIN moderators ON moderators.boardUid = boards.uid
       WHERE username = ?`,
-    values: [username]
+    values: [username],
   });
   if(boards && boards.length) return boards;
 }
@@ -53,5 +53,5 @@ async function getModeratedByUser(username) {
 module.exports = {
   get,
   getAll,
-  getModeratedByUser
+  getModeratedByUser,
 };

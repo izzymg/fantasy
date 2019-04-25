@@ -16,7 +16,7 @@ async function deleteCooldown(ip, board) {
 async function getLogins(ip) {
   const attempts = Number(await connection.mem.hGet(ip, "attempts"));
   const lastAttempt = await connection.mem.hGet(ip, "attempts");
-  return { attempts, lastAttempt: new Date(lastAttempt) || null };
+  return { attempts, lastAttempt: new Date(lastAttempt) || null, };
 }
 
 async function setLogins(ip, attempts, lastAttempt) {
