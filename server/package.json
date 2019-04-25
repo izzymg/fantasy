@@ -18,6 +18,7 @@
     "busboy": "^0.3.0",
     "co-body": "^6.0.0",
     "encoding-japanese": "^1.0.29",
+    "formidable": "^1.2.1",
     "koa": "^2.7.0",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
