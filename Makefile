@@ -3,8 +3,7 @@
 all: server
 
 server:
-	cd server
-	npm i --depth=0
+	$(MAKE) -C server all
 
 clean:
 	rm -r build/**
