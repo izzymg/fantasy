@@ -38,7 +38,7 @@ router.post("/:number",
     ctx.assert(postUid, 404, "No post found");
     const reportLevel = parseInt(ctx.query.level);
     ctx.assert(!isNaN(reportLevel), 400, "Invalid report level");
-    await models.report.create({
+    await models.report.insert({
       level: reportLevel,
       postUid,
       ip: ctx.ip,

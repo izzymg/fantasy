@@ -13,7 +13,7 @@ exports.get = async function(id) {
   return { username, isAdmin };
 };
 
-exports.create = async function(id, username, isAdmin = false) {
+exports.insert = async function(id, username, isAdmin = false) {
   await Promise.all([
     connection.mem.hSet(id, "username", username),
     connection.mem.hSet(id, "isAdmin", isAdmin),

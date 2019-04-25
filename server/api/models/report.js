@@ -31,7 +31,7 @@ const postsJoin = "LEFT JOIN posts ON posts.uid = reports.postUid";
 /** 
  * @param { PostReport } report 
 */
-async function create(report) {
+async function insert(report) {
   try {
     await connection.db.query({
       sql: "INSERT INTO reports SET ?",
@@ -97,7 +97,7 @@ async function getLevels() {
 }
 
 module.exports = {
-  create,
+  insert,
   getOnBoard,
   getPageOnBoard,
   getLevel,

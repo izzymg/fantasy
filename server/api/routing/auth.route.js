@@ -28,7 +28,7 @@ router.post("/login",
         // Session creation
         const sessionId = uuid();
         const isAdmin = await models.user.isAdmin(username);
-        await models.session.create(sessionId, username, isAdmin);
+        await models.session.insert(sessionId, username, isAdmin);
         ctx.set("Set-Cookie", `id=${sessionId}; HttpOnly; path=/`);
         ctx.body = "Success";
         return;

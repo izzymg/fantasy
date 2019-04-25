@@ -51,7 +51,7 @@ router.post("/",
     const password = crypto.randomBytes(6).toString("hex");
     const hashedPw = await bcrypt.hash(password, 15);
     try {
-      await models.user.create({ username, password: hashedPw });
+      await models.user.insert({ username, password: hashedPw });
     } catch(error) {
       if(error.code == "ER_DUP_ENTRY") {
         ctx.throw(400, "User already exists by that username");

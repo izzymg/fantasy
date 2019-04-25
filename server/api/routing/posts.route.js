@@ -87,7 +87,7 @@ router.post("/:board/:parent?",
     }
 
     // Insert post to database
-    const { filesProcessed, postNumber } = await models.post.create(board.uid, post);
+    const { filesProcessed, postNumber } = await models.post.insert(board.uid, post);
 
     // Put user back on cooldown
     if(board.cooldown) models.ip.createCooldown(ctx.ip, board.uid, board.cooldown);

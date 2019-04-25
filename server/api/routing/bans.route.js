@@ -22,7 +22,7 @@ router.post("/",
     const ban = await requests.ban.create(ctx);
     const ip = await models.post.getIp(boardUid, postNo);
     ctx.assert(ip, 404, "No IP associated with post, ensure the post exists.");
-    await models.ban.create({ ...ban, boardUid, });
+    await models.ban.insert({ ...ban, boardUid, });
 
     ctx.body = {
       allBoards: ban.allBoards,

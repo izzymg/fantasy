@@ -99,7 +99,7 @@ async function getIp(boardUid, number) {
 /**
  * @param {Post} post
 */
-async function create(boardUid, post) {
+async function insert(boardUid, post) {
   const poolConnection = await connection.db.getConnection();
   await poolConnection.beginTransaction();
   try {
@@ -309,7 +309,7 @@ module.exports = {
   get,
   getByUid,
   getIp,
-  create,
+  insert,
   getThread,
   threadAllowsReplies,
   getThreadFileCount,

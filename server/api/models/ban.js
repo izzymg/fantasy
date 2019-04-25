@@ -37,7 +37,7 @@ async function getByIp(ip) {
 /**
  * @param { Ban } ban 
  */
-async function create(ban) {
+async function insert(ban) {
   await connection.db.query({
     sql: "INSERT INTO bans SET ?",
     values: [ban],
@@ -54,6 +54,6 @@ async function remove(uid) {
 module.exports = {
   getByBoard,
   getByIp,
-  create,
+  insert,
   remove,
 };
