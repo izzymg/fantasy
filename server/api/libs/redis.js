@@ -12,19 +12,14 @@ function waitConnect(client) {
   }); 
 }
 
-exports.createClient = async({ host, port, password, }) => {
-  let opts = {
-    host: host,
-    port: port,
+exports.createClient = async(url) => {
+  const client = redis.createClient({
+    url,
     string_numbers: false,
     retry_strategy: function() {
       return 15 * 1000;
     },
-  };
-  if(password) {
-    opts.password = password;
-  }
-  const client = redis.createClient(opts);
+  });
   const close = promisify(client.quit).bind(client);
         
   client.on("error", (error) => {

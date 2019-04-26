@@ -6,10 +6,7 @@ let _database;
 let _mem;
 
 exports.start = async() => {
-  _database = exports.db = mysql.createPool({
-    ...secrets.database,
-    ...config.database,
-  });
+  _database = exports.db = mysql.createPool(secrets.db_url, config.database);
   if(config.noRedis) {
     console.warn(
       "WARNING: Fantasy is configured to use memory instead of Redis.\n \
@@ -17,7 +14,7 @@ exports.start = async() => {
     );
     _mem = exports.mem = libs.memstore.createClient();
   } else {
-    _mem = exports.mem = await libs.redis.createClient(secrets.redis);
+    _mem = exports.mem = await libs.redis.createClient(secrets.redis_url);
   }
   return;
 };

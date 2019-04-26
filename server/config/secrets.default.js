@@ -1,15 +1,6 @@
 module.exports = {
-  database: {
-    database: "fantasy",
-    host: "192.168.1.25",
-    port: 3306,
-    user: "fantasy",
-    password: "password",
-  },
-  redis: {
-    host: "192.168.1.25",
-    port: 6379,
-    // Set to null if no password
-    password: "redispassword",
-  }
+  // Example mysql://user:pass@host/db?debug=true&charset=BIG5_CHINESE_CI&timezone=-0700
+  db_url: process.env.DB_URL || "mysql://root:password@localhost/fantasy",
+  //[redis[s]:]//[[user][:password@]][host][:port][/db-number][?db=db-number[&password=bar[&option=value]]]
+  redis_url: process.env.REDIS_URL || "redis://localhost:6379",
 };
