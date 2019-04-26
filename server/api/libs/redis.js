@@ -16,9 +16,6 @@ exports.createClient = async(url) => {
   const client = redis.createClient({
     url,
     string_numbers: false,
-    retry_strategy: function() {
-      return 15 * 1000;
-    },
   });
   const close = promisify(client.quit).bind(client);
         

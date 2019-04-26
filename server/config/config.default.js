@@ -17,7 +17,7 @@ module.exports = {
   // "info": log requests (if you're working on the code this can be useful)
   // You could set this to process.env.LOG_LEVEL and start the server with LOG_LEVEL=fatal node fantasy.js
   logLevel: process.env.LOG_LEVEL || "fatal",
-  logFile: "/var/log/fantasy.log",
+  logFile: process.env.LOG_FILE || "/var/log/fantasy.log",
 
   // Send any "error" or "fatal" to stdout? (good for debugging)
   consoleLogErrors: false,
