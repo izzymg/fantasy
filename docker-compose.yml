@@ -1,0 +1,17 @@
+version: '3'
+services:
+  fantasyapi:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: fantasyapi
+    ports:
+      - "3000:3000"
+    env_file: ./.env
+    volumes:
+      - /data/fantasy:/data/fantasy
+    depends_on:
+      - "redis"
+      - "mariadb"
+  redis:
+    image: redis:alpine
