@@ -5,7 +5,6 @@ const http = require("http");
 const cors = require("@koa/cors");
 const config = require("../config/config");
 const dbConnection = require("./db/connection");
-const dbInitTables = require("./db/initTables");
 const routing = require("./routing");
 const libs = require("./libs");
 const healthCheck = require("./tools/healthCheck");
@@ -81,9 +80,6 @@ async function boot() {
   await libs.logger.init(config.logLevel, config.logFile);
   if(config.healthCheck) {
     await healthCheck(console.log, console.warn, onFatal);
-  }
-  if(config.initTables) {
-    await dbInitTables(console.log, onFatal);
   }
   process.on("unhandledRejection", function(error) {
     console.error("Fatal: Unhandled Promise Rejection:", error);

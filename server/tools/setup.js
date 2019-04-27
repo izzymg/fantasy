@@ -1,4 +1,4 @@
-const connection = require("./connection");
+const connection = require("../api/db/connection");
 
 const sqls = [
   `CREATE TABLE IF NOT EXISTS boards (
@@ -118,17 +118,43 @@ const sqls = [
         CONSTRAINT reportlevel
             FOREIGN KEY (level) REFERENCES reportlevels (level)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+
+  "INSERT INTO reportlevels SET level = 0, description = 'Breaks the rules'",
+
+  "DELETE FROM users WHERE username = 'admin'",
+  
+  `INSERT INTO users(username, password) VALUES (
+      "admin", 
+      "$2b$15$Cd1aAqg9UEBj7u6Kzh8AIeadd9RNKZ2ilC6p9GTCEorSXtAO4qBZu"
+  )`,
+
+  "INSERT INTO administrators(username) VALUES ('admin')"
 ];
 
-module.exports = async function(onEvent, onError) {
-  if(!connection.db) onError("DB Connection uninitialized");
-  onEvent("Initializing tables");
+async function init() {
+  console.log("Starting db connection");
+  await connection.start();
+  console.log("Initializing tables");
   for (const sql of sqls) {
     try {
       await connection.db.query(sql);
     } catch(error) {
-      onError(`Error initializing tables ${error}`);
+      throw `Error initializing tables ${error}`;
     }
   }
-  onEvent("Tables initialized");
-};
+  console.log("Tables initialized");
+  console.log("Closing db connection");
+  await connection.end();
+}
+
+console.warn(
+  "WARNING: This will create user 'admin' with the password 'admin'. Refer to the README."
+);
+console.warn("It will not overwrite or modify any existing tables (CREATE * IF NOT EXISTS)");
+console.warn("Waiting 10 seconds before initializing (press CTRL-c) to quit");
+setTimeout(() => {
+  init().then().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}, 10000);

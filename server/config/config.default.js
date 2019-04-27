@@ -25,9 +25,6 @@ module.exports = {
   // Check db connection and server health on start
   healthCheck: true,
 
-  // Initialize fantasy's tables on startup
-  initTables: true,
-  
   // Dev option
   noRedis: false,
 

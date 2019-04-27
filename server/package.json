@@ -1,12 +1,13 @@
 {
   "name": "fantasy",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Imageboard/BBS software",
   "repository": {
     "type": "git",
     "url": "https://github.com/izzymg/fantasy"
   },
   "scripts": {
+    "setup": "node tools/setup.js",
     "lint": "eslint \"**/*.js\"",
     "fix-lint": "eslint \"**/*.js\" --fix",
     "start": "node api/api.js",
