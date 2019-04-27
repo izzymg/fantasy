@@ -63,6 +63,7 @@ router.post("/:board/:parent?",
     // Ensure board and post exists
     let parentNo = 0;
     const board = await models.board.get(ctx.params.board);
+    ctx.assert(board && board.uid, 404, "No such board");
 
     // Ensure user can post to this board
     await middleware.requireIpCanPost(board.uid)(ctx);
@@ -72,7 +73,6 @@ router.post("/:board/:parent?",
       parentNo = await models.post.threadAllowsReplies(ctx.params.board, ctx.params.parent);
       ctx.assert(parentNo !== false , 400, "You cannot reply to this thread");
     }
-    ctx.assert(board && board.uid, 404, "No such board");
 
     // Post request data
     const post = await requests.post.create(ctx, parentNo);
