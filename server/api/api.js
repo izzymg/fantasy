@@ -62,15 +62,12 @@ function end() {
   dbConnection.end().then(() => {
     _httpServer.close();
     process.exit(0);
-  }).catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+  }).catch(onFatal);
   return;
 }
 
 function onFatal(error) {
-  console.error(error);
+  console.trace(error);
   process.exit(1);
 }
 
@@ -81,18 +78,10 @@ async function boot() {
   if(config.healthCheck) {
     await healthCheck(console.log, console.warn, onFatal);
   }
-  process.on("unhandledRejection", function(error) {
-    console.error("Fatal: Unhandled Promise Rejection:", error);
-    process.exit(1);
-  }); 
+  process.on("unhandledRejection", onFatal);
   process.on("SIGINT", end);
   process.on("SIGTERM", end);
   init();
 }
 
-boot().then(() => {
-
-}).catch((error) => {
-  console.error(`Fantasy failed to start: ${error}`);
-  process.exit(1);
-});
+boot().then().catch(onFatal);
