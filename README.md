@@ -62,6 +62,7 @@ If `config.healthCheck = true` (default true) the server will check your log lev
 ## Documentation
 
 [API Routes](server/docs/routes.md)
+[Docker](server/docs/docker.md)
 
 ## License
 
