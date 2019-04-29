@@ -40,8 +40,8 @@ module.exports = {
   },
 
   api: {
-    port: 8080,
-    host: "localhost",
+    port: process.env.PORT || 8080,
+    host: process.env.HOST || "localhost",
     // Important: This sets the Access-Control-Allow-Origin header, https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     // Javascript post submissions will not work without CORS enabled so set this to the URL of the site server
     // Null for no header set, otherwise any value will be directly set into the header
@@ -53,11 +53,11 @@ module.exports = {
   posts: {
     defaultName: "Anonymous",
     // Where to write temporary files
-    tmpDir: "/tmp",
+    tmpDir: process.env.TMP_DIR || require("os").tmpdir(),
     // Where to store files
-    filesDir: "/var/www/files",
+    filesDir: process.env.FILES_DIR || "/var/www/files",
     // Where to store thumbnails
-    thumbsDir: "/var/www/thumbnails",
+    thumbsDir: process.env.THUMBS_DIR || "/var/www/thumbnails",
     enableTripcodes: true,
     // https://nodejs.org/api/crypto.html#crypto_crypto_createhash_algorithm_options
     // Use openssl list -digest-algorithms
