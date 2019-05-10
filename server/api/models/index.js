@@ -1,10 +1,10 @@
-const post = require("./post");
-const board = require("./board");
-const user = require("./user");
-const report = require("./report");
-const ban = require("./ban");
-const ip = require("./ip");
-const session = require("./session");
+const post = require("./post.model");
+const board = require("./board.model");
+const user = require("./user.model");
+const report = require("./report.model");
+const ban = require("./ban.model");
+const ip = require("./ip.model");
+const session = require("./session.model");
 
 module.exports = {
   post,
