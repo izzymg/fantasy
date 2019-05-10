@@ -14,4 +14,4 @@ Then ensure fantasy's secrets.js and config.js point to environment variables (u
 
 Redis and MariaDB are accessible by default at `redis://redis` and `mysql://[user]:[password]@mariadb/[db]` inside the Docker container.
 
-Run `docker-compose up --build`, then once complete and running, `docker exec -it fantasyapi bash` to get a shell in the container and run `node /usr/src/fantasy/tools/setup.sql` to generate the tables.
+Run `docker-compose up --build`, then once complete and running, `docker exec -it fantasyapi bash` to get a shell in the container and run `node /usr/src/fantasy/tools/setup.js` to generate the tables.
