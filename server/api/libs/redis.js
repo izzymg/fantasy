@@ -18,12 +18,6 @@ exports.createClient = async(url) => {
     string_numbers: false,
   });
   const close = promisify(client.quit).bind(client);
-        
-  client.on("error", (error) => {
-    client.quit();
-    throw "Redis failure", error;
-  });
-        
   await waitConnect(client);
   return {
     close: async() => await close(),
