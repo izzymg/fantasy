@@ -1,7 +1,7 @@
 version: '3'
 services:
   fantasyapi:
-    env_file: ./.env
+    env_file: ./.test.env
     build:
       context: ./server
       dockerfile: test.Dockerfile
