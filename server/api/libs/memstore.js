@@ -28,5 +28,6 @@ exports.createClient = () => {
       }
     },
     expire: (key, seconds) => setTimeout(() => client[key] = null, seconds * 1000),
+    ping: () => true,
   };
 };

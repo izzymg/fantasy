@@ -39,10 +39,10 @@ module.exports = async function(onEvent, onWarning, onError) {
     err(`Failed to connect to SQL database: ${error}`);
   }
   try {
-    await dbConnection.mem.hGet("a", "b");
-    ev("Redis called successfully");
+    await dbConnection.mem.ping();
+    ev("Redis pinged successfully");
   } catch(error) {
-    err(`Failed to call hget to redis: ${error}`);
+    err(`Failed to ping redis: ${error}`);
   }
 
   try {
