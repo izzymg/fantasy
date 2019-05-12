@@ -58,8 +58,8 @@ function init() {
 }
 
 // Try to gracefully end database conn and http server
-function end() {
-  dbConnection.end();
+async function end() {
+  await dbConnection.end();
   _httpServer.close();
   process.exit(0);
   return;

@@ -9,7 +9,13 @@ exports.createClient = async(url) => {
     string_numbers: false,
   });
   return {
-    close: promisify(client.quit).bind(client),
+    // Workaround for connections not releasing
+    close: async() => {
+      await new Promise((resolve) => {
+        client.quit(() => { resolve(); });
+      });
+      await new Promise((resolve) => setImmediate(resolve));
+    },
     del: promisify(client.del).bind(client),
     hDel: promisify(client.hdel).bind(client),
     hGet: promisify(client.hget).bind(client),

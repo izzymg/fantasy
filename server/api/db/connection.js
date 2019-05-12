@@ -19,11 +19,11 @@ exports.start = async() => {
   return;
 };
 
-exports.end = () => {
+exports.end = async() => {
   if(_database) {
-    _database.end();
+    await _database.end();
   }
   if(_mem) {
-    _mem.close();
+    await _mem.close();
   }
 };
