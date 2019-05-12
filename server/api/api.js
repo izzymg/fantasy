@@ -59,10 +59,9 @@ function init() {
 
 // Try to gracefully end database conn and http server
 function end() {
-  dbConnection.end().then(() => {
-    _httpServer.close();
-    process.exit(0);
-  }).catch(onFatal);
+  dbConnection.end();
+  _httpServer.close();
+  process.exit(0);
   return;
 }
 
