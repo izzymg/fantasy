@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "test" ]
+CMD [ "bash", "test.sh" ]

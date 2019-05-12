@@ -3,6 +3,13 @@ const crypto = require("crypto");
 const validationError = (message) => ({ status: 400, message, });
 
 // Misc string validation functions
+
+/**
+ * Checks str is <= max, error formatted by 'name'
+ * @returns { string } Error message if too long
+ * @returns { null } If okay
+ * 
+*/
 exports.lengthCheck = function(str, max, name) {
   if (!str) {
     return null;
