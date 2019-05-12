@@ -119,6 +119,7 @@ const sqls = [
             FOREIGN KEY (level) REFERENCES reportlevels (level)
     )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
 
+  "DELETE FROM reportlevels WHERE level = 0",
   "INSERT INTO reportlevels SET level = 0, description = 'Breaks the rules'",
 
   "DELETE FROM users WHERE username = 'admin'",
