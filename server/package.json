@@ -11,7 +11,7 @@
     "lint": "eslint \"**/*.js\"",
     "fix-lint": "eslint \"**/*.js\" --fix",
     "start": "node api/api.js",
-    "test": "mocha test --recursive --colors --full-trace -s 0 --timeout 20000"
+    "test": "jest --detectOpenHandles -i --forceExit"
   },
   "dependencies": {
     "@koa/cors": "^2.2.3",
@@ -32,8 +32,8 @@
   },
   "devDependencies": {
     "eslint": "^5.12.1",
-    "eslint-config-prettier": "^4.0.0",
-    "mocha": "^5.2.0"
+    "jest": "^24.8.0",
+    "why-is-node-running": "^2.1.0"
   },
   "license": "GPL-3.0",
   "author": "IzzyMG"

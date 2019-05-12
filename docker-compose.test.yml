@@ -1,0 +1,22 @@
+version: '3'
+services:
+  fantasyapi:
+    env_file: ./.env
+    build:
+      context: ./server
+      dockerfile: test.Dockerfile
+    container_name: fantasyapi
+    ports:
+      - "3000:3000"
+    restart: always
+    volumes:
+      - ${DATA_DIR}:/data/fantasy
+    depends_on:
+      - "redis"
+      - "mariadb"
+  redis:
+    env_file: ./.env
+    image: redis:alpine
+  mariadb:
+    env_file: ./.env
+    image: mariadb:bionic
