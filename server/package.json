@@ -33,6 +33,7 @@
   "devDependencies": {
     "eslint": "^5.12.1",
     "jest": "^24.8.0",
+    "supertest": "^4.0.2",
     "why-is-node-running": "^2.1.0"
   },
   "license": "GPL-3.0",
