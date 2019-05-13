@@ -1,7 +1,7 @@
 version: '3'
 services:
   fantasy_server:
-    env_file: ./.test.env
+    env_file: .test.env
     build:
       context: ./server
       dockerfile: test.Dockerfile
@@ -14,8 +14,8 @@ services:
       - "redis"
       - "mariadb"
   redis:
-    env_file: ./.test.env
+    env_file: .test.env
     image: redis:alpine
   mariadb:
-    env_file: ./.test.env
+    env_file: .test.env
     image: mariadb:bionic
