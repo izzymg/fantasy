@@ -8,7 +8,7 @@ You'll need to create a `.env` file (it's in .gitignore) for `docker compose` an
 2. `MYSQL_PASSWORD` The user's password
 3. `MYSQL_DATABASE` The database to create
 4. `MYSQL_ROOT_PASSWORD` Root's password
-5. `DATA_DIR` The host directory that will mount as a volume for fantasy's data
+5. `HOST_DATA_DIR` The host directory that will mount as a volume for fantasy's data
 
 Then ensure fantasy's secrets.js and config.js point to environment variables (use process.env.XYZ) for the port, host redis and mysql connection URLs.
 

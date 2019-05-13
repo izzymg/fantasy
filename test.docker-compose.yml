@@ -9,7 +9,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ${DATA_DIR}:/data/fantasy_server
+      - ${HOST_DATA_DIR}:/data/fantasy_server
     depends_on:
       - "redis"
       - "mariadb"
