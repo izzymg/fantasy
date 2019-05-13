@@ -55,7 +55,7 @@ Also be sure to set the final files directory to be served by your web server. N
 
 ## Start server
 
-`cd server; npm start` or `node server/api/api.js`
+`cd server; npm start` or `node server/server.js`
 
 If `config.healthCheck = true` (default true) the server will check your log level is supported, try opening the log file, test its MariaDB and Redis connections, and try opening the temp and files directory for writing before starting the HTTP server, crashing with a verbose error message if a critical failure occurs. 
 
