@@ -66,8 +66,7 @@ function init() {
 }
 
 /**
- * Provides access to the raw HTTP server
- * Can be null 
+ * Provides access to the raw HTTP server, can be null
 */
 exports.rawHttpServer = _httpServer;
 
