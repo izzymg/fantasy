@@ -9,7 +9,7 @@ const routing = require("./routing");
 const libs = require("./libs");
 const healthCheck = require("./tools/healthCheck");
 
-let _httpServer;
+let _httpServer = null;
 const fantasy = new Koa();
 
 /**
@@ -57,7 +57,7 @@ function init() {
   fantasy.use(routing);
 
   // Start server
-  _httpServer = http.createServer(
+  exports.rawHttpServer = _httpServer = http.createServer(
     fantasy.callback()).listen(
     config.api.port, config.api.host, function() {
       libs.logger.log.info(`Fantasy listening on ${config.api.host}:${config.api.port}`);
@@ -94,4 +94,5 @@ exports.end = async function() {
   if(_httpServer) {
     _httpServer.close();
   }
+  exports.rawHttpServer = _httpServer = null;
 };
