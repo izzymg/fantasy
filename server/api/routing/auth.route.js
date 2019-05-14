@@ -31,6 +31,9 @@ router.post("/login",
         await models.session.insert(sessionId, username, isAdmin);
         ctx.set("Set-Cookie", `id=${sessionId}; HttpOnly; path=/`);
         ctx.body = "Success";
+
+        // Clear login attempts
+        await models.ip.setLogins(ctx.ip, 0, new Date(Date.now()));
         return;
       }
     }
