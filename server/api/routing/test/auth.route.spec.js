@@ -9,10 +9,10 @@ afterAll(async() => {
   await api.end();
 });
 
-describe("routes: auth", () => {
+describe("Routes: auth", () => {
   let cookie;
-  describe("auth: login", () => {
-    test("should successfully login with admin/admin, get a cookie", async() => {
+  describe("Auth: login", () => {
+    test("Successfully logins in, gets a cookie", async() => {
       const login = await
         request(api.rawHttpServer)
         .post("/auth/login")
@@ -25,8 +25,8 @@ describe("routes: auth", () => {
       cookie = login.headers["set-cookie"];
     });
   });
-  describe("auth: session", () => {
-    test("should fetch a session with the returned cookie", async() => {
+  describe("Auth: session", () => {
+    test("Fetches a session with the returned cookie", async() => {
       const session = await request(api.rawHttpServer)
         .get("/auth/session")
         .set("Cookie", cookie);
@@ -34,7 +34,7 @@ describe("routes: auth", () => {
       expect(session.body).toBeDefined();
       expect(session.body.username).toEqual("admin");
     });
-    test("should fail to fetch a session with no cookie", async() => {
+    test("Fails to fetch a session with no cookie", async() => {
       const session = await request(api.rawHttpServer).get("/auth/session");
       expect(session.status).toEqual(403);
     });
