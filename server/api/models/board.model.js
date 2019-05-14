@@ -50,8 +50,35 @@ async function getModeratedByUser(username) {
   if(boards && boards.length) return boards;
 }
 
+/**
+ * Creates a board
+ * @param { Board } board
+*/
+
+async function insert(board) {
+  await connection.db.query({
+    sql: "INSERT INTO boards SET ?",
+    values: [board],
+  });
+}
+
+/**
+ * Deletes a board
+ * @param { number } uid Board's UID
+*/
+
+async function remove(uid) {
+  const [{ affectedRows, }] = await connection.db.query({
+    sql: "DELETE FROM boards WHERE uid = ?",
+    values: [uid],
+  });
+  return { boardsRemoved: affectedRows, };
+}
+
 module.exports = {
   get,
   getAll,
   getModeratedByUser,
+  insert,
+  remove,
 };
