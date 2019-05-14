@@ -1,5 +1,6 @@
 const api = require("../../");
 const request = require("supertest");
+const models = require("../../models");
 
 beforeAll(async() => {
   await api.start();
@@ -12,6 +13,13 @@ afterAll(async() => {
 describe("Routes: auth", () => {
   let cookie;
   describe("Auth: login", () => {
+    // Reset IP attempts
+    beforeAll(async() => {
+      await models.ip.setLogins("::ffff:127.0.0.1", 0, new Date(Date.now()));
+    });
+    afterAll(async() => {
+      await models.ip.setLogins("::ffff:127.0.0.1", 0, new Date(Date.now()));
+    });
     test("Successfully logins in, gets a cookie", async() => {
       const login = await
         request(api.rawHttpServer)
@@ -23,6 +31,18 @@ describe("Routes: auth", () => {
       expect(login.headers["set-cookie"]).toBeDefined();
 
       cookie = login.headers["set-cookie"];
+    });
+    test("Locks IP out on 6th attempt", async() => {
+      for(let i = 0; i <= 5; i++) {
+        const login = await request(api.rawHttpServer)
+          .post("/auth/login")
+          .send({ username: "b", password: "a" });
+        if(i == 5) {
+          expect(login.status).toEqual(429);
+        } else {
+          expect(login.status).toEqual(403);
+        }
+      }
     });
   });
   describe("Auth: session", () => {
