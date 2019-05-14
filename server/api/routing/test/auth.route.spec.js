@@ -15,10 +15,10 @@ describe("Routes: auth", () => {
   describe("Auth: login", () => {
     // Reset IP attempts
     beforeAll(async() => {
-      await models.ip.setLogins("::ffff:127.0.0.1", 0, new Date(Date.now()));
+      await models.ip.setLogins("127.0.0.1", 0, new Date(Date.now()));
     });
     afterAll(async() => {
-      await models.ip.setLogins("::ffff:127.0.0.1", 0, new Date(Date.now()));
+      await models.ip.setLogins("127.0.0.1", 0, new Date(Date.now()));
     });
     test("Successfully logins in, gets a cookie", async() => {
       const login = await
@@ -40,6 +40,7 @@ describe("Routes: auth", () => {
         if(i == 5) {
           expect(login.status).toEqual(429);
         } else {
+          console.log(i);
           expect(login.status).toEqual(403);
         }
       }
