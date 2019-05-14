@@ -16,7 +16,7 @@ router.post("/login",
     if(lastAttempt && lastAttempt > Date.now() - (12 * 60 * 60 * 1000)) {
       attempts = 0;
     } else if(attempts > 5) {
-      ctx.throw(403, "Too many login attempts, try again later");
+      ctx.throw(429, "Too many login attempts, try again later");
     }
     await models.ip.setLogins(ctx.ip, attempts + 1, new Date(Date.now()));
 
