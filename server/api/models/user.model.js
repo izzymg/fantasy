@@ -57,7 +57,7 @@ async function update(username, { newUsername, newPassword, }) {
 /**
  * @param { User } user 
  */
-async function create(user) {
+async function insert(user) {
   await connection.db.query({
     sql: "INSERT INTO users SET ?",
     values: [user],
@@ -114,7 +114,7 @@ module.exports = {
   getPage,
   search,
   update,
-  create,
+  insert,
   remove,
   getPassword,
   canModerateBoard,
