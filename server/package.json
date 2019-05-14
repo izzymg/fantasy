@@ -11,7 +11,7 @@
     "lint": "eslint \"**/*.js\"",
     "fix-lint": "eslint \"**/*.js\" --fix",
     "start": "node server.js",
-    "test": "jest -i --forceExit"
+    "test": "jest -i --forceExit --verbose"
   },
   "dependencies": {
     "@koa/cors": "^2.2.3",
