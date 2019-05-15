@@ -1,5 +1,5 @@
 const coBody = require("co-body");
-const libs = require("../libs");
+const libs = require("../common/libs");
 const REQUIRED_MESSAGE = "Reason for ban required";
 
 async function create(ctx) {

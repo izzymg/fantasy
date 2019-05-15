@@ -6,7 +6,7 @@ const cors = require("@koa/cors");
 const config = require("../config/config");
 const dbConnection = require("./db/connection");
 const routing = require("./routing");
-const libs = require("./libs");
+const libs = require("./common/libs");
 const healthCheck = require("./tools/healthCheck");
 
 let _httpServer = null;

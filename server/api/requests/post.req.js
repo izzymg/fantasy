@@ -1,4 +1,4 @@
-const libs = require("../libs");
+const libs = require("../common/libs");
 const config = require("../../config/config");
 
 const libMultipart = libs.multipart({
