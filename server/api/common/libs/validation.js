@@ -31,6 +31,12 @@ exports.lengthCheck = function(str, max, name) {
   return null;
 };
 
+/**
+ * Sanitizes dangerous HTML elements out of str
+ * @param { string } str String to be processed
+ * @returns { string } Sanitized string
+ * @returns { null } Null if str was invalid
+*/
 exports.sanitize = function(str) {
   if(!str) return null;
   str = str.trim();

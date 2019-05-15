@@ -1,6 +1,4 @@
-// -> process request, returns validated fields, and files (including mimetype validation)
-// -> write fields to db, returning postUid
-// -> write files to disk/db using imager
+// Image processing functions
 
 const fs = require("fs");
 const util = require("util");
@@ -40,11 +38,19 @@ async function thumb(inputFilepath, outputFilepath) {
   }
 }
 
+/**
+ * Processes and writes out files based on their mimetype
+ * @param {*} tempFilepath Location where the file is stored
+ * @param {*} filename Filename to be used in the output
+ * @param {*} mimetype Trusted mimetype of the file
+*/
 async function writeFile(tempFilepath, filename, mimetype) {
   const fileOut = path.join(_opts.filesDirectory, filename);
   const thumbOut = path.join(_opts.thumbsDirectory, filename);
 
-  // Sharp doesn't support gif output
+  // Gifs aren't run through Sharp processing
+  // But still thumbnailed by sharp
+
   switch(mimetype) {
     case "image/png":
     case "image/jpeg":
@@ -64,6 +70,9 @@ async function writeFile(tempFilepath, filename, mimetype) {
   }
 }
 
+/**
+ * Intializes imager and returns a file processing function 
+*/
 module.exports = function({
   filesDirectory,
   thumbsDirectory,

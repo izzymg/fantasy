@@ -28,6 +28,14 @@ let _opts = {
   md5: true,
 };
 
+/**
+ * Checks for a known mimetype
+ * based on the bytes within buffer
+ * 
+ * @param { ArrayBufferLike } buffer Buffer to search
+ * @returns Mimetype and extension matching magic bytes
+ * @returns { null } If no matching mimetype
+*/
 function getAcceptedMimetype(buffer) {
   const chunkString = buffer.toString("hex");
   for (const sig in MAGICS_MIMES) {
@@ -40,7 +48,13 @@ function getAcceptedMimetype(buffer) {
   return null;
 }
 
-
+/**
+ * Processes a multipart request.
+ * Writes any images to a temp directory
+ * @param req A Node HTTP Request 
+ * @returns Object containing array of files and their info,
+ * and k/v pairs of processed fields
+*/
 function multipartRequest(req) {
   return new Promise((resolve, reject) => {
 
@@ -133,6 +147,9 @@ function multipartRequest(req) {
   });
 }
 
+/**
+ * Initializes multipart and returns the processing function
+*/
 module.exports = function({
   maxFiles, maxFileSize, tempDirectory, md5, checkMimetype,
 } = { md5: true, checkMimetype: true, }) {
