@@ -40,7 +40,6 @@ describe("Routes: auth", () => {
         if(i == 5) {
           expect(login.status).toEqual(429);
         } else {
-          console.log(i);
           expect(login.status).toEqual(403);
         }
       }
