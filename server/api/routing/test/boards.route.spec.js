@@ -27,7 +27,6 @@ describe("Routes: boards", () => {
     });
   });
 
-
   // These should be forbidden without authentication
 
   describe("Boards: insert", () => {
