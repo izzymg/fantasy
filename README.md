@@ -64,6 +64,17 @@ If `config.healthCheck = true` (default true) the server will check your log lev
 [API Routes](server/docs/routes.md)
 [Docker](server/docs/docker.md)
 
+## Testing
+
+Create a new test database and configure fantasy to use it
+
+Ensure you have dev dependencies installed
+
+Run `npm run setup` to initialise the new database then `npm run test`
+
+The tests currently rely on an admin/admin user existing. 
+
+
 ## License
 
 GPL-V3.0. Do what you want with this - it's specifically purposed towards my personal needs so forking and editing is a good idea.
