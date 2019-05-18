@@ -1,13 +1,13 @@
-const connection = require("../persistent/db");
+const db = require("../persistent/db");
 
 exports.remove = async function(id) {
-  await connection.mem.del(id);
+  await db.mem.del(id);
 };
 
 exports.get = async function(id) {
   const [username, isAdmin] = await Promise.all([
-    connection.mem.hGet(id || "", "username"),
-    connection.mem.hGet(id || "", "isAdmin"),
+    db.mem.hGet(id || "", "username"),
+    db.mem.hGet(id || "", "isAdmin"),
   ]);
   if(!username) return null;
   return { username, isAdmin, };
@@ -15,8 +15,8 @@ exports.get = async function(id) {
 
 exports.insert = async function(id, username, isAdmin = false) {
   await Promise.all([
-    connection.mem.hSet(id, "username", username),
-    connection.mem.hSet(id, "isAdmin", isAdmin),
-    connection.mem.expire(id, 48 * 60 * 60)
+    db.mem.hSet(id, "username", username),
+    db.mem.hSet(id, "isAdmin", isAdmin),
+    db.mem.expire(id, 48 * 60 * 60)
   ]);
 };

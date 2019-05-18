@@ -1,4 +1,4 @@
-const connection = require("../persistent/db");
+const db = require("../persistent/db");
 
 /**
  * @typedef Ban
@@ -16,7 +16,7 @@ const safeBan = "uid, ip, boardUid, allBoards, expires, reason";
  * @returns { Ban } 
  */
 async function getByBoard(ip, board) {
-  const [ban] = await connection.sql.execute({
+  const [ban] = await db.sql.execute({
     sql: `SELECT ${safeBan} FROM bans WHERE ip = ? AND (boardUid = ? OR allBoards = true)`,
     values: [ip, board],
   });
@@ -27,7 +27,7 @@ async function getByBoard(ip, board) {
  * @returns { Array<Ban> }
  */
 async function getByIp(ip) {
-  const [bans] = await connection.sql.execute({
+  const [bans] = await db.sql.execute({
     sql: `SELECT ${safeBan} FROM bans WHERE ip = ?`,
     values: [ip],
   });
@@ -38,14 +38,14 @@ async function getByIp(ip) {
  * @param { Ban } ban 
  */
 async function insert(ban) {
-  await connection.sql.query({
+  await db.sql.query({
     sql: "INSERT INTO bans SET ?",
     values: [ban],
   });
 }
 
 async function remove(uid) {
-  await connection.sql.query({
+  await db.sql.query({
     sql: "DELETE FROM bans WHERE uid = ?",
     values: [uid],
   });

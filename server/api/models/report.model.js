@@ -1,4 +1,4 @@
-const connection = require("../persistent/db");
+const db = require("../persistent/db");
 
 const reportJoin = "reports.postUid, reports.createdAt, reports.ip, reportlevels.description \
   FROM reports INNER JOIN reportlevels ON reportlevels.level = reports.level";
@@ -33,7 +33,7 @@ const postsJoin = "LEFT JOIN posts ON posts.uid = reports.postUid";
 */
 async function insert(report) {
   try {
-    await connection.sql.query({
+    await db.sql.query({
       sql: "INSERT INTO reports SET ?",
       values: [report],
     });
@@ -50,7 +50,7 @@ async function insert(report) {
  * @returns { Array<PostReport> } 
 */
 async function getOnBoard(boardUid) {
-  const [reports] = await connection.sql.execute({
+  const [reports] = await db.sql.execute({
     sql: `SELECT posts.number, ${reportJoin} ${postsJoin}
       WHERE posts.boardUid = ? ${reportOrder}`,
     values: [boardUid],
@@ -66,7 +66,7 @@ async function getPageOnBoard(boardUid, limit, page) {
   let offset = 0;
   // Pages start at 1
   if(page > 1) offset = limit * (page - 1) -1;
-  const [reports] = await connection.sql.execute({
+  const [reports] = await db.sql.execute({
     sql: `SELECT posts.number, ${reportJoin} ${postsJoin} WHERE posts.boardUid = ?
       ${reportOrder} LIMIT ? OFFSET ?`,
     values: [boardUid, limit, offset],
@@ -78,7 +78,7 @@ async function getPageOnBoard(boardUid, limit, page) {
  * @returns { ReportLevel }
 */
 async function getLevel(level) {
-  const [reportlevel] = await connection.sql.execute({
+  const [reportlevel] = await db.sql.execute({
     sql: "SELECT description, level FROM reportlevels WHERE level = ? ORDER BY level ASC",
     values: [level],
   });
@@ -90,7 +90,7 @@ async function getLevel(level) {
  * @returns { Array<ReportLevel> }
 */
 async function getLevels() {
-  const [reportlevels] = await connection.sql.execute({
+  const [reportlevels] = await db.sql.execute({
     sql: "SELECT description, level FROM reportlevels ORDER BY level ASC",
   });
   return reportlevels;
