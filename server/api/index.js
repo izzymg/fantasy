@@ -71,14 +71,13 @@ function init() {
 exports.rawHttpServer = _httpServer;
 
 /**
- * Boots DB connection, logger, API setup and HTTP server
+ * HTTP server boot
 */
 const noop = (msg) => { msg; };
 exports.start = async function(
   onMessage = noop, onWarning = noop,
   onError = (err) => { throw err; }) {
   try {
-    await dbConnection.start();
     await libs.logger.init(config.logLevel, config.logFile);
     if(config.healthCheck) {
       await healthCheck(onMessage, onWarning, onError);

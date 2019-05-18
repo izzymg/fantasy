@@ -3,18 +3,16 @@
 const { promisify, } = require("util");
 const redis = require("redis");
 
-exports.createClient = async(url) => {
+exports.createClient = (url) => {
   const client = redis.createClient({
     url,
     string_numbers: false,
   });
   return {
-    // Workaround for connections not releasing
     close: async() => {
       await new Promise((resolve) => {
         client.quit(() => { resolve(); });
       });
-      await new Promise((resolve) => setImmediate(resolve));
     },
     del: promisify(client.del).bind(client),
     hDel: promisify(client.hdel).bind(client),

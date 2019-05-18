@@ -133,8 +133,6 @@ const sqls = [
 ];
 
 async function init() {
-  console.log("Starting db connection");
-  await connection.start();
   console.log("Initializing tables");
   for (const sql of sqls) {
     try {

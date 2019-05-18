@@ -2,28 +2,43 @@ const mysql = require("mysql2/promise");
 const config = require("../../config/config");
 const secrets = require("../../config/secrets");
 const libs = require("../common/libs");
-let _database;
-let _mem;
 
-exports.start = async() => {
-  _database = exports.db = mysql.createPool(secrets.db_url, config.database);
-  if(config.noRedis) {
-    console.warn(
-      "WARNING: Fantasy is configured to use memory instead of Redis.\n \
-        This is not safe for production environments and is intended for development only."
-    );
-    _mem = exports.mem = libs.memstore.createClient();
-  } else {
-    _mem = exports.mem = await libs.redis.createClient(secrets.redis_url);
-  }
-  return;
-};
 
-exports.end = async() => {
-  if(_database) {
-    await _database.end();
-  }
-  if(_mem) {
-    await _mem.close();
-  }
+function createSqlPool() {
+  return mysql.createPool(secrets.db_url, config.database);
+}
+
+/**
+ * Memstore client is a JS object 1-1 fill for needed Redis methods 
+*/
+function createMemOrRedisClient() {
+  return config.noRedis ? libs.memstore.createClient : libs.redis.createClient(secrets.redis_url);
+}
+
+let db = createSqlPool();
+let mem = createMemOrRedisClient();
+
+/**
+ * Reinitializes database and redis or memstore connection 
+*/
+function restart() {
+  db = createSqlPool();
+  mem = createMemOrRedisClient();
+}
+
+/**
+ * Ends database and redis/memstore connections.
+ * Resolves on nextTick. 
+*/
+async function end() {
+  await db.end();
+  await mem.close();
+  await new Promise((resolve) => process.nextTick(resolve));
+}
+
+module.exports = {
+  db,
+  mem,
+  restart,
+  end,
 };

@@ -4,7 +4,6 @@ describe("DB: connection", () => {
   test("DB and redis/mem connections establish and are pingable", async() => {
     let conn;
     try {
-      await connection.start();
       expect(connection.db).not.toBeNull();
       expect(connection.mem).not.toBeNull();
   
@@ -19,7 +18,7 @@ describe("DB: connection", () => {
       if(conn) {
         conn.release();
       }
-      connection.end();
+      await connection.end();
     }
   });
 });
