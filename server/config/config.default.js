@@ -25,9 +25,6 @@ module.exports = {
   // Check db connection and server health on start
   healthCheck: true,
 
-  // Dev option
-  noRedis: false,
-
   // A connection pool is used for all SQL queries
   // Read up on connection pools to understand these sections
 

@@ -23,10 +23,6 @@ module.exports = async function(onEvent, onWarning, onError) {
     warn(`Invalid config.logLevel: ${config.logLevel}`);
   }
 
-  if(config.noRedis) {
-    warn("Config.noRedis is set. Never use this in production");
-  }
-
   if(config.consoleLogErrors) {
     warn("Console log errors is set. This will log any 500 error messages to stdout");
   }
@@ -39,7 +35,7 @@ module.exports = async function(onEvent, onWarning, onError) {
     err(`Failed to connect to SQL database: ${error}`);
   }
   try {
-    await db.mem.ping();
+    await db.redis.ping();
     ev("Redis pinged successfully");
   } catch(error) {
     err(`Failed to ping redis: ${error}`);

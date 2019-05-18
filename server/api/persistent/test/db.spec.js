@@ -5,13 +5,13 @@ describe("DB: connection", () => {
     let conn;
     try {
       expect(db.sql).not.toBeNull();
-      expect(db.mem).not.toBeNull();
+      expect(db.redis).not.toBeNull();
   
       // Get one connection off pool to ping
       conn = await db.sql.getConnection();
       await conn.ping();
       // Ping redis
-      await db.mem.ping();
+      await db.redis.ping();
     } catch(error) {
       throw error; 
     } finally {

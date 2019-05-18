@@ -1,13 +1,13 @@
 const db = require("../persistent/db");
 
 exports.remove = async function(id) {
-  await db.mem.del(id);
+  await db.redis.del(id);
 };
 
 exports.get = async function(id) {
   const [username, isAdmin] = await Promise.all([
-    db.mem.hGet(id || "", "username"),
-    db.mem.hGet(id || "", "isAdmin"),
+    db.redis.hGet(id || "", "username"),
+    db.redis.hGet(id || "", "isAdmin"),
   ]);
   if(!username) return null;
   return { username, isAdmin, };
@@ -15,8 +15,8 @@ exports.get = async function(id) {
 
 exports.insert = async function(id, username, isAdmin = false) {
   await Promise.all([
-    db.mem.hSet(id, "username", username),
-    db.mem.hSet(id, "isAdmin", isAdmin),
-    db.mem.expire(id, 48 * 60 * 60)
+    db.redis.hSet(id, "username", username),
+    db.redis.hSet(id, "isAdmin", isAdmin),
+    db.redis.expire(id, 48 * 60 * 60)
   ]);
 };
