@@ -1,4 +1,4 @@
-const connection = require("../db/connection");
+const connection = require("../persistent/db");
 
 exports.remove = async function(id) {
   await connection.mem.del(id);

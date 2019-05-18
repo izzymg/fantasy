@@ -1,4 +1,4 @@
-const connection = require("../db/connection");
+const connection = require("../persistent/db");
 
 /**
  * @typedef {object} Board
@@ -19,7 +19,7 @@ const safeBoard = "uid, title, about, sfw, fileLimit, bumpLimit, maxThreads, coo
  * @returns { Board } Board by UID
 */
 async function get(uid) {
-  const [board] = await connection.db.execute({
+  const [board] = await connection.sql.execute({
     sql: `SELECT ${safeBoard} FROM boards WHERE uid = ?`,
     values: [uid],
   });
@@ -30,7 +30,7 @@ async function get(uid) {
  * @returns { Array<Board> } Array of all boards
 */
 async function getAll() {
-  const [boards] = await connection.db.execute({
+  const [boards] = await connection.sql.execute({
     sql: `SELECT ${safeBoard} FROM boards`,
   });
   return boards;
@@ -41,7 +41,7 @@ async function getAll() {
 */
 
 async function getModeratedByUser(username) {
-  const [boards] = await connection.db.execute({
+  const [boards] = await connection.sql.execute({
     sql: `SELECT ${safeBoard} FROM boards
       INNER JOIN moderators ON moderators.boardUid = boards.uid
       WHERE username = ?`,
@@ -56,7 +56,7 @@ async function getModeratedByUser(username) {
 */
 
 async function insert(board) {
-  await connection.db.query({
+  await connection.sql.query({
     sql: "INSERT INTO boards SET ?",
     values: [board],
   });
@@ -68,7 +68,7 @@ async function insert(board) {
 */
 
 async function remove(uid) {
-  const [{ affectedRows, }] = await connection.db.query({
+  const [{ affectedRows, }] = await connection.sql.query({
     sql: "DELETE FROM boards WHERE uid = ?",
     values: [uid],
   });

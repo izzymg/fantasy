@@ -1,4 +1,4 @@
-const connection = require("../db/connection");
+const connection = require("../persistent/db");
 
 /**
  * @typedef User
@@ -11,7 +11,7 @@ const connection = require("../db/connection");
 * @returns { User } 
 */
 async function get(username) {
-  const [user] = await connection.db.execute({
+  const [user] = await connection.sql.execute({
     sql: "SELECT username, createdAt FROM users WHERE username = ?",
     values: [username],
   });
@@ -27,7 +27,7 @@ async function getPage(limit, page) {
   let offset = 0;
   // Pages start at 1
   if(page > 1) offset = limit * (page - 1) -1;
-  const [users] = await connection.db.execute({
+  const [users] = await connection.sql.execute({
     sql: "SELECT username, createdAt FROM users ORDER BY users.username ASC LIMIT ? OFFSET ?",
     values: [limit, offset],
   });
@@ -39,7 +39,7 @@ async function getPage(limit, page) {
  * @returns { null } If none found 
  */
 async function search(username) {
-  const [users] = await connection.db.execute({
+  const [users] = await connection.sql.execute({
     sql: "SELECT username, createdAt FROM users WHERE username LIKE ?",
     values: [`%${username}%`],
   });
@@ -48,7 +48,7 @@ async function search(username) {
 }
 
 async function update(username, { newUsername, newPassword, }) {
-  await connection.db.query({
+  await connection.sql.query({
     sql: "UPDATE users SET ? WHERE username = ?",
     values: [{ username: newUsername, password: newPassword, }, username],
   });
@@ -58,14 +58,14 @@ async function update(username, { newUsername, newPassword, }) {
  * @param { User } user 
  */
 async function insert(user) {
-  await connection.db.query({
+  await connection.sql.query({
     sql: "INSERT INTO users SET ?",
     values: [user],
   });
 }
 
 async function remove(username) {
-  const [{ affectedRows, }] = await connection.db.query({
+  const [{ affectedRows, }] = await connection.sql.query({
     sql: "DELETE FROM users WHERE username = ?",
     values: [username],
   });
@@ -73,7 +73,7 @@ async function remove(username) {
 }
 
 async function getPassword(username) {
-  const [user] = await connection.db.execute({
+  const [user] = await connection.sql.execute({
     sql: "SELECT password FROM users WHERE username = ?",
     values: [username],
   });
@@ -83,7 +83,7 @@ async function getPassword(username) {
 
 async function canModerateBoard(boardUid, username) {
   // Union administrators incase user has admin privileges
-  const [res] = await connection.db.execute({
+  const [res] = await connection.sql.execute({
     sql: `SELECT username, createdAt FROM moderators WHERE boardUid = ? AND username = ?
       UNION
       SELECT username, createdAt FROM administrators WHERE username = ?`,
@@ -94,7 +94,7 @@ async function canModerateBoard(boardUid, username) {
 }
 
 async function isAdmin(username) {
-  const [res] = await connection.db.execute({
+  const [res] = await connection.sql.execute({
     sql: "SELECT username, createdAt FROM administrators WHERE username = ?",
     values: [username],
   });
@@ -103,7 +103,7 @@ async function isAdmin(username) {
 }
 
 async function makeAdmin(username) {
-  await connection.db.query({
+  await connection.sql.query({
     sql: "INSERT INTO administrators SET username = ?",
     values: [username],
   });

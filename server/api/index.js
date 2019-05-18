@@ -4,9 +4,9 @@ const Koa = require("koa");
 const http = require("http");
 const cors = require("@koa/cors");
 const config = require("../config/config");
-const dbConnection = require("./db/connection");
+const db = require("./persistent/db");
+const logger = require("./persistent/logger");
 const routing = require("./routing");
-const libs = require("./common/libs");
 const healthCheck = require("./tools/healthCheck");
 
 let _httpServer = null;
@@ -16,7 +16,7 @@ const fantasy = new Koa();
  * Error handling middleware
 */
 async function errorHandler(ctx, next) {
-  libs.logger.log.info(ctx.request);
+  logger.log.info(ctx.request);
   try {
     await next();
   } catch(error) {
@@ -29,7 +29,7 @@ async function errorHandler(ctx, next) {
     if(config.consoleLogErrors) {
       console.error(error);
     }
-    libs.logger.log.error(error);
+    logger.log.error(error);
     // Never expose 500 errors
     ctx.body = "Internal server error, status 500";
     ctx.status = 500;
@@ -60,7 +60,7 @@ function init() {
   exports.rawHttpServer = _httpServer = http.createServer(
     fantasy.callback()).listen(
     config.api.port, config.api.host, function() {
-      libs.logger.log.info(`Fantasy listening on ${config.api.host}:${config.api.port}`);
+      logger.log.info(`Fantasy listening on ${config.api.host}:${config.api.port}`);
     });
   return { host: config.api.host, port: config.api.port, };
 }
@@ -78,7 +78,6 @@ exports.start = async function(
   onMessage = noop, onWarning = noop,
   onError = (err) => { throw err; }) {
   try {
-    await libs.logger.init(config.logLevel, config.logFile);
     if(config.healthCheck) {
       await healthCheck(onMessage, onWarning, onError);
     }
@@ -92,7 +91,8 @@ exports.start = async function(
  * Tries to gracefully end database connection and http server
 */
 exports.end = async function() {
-  await dbConnection.end();
+  logger.end();
+  await db.end();
   if(_httpServer) {
     _httpServer.close();
   }

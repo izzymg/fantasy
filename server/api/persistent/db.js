@@ -15,14 +15,14 @@ function createMemOrRedisClient() {
   return config.noRedis ? libs.memstore.createClient : libs.redis.createClient(secrets.redis_url);
 }
 
-let db = createSqlPool();
+let sql = createSqlPool();
 let mem = createMemOrRedisClient();
 
 /**
  * Reinitializes database and redis or memstore connection 
 */
 function restart() {
-  db = createSqlPool();
+  sql = createSqlPool();
   mem = createMemOrRedisClient();
 }
 
@@ -31,13 +31,13 @@ function restart() {
  * Resolves on nextTick. 
 */
 async function end() {
-  await db.end();
+  await sql.end();
   await mem.close();
   await new Promise((resolve) => process.nextTick(resolve));
 }
 
 module.exports = {
-  db,
+  sql,
   mem,
   restart,
   end,

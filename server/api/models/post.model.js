@@ -1,4 +1,4 @@
-const connection = require("../db/connection");
+const connection = require("../persistent/db");
 const libs = require("../common/libs");
 const config = require("../../config/config");
 const path = require("path");
@@ -74,7 +74,7 @@ function singleNestJoin(row) {
  * @returns { Post } 
 */
 async function get(boardUid, number) {
-  const [post] = await connection.db.query({
+  const [post] = await connection.sql.query({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND number = ?`,
     values: [boardUid, number], nestTables: true,
@@ -86,7 +86,7 @@ async function get(boardUid, number) {
  * @returns { Post } 
 */
 async function getByUid(uid) {
-  const [post] = await connection.db.query({
+  const [post] = await connection.sql.query({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE uid = ?`,
     values: [uid], nestTables: true,
@@ -95,7 +95,7 @@ async function getByUid(uid) {
 }
 
 async function getIp(boardUid, number) {
-  const [res] = await connection.db.execute({
+  const [res] = await connection.sql.execute({
     sql: "SELECT ip FROM posts WHERE boardUid = ? AND number = ?",
     values: [boardUid, number],
   });
@@ -107,7 +107,7 @@ async function getIp(boardUid, number) {
  * @param {Post} post
 */
 async function insert(boardUid, post) {
-  const poolConnection = await connection.db.getConnection();
+  const poolConnection = await connection.sql.getConnection();
   await poolConnection.beginTransaction();
   try {
 
@@ -145,7 +145,7 @@ async function insert(boardUid, post) {
 */
 async function insertFile(postUid, tempPath, { filename, mimetype, size, originalName, hash, }) {
   await libImager(tempPath, filename, mimetype),
-  await connection.db.query({
+  await connection.sql.query({
     sql: "INSERT INTO files SET ?",
     values: [{ postUid, filename, mimetype, originalName, size, hash, }],
   });
@@ -157,7 +157,7 @@ async function insertFile(postUid, tempPath, { filename, mimetype, size, origina
 */
 async function removeWithReplies(boardUid, number) {
   let deletedFiles = 0;
-  const [files] = await connection.db.execute({
+  const [files] = await connection.sql.execute({
     sql: `SELECT filename FROM files
       INNER JOIN posts on files.postUid = posts.uid
       WHERE boardUid = ? AND (number = ? OR parent = ?)`,
@@ -175,7 +175,7 @@ async function removeWithReplies(boardUid, number) {
       deletedFiles++;
     }));
   }
-  const [{ affectedRows, }] = await connection.db.execute({
+  const [{ affectedRows, }] = await connection.sql.execute({
     sql: "DELETE from posts WHERE boardUid = ? AND (number = ? OR parent = ?)",
     values: [boardUid, number, number],
   });
@@ -186,7 +186,7 @@ async function removeWithReplies(boardUid, number) {
  * @returns { Array<Post> } 
 */
 async function getThreads(boardUid) {
-  const [threads] = await connection.db.execute({
+  const [threads] = await connection.sql.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND parent = 0 ${threadOrder}`,
     values: [boardUid], nestTables: true,
@@ -198,7 +198,7 @@ async function getThreads(boardUid) {
  * @returns { Post } 
 */
 async function getThread(boardUid, number) {
-  const [thread] = await connection.db.execute({
+  const [thread] = await connection.sql.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND number = ? AND parent = 0`,
     values: [boardUid, number], nestTables: true,
@@ -210,7 +210,7 @@ async function getThread(boardUid, number) {
  * @returns { Array<Post> } 
 */
 async function getThreadReplies(boardUid, number) {
-  const [thread] = await connection.db.execute({
+  const [thread] = await connection.sql.execute({
     sql: `SELECT ${safePost}, ${safeFile} FROM posts ${joinPostFiles}
       WHERE boardUid = ? AND parent = ? ${replyOrder}`,
     values: [boardUid, number], nestTables: true,
@@ -224,7 +224,7 @@ async function getThreadReplies(boardUid, number) {
  * @returns { false } if thread does not exist
 */
 async function threadAllowsReplies(boardUid, number) {
-  const [thread] = await connection.db.execute({
+  const [thread] = await connection.sql.execute({
     sql: `SELECT number FROM posts
       WHERE boardUid = ? AND number = ? AND parent = 0 AND locked = false`,
     values: [boardUid, number],
@@ -234,7 +234,7 @@ async function threadAllowsReplies(boardUid, number) {
 }
 
 async function getThreadFileCount(boardUid, number) {
-  const [thread] = await connection.db.execute({
+  const [thread] = await connection.sql.execute({
     sql: `SELECT count(postUid) AS count FROM files
     INNER JOIN posts on posts.uid = files.postUid
     WHERE boardUid = ? AND (posts.parent = ? OR posts.number = ?)`,
@@ -244,7 +244,7 @@ async function getThreadFileCount(boardUid, number) {
 }
 
 async function getThreadCount(boardUid) {
-  const [num] = await connection.db.execute({
+  const [num] = await connection.sql.execute({
     sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUid = ? AND parent = 0",
     values: [boardUid],
   });
@@ -253,7 +253,7 @@ async function getThreadCount(boardUid) {
 }
 
 async function getReplyCount(boardUid, number) {
-  const [num] = await connection.db.execute({
+  const [num] = await connection.sql.execute({
     sql: "SELECT COUNT(uid) AS count FROM posts WHERE boardUid = ? AND parent = ?",
     values: [boardUid, number],
   });
@@ -262,7 +262,7 @@ async function getReplyCount(boardUid, number) {
 }
 
 async function getOldestThreadNumber(boardUid) {
-  const [oldest] = await connection.db.execute({
+  const [oldest] = await connection.sql.execute({
     sql: `SELECT number FROM posts WHERE parent = 0 AND boardUid = ? AND sticky = false
         ORDER BY lastBump ASC LIMIT 1;`,
     values: [boardUid],
@@ -272,7 +272,7 @@ async function getOldestThreadNumber(boardUid) {
 }
 
 async function getUid(boardUid, number) {
-  const [rows] = await connection.db.execute({
+  const [rows] = await connection.sql.execute({
     sql: "SELECT uid FROM posts WHERE number = ? AND boardUid = ?",
     values: [number, boardUid],
   });
@@ -281,7 +281,7 @@ async function getUid(boardUid, number) {
 }
 
 async function bumpPost(boardUid, number) {
-  const [res] = await connection.db.query({
+  const [res] = await connection.sql.query({
     sql: "UPDATE posts SET lastBump = ? WHERE boardUid = ? AND number = ? AND parent = 0",
     values: [new Date(Date.now()), boardUid, number],
   });

@@ -4,7 +4,6 @@ const multipart = require("./multipart");
 const redis = require("./redis");
 const memstore = require("./memstore");
 const validation = require("./validation");
-const logger = require("./logger");
 
 module.exports = {
   files,
@@ -13,5 +12,4 @@ module.exports = {
   redis,
   memstore,
   validation,
-  logger,
 };

@@ -1,4 +1,4 @@
-const connection = require("../db/connection");
+const connection = require("../persistent/db");
 
 async function createCooldown(ip, board, seconds) {
   await connection.mem.hSet(ip, board, Date.now() + seconds * 1000);

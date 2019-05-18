@@ -1,4 +1,4 @@
-const connection = require("../api/db/connection");
+const connection = require("../api/persistent/db");
 
 const sqls = [
   `CREATE TABLE IF NOT EXISTS boards (
@@ -136,7 +136,7 @@ async function init() {
   console.log("Initializing tables");
   for (const sql of sqls) {
     try {
-      await connection.db.query(sql);
+      await connection.sql.query(sql);
     } catch(error) {
       throw `Error initializing tables ${error}`;
     }

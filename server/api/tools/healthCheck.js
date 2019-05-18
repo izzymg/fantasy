@@ -1,4 +1,4 @@
-const dbConnection = require("../db/connection");
+const db = require("../persistent/db");
 const config = require("../../config/config");
 const fs = require("fs");
 const util = require("util");
@@ -32,14 +32,14 @@ module.exports = async function(onEvent, onWarning, onError) {
   }
 
   try {
-    const conn = await dbConnection.db.getConnection();
+    const conn = await db.sql.getConnection();
     await conn.ping();
     ev("DB connection pinged successfully");
   } catch(error) {
     err(`Failed to connect to SQL database: ${error}`);
   }
   try {
-    await dbConnection.mem.ping();
+    await db.mem.ping();
     ev("Redis pinged successfully");
   } catch(error) {
     err(`Failed to ping redis: ${error}`);
