@@ -10,7 +10,7 @@ const validationError = (message) => ({ status: 400, message, });
  * @returns { null } If okay
  * 
 */
-exports.lengthCheck = function(str, max, name) {
+function lengthCheck(str, max, name) {
   if (!str) {
     return null;
   }
@@ -29,7 +29,7 @@ exports.lengthCheck = function(str, max, name) {
   }
 
   return null;
-};
+}
 
 /**
  * Sanitizes dangerous HTML elements out of str
@@ -37,7 +37,7 @@ exports.lengthCheck = function(str, max, name) {
  * @returns { string } Sanitized string
  * @returns { null } Null if str was invalid
 */
-exports.sanitize = function(str) {
+function sanitize(str) {
   if(!str) return null;
   str = str.trim();
   if (!str) {
@@ -51,9 +51,16 @@ exports.sanitize = function(str) {
     .replace(/>/g, "&gt;")
     .replace(/\r\n/g, "\n")
     .replace(/\n{2,}/g, "\n\n");
-};
+}
 
-exports.formatNameContent = function(name, tripAlg, tripSalt) {
+/**
+ * Formats a post name, processing tripcode text
+ * @param { string } name
+ * @param { string } tripAlg Supported crypto hmac algorithm for tripcodes 
+ * @param { string } tripSalt Salt used for algorithm 
+ * @returns { string } Formatted name
+*/
+function formatNameContent(name, tripAlg, tripSalt) {
   if(!name || typeof name !== "string") {
     return null;
   }
@@ -67,9 +74,14 @@ exports.formatNameContent = function(name, tripAlg, tripSalt) {
     exports.sanitize(trip.digest("base64")) + "</span>";
   }
   return name;
-};
+}
 
-exports.formatPostContent = function(content) {
+/**
+ * Formats a post content, processing quotes, newlines, etc
+ * @param { string } content Post content
+ * @returns { string } content Formatted post content 
+*/
+function formatPostContent(content) {
   if (!content || typeof content !== "string") {
     return null;
   }
@@ -84,4 +96,11 @@ exports.formatPostContent = function(content) {
     .replace(/\n/g, "<br>")
     .replace(/&gt;([^<]+)/gm, "<span class='quote'>>$1</span>");
   return content;
+}
+
+module.exports = {
+  lengthCheck,
+  sanitize,
+  formatNameContent,
+  formatPostContent,
 };
