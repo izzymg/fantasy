@@ -1,16 +1,16 @@
 const db = require("../persistent/db");
 
 /**
- * @typedef {object} Board
- * @property {string} uid
- * @property {string} title
- * @property {string} about
- * @property {boolean} sfw
- * @property {number} bumpLimit
- * @property {number} fileLimit
- * @property {number} maxThreads
- * @property {number} cooldown
- * @property {Date} createdAt
+ * @typedef { object } Board
+ * @property { string } uid
+ * @property { string } title
+ * @property { string } about
+ * @property { boolean } sfw
+ * @property { number } bumpLimit
+ * @property { number } fileLimit
+ * @property { number } maxThreads
+ * @property { number } cooldown
+ * @property { Date } createdAt
  */
 
 const safeBoard = "uid, title, about, sfw, fileLimit, bumpLimit, maxThreads, cooldown";

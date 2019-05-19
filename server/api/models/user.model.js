@@ -2,9 +2,9 @@ const db = require("../persistent/db");
 
 /**
  * @typedef User
- * @property {string} username Username
- * @property {string} password Password hash
- * @property {Date} createdAt User created at
+ * @property { string } username Username
+ * @property { string } password Password hash
+ * @property { Date } createdAt User created at
  */
 
 /**

@@ -7,25 +7,25 @@ const postsJoin = "LEFT JOIN posts ON posts.uid = reports.postUid";
 
 /**
  * @typedef Report
- * @property {number} postUid
- * @property {Date} createdAt
- * @property {string} ip
- * @property {number} level
+ * @property { number } postUid
+ * @property { Date } createdAt
+ * @property { string } ip
+ * @property { number } level
 */
 
 /**
  * @typedef ReportLevel
- * @property {number} level
- * @property {string} description 
+ * @property { number } level
+ * @property { string } description 
 */
 
 /**
  * @typedef PostReport
- * @property {number} postUid
- * @property {Date} createdAt
- * @property {string} ip
- * @property {number} level
- * @property {number} number Post number
+ * @property { number } postUid
+ * @property { Date } createdAt
+ * @property { string } ip
+ * @property { number } level
+ * @property { number } number Post number
 */
 
 /** 

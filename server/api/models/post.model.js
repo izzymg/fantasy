@@ -20,29 +20,28 @@ const replyOrder = "ORDER BY number ASC, createdAt ASC";
 
 /**
  * @typedef File
- * @property {number} postUid
- * @property {string} filename
- * @property {string} mimetype
- * @property {string} originalName
- * @property {number} size
- * @property {string} hash
- * @property {string} tempPath
+ * @property { object }
+ * @property { string } filename
+ * @property { string } mimetype
+ * @property { string } originalName
+ * @property { number } size
+ * @property { string } hash
+ * @property { string } tempPath
 */
 
 /**
- * @typedef {object} Post
- * @property {number} uid Unique ID of post
- * @property {number} number Post number on board
- * @property {string} boardUid Board post is on
- * @property {number} parent 0 if thread post or ID of replied-to thread
- * @property {Date} lastBump Date the post was last bumped
- * @property {string} name
- * @property {string} subject
- * @property {string} content
- * @property {boolean} sticky Post is sticked to top of board
- * @property {boolean} locked Post cannot be replied to
- * @property {string} ip Poster's IP address
- * @property {Array<File>} files Array of post files
+ * @typedef { object } Post
+ * @property { number } uid Unique ID of post
+ * @property { number } number Post number on board
+ * @property { string } boardUid Board post is on
+ * @property { number } parent 0 if thread post or ID of replied-to thread
+ * @property { Date } lastBump Date the post was last bumped
+ * @property { string } name
+ * @property { string } subject
+ * @property { string } content
+ * @property { boolean } sticky Post is sticked to top of board
+ * @property { boolean } locked Post cannot be replied to
+ * @property { string } ip Poster's IP address
 */
 
 // Transform flat SQL left join post/file results into nested object data

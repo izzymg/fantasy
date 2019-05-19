@@ -40,7 +40,7 @@ async function createTestBoard({
 
 /**
  * Clears cooldowns on board
- * @param {number} uid Board's UID
+ * @param { number } uid Board's UID
 */
 async function clearCooldowns({ uid }) {
   await models.ip.deleteCooldown("127.0.0.1", uid);

@@ -2,12 +2,12 @@ const db = require("../persistent/db");
 
 /**
  * @typedef Ban
- * @property {number} uid
- * @property {string} ip
- * @property {string} boardUid
- * @property {boolean} allBoards
- * @property {Date} expires
- * @property {string} reason
+ * @property { number } uid
+ * @property { string } ip
+ * @property { string } boardUid
+ * @property { boolean } allBoards
+ * @property { Date } expires
+ * @property { string } reason
 */
 
 const safeBan = "uid, ip, boardUid, allBoards, expires, reason";
