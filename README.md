@@ -6,9 +6,6 @@ This is a modern imageboard/BBS focused on ease of development and modern user-e
 
 This git is setup as a monorepo for all fantasy related projects.
 
-Live instance: [https://fantasyvhs.net](https://fantasyvhs.net)
-
-
 ##### Features
 
 * Posting cooldowns
